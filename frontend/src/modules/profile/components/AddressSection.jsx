@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Alert, Button, Card, Spinner } from "react-bootstrap";
 import { ConfirmDialog } from "../../../shared/components/ConfirmDialog";
+import { MapPinIcon } from "../../../shared/components/Icons";
 import { useAddresses } from "../hooks/useAddresses";
 import { formatAddress } from "../utils/addressMapping";
 import { AddressForm } from "./AddressForm";
@@ -42,16 +43,35 @@ export function AddressSection() {
   }
 
   return (
-    <Card body>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="h5 mb-0">Địa chỉ giao hàng</h2>
+    <Card body className="border-0 shadow-sm rounded-4 p-4">
+      <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-2">
+        <div className="d-flex align-items-center gap-3">
+          <div
+            className="rounded-circle d-flex align-items-center justify-content-center"
+            style={{
+              width: 44,
+              height: 44,
+              backgroundColor: "#f0fdf4",
+              color: "var(--hf-primary)",
+            }}
+          >
+            <MapPinIcon size={22} />
+          </div>
+          <div>
+            <h2 className="h5 mb-1 fw-bold">Địa chỉ giao hàng</h2>
+            <p className="text-muted small mb-0">
+              Quản lý danh sách địa chỉ nhận món ăn của bạn.
+            </p>
+          </div>
+        </div>
         {state.addresses && !isFormOpen && (
           <Button
             variant="outline-primary"
             size="sm"
+            className="rounded-pill px-3"
             onClick={() => openForm(null)}
           >
-            Thêm địa chỉ
+            Thêm địa chỉ mới
           </Button>
         )}
       </div>

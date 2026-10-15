@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, Card, Spinner } from "react-bootstrap";
 import { useAuth } from "../../../app/provider/useAuth";
+import { UserIcon } from "../../../shared/components/Icons";
 import { profileApi } from "../api/profileApi";
 import { ProfileForm } from "./ProfileForm";
 import { ProfileSummary } from "./ProfileSummary";
@@ -42,11 +43,34 @@ export function PersonalInfoSection() {
   }
 
   return (
-    <Card body>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="h5 mb-0">Thông tin cá nhân</h2>
+    <Card body className="border-0 shadow-sm rounded-4 p-4">
+      <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-2">
+        <div className="d-flex align-items-center gap-3">
+          <div
+            className="rounded-circle d-flex align-items-center justify-content-center"
+            style={{
+              width: 44,
+              height: 44,
+              backgroundColor: "#f0fdf4",
+              color: "var(--hf-primary)",
+            }}
+          >
+            <UserIcon size={22} />
+          </div>
+          <div>
+            <h2 className="h5 mb-1 fw-bold">Thông tin cá nhân</h2>
+            <p className="text-muted small mb-0">
+              Quản lý họ tên, số điện thoại và địa chỉ email liên hệ của bạn.
+            </p>
+          </div>
+        </div>
         {profile && !isEditing && (
-          <Button variant="outline-primary" size="sm" onClick={startEditing}>
+          <Button
+            variant="outline-primary"
+            size="sm"
+            className="rounded-pill px-3"
+            onClick={startEditing}
+          >
             Chỉnh sửa
           </Button>
         )}
@@ -55,9 +79,11 @@ export function PersonalInfoSection() {
       {notice && <Alert variant="success">{notice}</Alert>}
       {loadError && <Alert variant="danger">{loadError}</Alert>}
       {!profile && !loadError && (
-        <Spinner animation="border" size="sm" role="status">
-          <span className="visually-hidden">Đang tải...</span>
-        </Spinner>
+        <div className="text-center py-4">
+          <Spinner animation="border" size="sm" role="status">
+            <span className="visually-hidden">Đang tải...</span>
+          </Spinner>
+        </div>
       )}
       {profile && !isEditing && <ProfileSummary profile={profile} />}
       {profile && isEditing && (

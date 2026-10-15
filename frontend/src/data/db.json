@@ -2,7 +2,7 @@
   "users": [
     {
       "id": 1,
-      "fullName": "Khách Hàng Mẫu",
+      "fullName": "Nguyen Van Example",
       "email": "customer@healthy.vn",
       "phone": "0900000001",
       "password": "Passw123",
@@ -111,9 +111,9 @@
       "id": 2
     },
     {
-      "token": "9be1cdbf-06e7-451d-9a61-47a1285ff2a6",
+      "token": "1dbd7a16-b1b9-4392-8334-3fb6e4eaebe7",
       "userId": 1,
-      "createdAt": "2026-10-15T00:46:41.228Z",
+      "createdAt": "2026-10-15T01:15:38.591Z",
       "id": 3
     }
   ]

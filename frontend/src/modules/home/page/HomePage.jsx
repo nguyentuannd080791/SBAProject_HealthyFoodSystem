@@ -1,5 +1,5 @@
 // src/modules/home/pages/HomePage.jsx
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Alert } from "react-bootstrap";
 import { HeroBanner } from "../components/HeroBanner";
 import { FeaturedMealList } from "../components/FeaturedMealList";

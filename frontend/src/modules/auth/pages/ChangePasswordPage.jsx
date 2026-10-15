@@ -1,40 +1,17 @@
-import { useState } from "react";
-import { Card } from "react-bootstrap";
-import { authApi } from "../api/authApi";
-import { ChangePasswordForm } from "../components/ChangePasswordForm";
-
-const changedNotice = "Đổi mật khẩu thành công.";
+import { Navigate } from "react-router";
+import { useAuth } from "../../../app/provider/useAuth";
+import { ChangePasswordSection } from "../components/ChangePasswordSection";
 
 export function ChangePasswordPage() {
-  const [formKey, setFormKey] = useState(0);
-  const [notice, setNotice] = useState("");
-  const [submitError, setSubmitError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();
 
-  async function handleSubmit(values) {
-    setNotice("");
-    setSubmitError("");
-    setIsSubmitting(true);
-    const result = await authApi.changePassword(
-      values.currentPassword,
-      values.newPassword,
-    );
-    setIsSubmitting(false);
-    if (result.error) return setSubmitError(result.error);
-    setNotice(changedNotice);
-    setFormKey(formKey + 1);
+  if (user?.role === "customer") {
+    return <Navigate to="/profile?tab=password" replace />;
   }
 
   return (
-    <Card body className="mx-auto" style={{ maxWidth: 480 }}>
-      <h2 className="h5 mb-3">Đổi mật khẩu</h2>
-      <ChangePasswordForm
-        key={formKey}
-        onSubmit={handleSubmit}
-        notice={notice}
-        submitError={submitError}
-        isSubmitting={isSubmitting}
-      />
-    </Card>
+    <div className="mx-auto py-3" style={{ maxWidth: 560 }}>
+      <ChangePasswordSection />
+    </div>
   );
 }
