@@ -59,6 +59,16 @@
       "status": "active",
       "emailVerified": true,
       "id": 6
+    },
+    {
+      "fullName": "Tran Van Teo",
+      "email": "teonguyen1@gmail.com",
+      "phone": "0192736151",
+      "password": "A12345678",
+      "role": "customer",
+      "status": "active",
+      "emailVerified": false,
+      "id": 7
     }
   ],
   "verificationTokens": [
@@ -68,6 +78,13 @@
       "expiresAt": "2026-10-14T15:24:08.742Z",
       "used": true,
       "id": 1
+    },
+    {
+      "userId": 7,
+      "code": "359679",
+      "expiresAt": "2026-10-14T15:43:31.042Z",
+      "used": false,
+      "id": 2
     }
   ],
   "passwordResetTokens": [
@@ -94,9 +111,9 @@
       "id": 2
     },
     {
-      "token": "e13d91e8-0798-437e-a82e-da347958b05a",
-      "userId": 6,
-      "createdAt": "2026-10-14T15:09:52.016Z",
+      "token": "9be1cdbf-06e7-451d-9a61-47a1285ff2a6",
+      "userId": 1,
+      "createdAt": "2026-10-15T00:46:41.228Z",
       "id": 3
     }
   ]
