@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Alert, Button, Card, Col, Image, Row, Table } from "react-bootstrap";
 import { Link } from "react-router";
 import { QuantityControl } from "../../../shared/components/QuantityControl";
@@ -8,7 +7,6 @@ import { useCart } from "../hooks/useCart";
 export function CartPage() {
   const { items, updateQuantity, removeFromCart, clearCart, totalItems,
     totalPrice, totalCalories, storageError } = useCart();
-  const [showCheckoutNotice, setShowCheckoutNotice] = useState(false);
 
   return (
     <>
@@ -59,11 +57,7 @@ export function CartPage() {
               <div className="d-flex justify-content-between mb-3"><span>Tổng tiền</span><strong>{formatCurrency(totalPrice)}</strong></div>
               <div className="d-flex justify-content-between gap-2 mb-3"><span>Tổng Calories dự tính</span><strong className="text-success text-nowrap">{totalCalories.toLocaleString("vi-VN")} kcal</strong></div>
               <p className="small text-muted">Dinh dưỡng được ước tính theo khẩu phần. Giá chưa bao gồm phí giao hàng.</p>
-              <Button className="w-100" onClick={() => setShowCheckoutNotice(true)}>Thanh toán</Button>
-              {showCheckoutNotice && <Alert variant="info" className="mt-3 mb-0" dismissible
-                onClose={() => setShowCheckoutNotice(false)}>
-                Chức năng thanh toán đang được phát triển. Giỏ hàng của bạn vẫn được giữ lại; chưa có đơn hàng hay giao dịch nào được tạo.
-              </Alert>}
+              <Button as={Link} to="/checkout" className="w-100">Tiến hành thanh toán</Button>
             </Card>
           </Col>
         </Row>
