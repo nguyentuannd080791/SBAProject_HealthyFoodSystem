@@ -30,7 +30,10 @@ export function UserMenu() {
       <CartBadge />
       <span>{user.fullName}</span>
       {user.role === "manager" && <Link to="/manager">Quản lý cửa hàng</Link>}
-      {user.role === "customer" && <Link to="/profile">Hồ sơ</Link>}
+      {user.role === "customer" && <>
+        <Link to="/orders">Đơn hàng</Link>
+        <Link to="/profile">Hồ sơ</Link>
+      </>}
       {user.role === "administrator" && <Link to="/admin">Quản trị</Link>}
       <Link to="/change-password">Đổi mật khẩu</Link>
       <Button variant="outline-primary" size="sm" onClick={handleLogout}>
