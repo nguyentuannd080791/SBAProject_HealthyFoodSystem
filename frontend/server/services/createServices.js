@@ -1,4 +1,5 @@
 import { createAddressService } from './addressService.js'
+import { createAdminService } from './adminService.js'
 import { createPasswordService } from './passwordService.js'
 import { createProfileService } from './profileService.js'
 import { createRegistrationService } from './registrationService.js'
@@ -11,5 +12,6 @@ export function createServices(repositories) {
     passwords: createPasswordService(repositories),
     profile: createProfileService(repositories),
     addresses: createAddressService(repositories),
+    admin: createAdminService(repositories),
   }
 }

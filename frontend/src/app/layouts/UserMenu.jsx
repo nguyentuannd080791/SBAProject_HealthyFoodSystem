@@ -25,10 +25,12 @@ export function UserMenu() {
     <div className="d-flex align-items-center gap-3">
       <span>{user.fullName}</span>
       {user.role === "customer" && <Link to="/profile">Hồ sơ</Link>}
+      {user.role === "administrator" && <Link to="/admin">Quản trị</Link>}
       <Link to="/change-password">Đổi mật khẩu</Link>
       <Button variant="outline-primary" size="sm" onClick={handleLogout}>
         Đăng xuất
       </Button>
     </div>
+
   );
 }

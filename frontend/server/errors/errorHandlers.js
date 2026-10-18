@@ -4,7 +4,8 @@ export function notFoundHandler(request, response) {
   response.status(404).json({ message: 'Không tìm thấy đường dẫn.' })
 }
 
-export function errorHandler(error, request, response, next) {
+export function errorHandler(error, request, response, _next) {
+
   if (error instanceof HttpError) {
     return response.status(error.status).json({ message: error.message })
   }
