@@ -69,3 +69,25 @@ export function validateAddressBody(body) {
     city: validateRequired(toText(body.city), 'Vui lòng nhập tỉnh/thành phố.'),
   })
 }
+
+export function validateCreateInternalAccountBody(body) {
+  ensureNoErrors({
+    fullName: validateFullName(toText(body.fullName)),
+    email: validateEmail(toText(body.email)),
+    phone: validatePhone(toText(body.phone)),
+    password: validateRequired(toText(body.password), 'Vui lòng nhập mật khẩu.'),
+  })
+  if (toText(body.password).length < 6) {
+    throw new HttpError(400, 'Mật khẩu phải có ít nhất 6 ký tự.')
+  }
+}
+
+export function validateUpdateUserBody(body) {
+  if (body.fullName !== undefined) {
+    ensureNoErrors({ fullName: validateFullName(toText(body.fullName)) })
+  }
+  if (body.phone !== undefined && body.phone) {
+    ensureNoErrors({ phone: validatePhone(toText(body.phone)) })
+  }
+}
+

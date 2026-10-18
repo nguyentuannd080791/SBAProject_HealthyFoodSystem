@@ -8,6 +8,9 @@ export function createUserRepository(db) {
     findById(userId) {
       return table().getById(userId).value() ?? null
     },
+    findAll() {
+      return table().value() ?? []
+    },
     create(user) {
       return table().insert(user).write()
     },

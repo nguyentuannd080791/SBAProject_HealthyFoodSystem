@@ -4,7 +4,7 @@
       "id": 1,
       "fullName": "Nguyen Van Example",
       "email": "customer@healthy.vn",
-      "phone": "0900000001",
+      "phone": "0900000009",
       "password": "Passw123",
       "role": "customer",
       "status": "active",
@@ -61,13 +61,13 @@
       "id": 6
     },
     {
-      "fullName": "Tran Van Teo",
-      "email": "teonguyen1@gmail.com",
-      "phone": "0192736151",
-      "password": "A12345678",
-      "role": "customer",
+      "fullName": "Đào Duy Ngọc",
+      "email": "daongocit230378@gmail.com",
+      "phone": "0888831213",
+      "password": "123456",
+      "role": "staff",
       "status": "active",
-      "emailVerified": false,
+      "emailVerified": true,
       "id": 7
     }
   ],
@@ -115,6 +115,30 @@
       "userId": 1,
       "createdAt": "2026-10-15T01:15:38.591Z",
       "id": 3
+    },
+    {
+      "token": "57bd5097-39ac-4982-9d8a-ba56f061120c",
+      "userId": 4,
+      "createdAt": "2026-10-18T05:16:37.728Z",
+      "id": 4
+    },
+    {
+      "token": "6c5ee2f5-821b-467a-b638-e147a7c51695",
+      "userId": 1,
+      "createdAt": "2026-10-18T05:16:37.762Z",
+      "id": 5
+    },
+    {
+      "token": "849594e3-43af-46d6-b010-5a5869d55a4a",
+      "userId": 4,
+      "createdAt": "2026-10-18T05:27:05.834Z",
+      "id": 6
+    },
+    {
+      "token": "1b551302-fa69-4612-8d5e-c9da95ade6b4",
+      "userId": 4,
+      "createdAt": "2026-10-18T05:40:35.394Z",
+      "id": 7
     }
   ]
 }
