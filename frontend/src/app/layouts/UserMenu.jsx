@@ -22,8 +22,9 @@ export function UserMenu() {
   }
 
   return (
-    <div className="d-flex align-items-center gap-3">
+    <div className="d-flex align-items-center flex-wrap gap-3">
       <span>{user.fullName}</span>
+      {user.role === "manager" && <Link to="/manager">Quản lý cửa hàng</Link>}
       {user.role === "customer" && <Link to="/profile">Hồ sơ</Link>}
       {user.role === "administrator" && <Link to="/admin">Quản trị</Link>}
       <Link to="/change-password">Đổi mật khẩu</Link>
