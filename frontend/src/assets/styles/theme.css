@@ -39,6 +39,65 @@ h1, h2, h3, h4, h5, h6, .navbar-brand {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
+.add-to-cart-modal .modal-content {
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 1rem 3rem rgb(15 23 42 / 18%);
+}
+
+.add-to-cart-modal .modal-header,
+.add-to-cart-modal .modal-footer {
+  padding: 1.25rem 1.5rem;
+}
+
+.add-to-cart-modal .modal-body {
+  padding: 1.5rem;
+}
+
+.add-to-cart-product {
+  background: #f6fbf4;
+}
+
+.add-to-cart-product-image {
+  width: 104px;
+  height: 88px;
+  flex: 0 0 auto;
+  object-fit: cover;
+}
+
+.add-to-cart-product-info {
+  min-width: 0;
+}
+
+.add-to-cart-total {
+  background: #eef8ef;
+  border: 1px solid #d7ead9;
+}
+
+.add-to-cart-footer .btn {
+  min-width: 150px;
+}
+
+@media (max-width: 575.98px) {
+  .add-to-cart-modal {
+    margin: 0.75rem;
+  }
+
+  .add-to-cart-modal .modal-header,
+  .add-to-cart-modal .modal-body,
+  .add-to-cart-modal .modal-footer {
+    padding: 1rem;
+  }
+
+  .add-to-cart-footer {
+    flex-direction: column-reverse;
+  }
+
+  .add-to-cart-footer .btn {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }

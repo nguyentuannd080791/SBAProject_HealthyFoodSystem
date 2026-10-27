@@ -1,5 +1,5 @@
 const roleHomePaths = {
-  customer: "/",
+  customer: "/menu",
   staff: "/staff",
   manager: "/manager",
   administrator: "/admin",

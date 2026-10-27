@@ -10,6 +10,7 @@ import {
 } from "../../shared/components/Icons";
 import { getRoleLabel, getUserInitials } from "../../shared/utils/roleUtils";
 import { useAuth } from "../provider/useAuth";
+import { CartBadge } from "../../modules/cart/components/CartBadge";
 
 export function UserMenu() {
   const { user, logout } = useAuth();
@@ -23,20 +24,33 @@ export function UserMenu() {
 
   if (!user) {
     return (
-      <Button
-        as={Link}
-        to="/login"
-        variant="outline-primary"
-        size="sm"
-        className="d-inline-flex align-items-center gap-2 rounded-pill px-3 py-1"
-      >
-        <LogInIcon size={16} />
-        <span>Đăng nhập</span>
-      </Button>
+      <div className="d-flex align-items-center gap-3 py-2 py-lg-0">
+        <CartBadge />
+        <Nav.Link as={Link} to="/login">
+          Đăng nhập
+        </Nav.Link>
+      </div>
     );
   }
 
-  const initials = getUserInitials(user.fullName);
+  return (
+    <div className="d-flex flex-wrap align-items-center gap-3 py-2 py-lg-0">
+      <CartBadge />
+      <span>{user.fullName}</span>
+      {user.role === "manager" && <Link to="/manager">Quản lý cửa hàng</Link>}
+      {user.role === "customer" && (
+        <>
+          <Link to="/orders">Đơn hàng</Link>
+          <Link to="/profile">Hồ sơ</Link>
+        </>
+      )}
+      {user.role === "administrator" && <Link to="/admin">Quản trị</Link>}
+      <Link to="/change-password">Đổi mật khẩu</Link>
+      <Button variant="outline-primary" size="sm" onClick={handleLogout}>
+        Đăng xuất
+      </Button>
+    </div>
+  );
 
   return (
     <Dropdown align="end" className="d-inline-block">
@@ -81,7 +95,11 @@ export function UserMenu() {
 
         <Dropdown.Item
           as={Link}
-          to={user.role === "customer" ? "/profile?tab=password" : "/change-password"}
+          to={
+            user.role === "customer"
+              ? "/profile?tab=password"
+              : "/change-password"
+          }
         >
           <LockIcon size={16} className="text-secondary" />
           <span>Đổi mật khẩu</span>

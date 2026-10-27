@@ -1,15 +1,17 @@
 package com.project.healthyfoodsystem.module.auth.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.List;
 
 @Entity
+@Table(name = "[users]")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class UserInfo {
+@Getter
+@Setter
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -25,4 +27,15 @@ public class UserInfo {
     private String hashPassword;
 
     private String roles;
+
+    @OneToMany(mappedBy = "user")
+    private List<RefreshToken> refreshTokens;
+
+    public User(Integer id, String fullName, String email, String hashPassword, String roles) {
+        this.id = id;
+        this.fullName = fullName;
+        this.email = email;
+        this.hashPassword = hashPassword;
+        this.roles = roles;
+    }
 }
