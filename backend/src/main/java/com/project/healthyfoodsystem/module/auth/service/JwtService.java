@@ -30,11 +30,15 @@ public class JwtService {
         this.accessTokenExpiration = accessTokenExpiration;
     }
 
+    public long getAccessTokenExpiration() {
+        return accessTokenExpiration;
+    }
+
     public String generateToken(String username) {
         return generateToken(new HashMap<>(), username);
     }
 
-    private String generateToken(Map<String, Object> extraClaims, String username) {
+    public String generateToken(Map<String, Object> extraClaims, String username) {
         Instant now = Instant.now();
         return Jwts.builder()
                 .claims(extraClaims)
@@ -72,7 +76,7 @@ public class JwtService {
 
     private boolean isTokenValid(String token, UserDetails userDetails) {
         Claims claims = extractAllClaims(token);
-        return claims.getSubject().equals(userDetails.getUsername())
+        return claims.getSubject().equalsIgnoreCase(userDetails.getUsername())
                 && claims.getExpiration().after(new Date());
     }
 }

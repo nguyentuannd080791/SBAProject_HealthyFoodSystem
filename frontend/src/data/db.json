@@ -7,7 +7,7 @@
       "phone": "0900000009",
       "password": "Passw123",
       "role": "customer",
-      "status": "active",
+      "status": "inactive",
       "emailVerified": true
     },
     {
@@ -145,6 +145,12 @@
       "userId": 1,
       "createdAt": "2026-10-18T14:59:07.096Z",
       "id": 8
+    },
+    {
+      "token": "2a2712ae-f009-464c-9e92-46865e677a55",
+      "userId": 1,
+      "createdAt": "2026-10-27T03:31:45.897Z",
+      "id": 9
     }
   ]
 }

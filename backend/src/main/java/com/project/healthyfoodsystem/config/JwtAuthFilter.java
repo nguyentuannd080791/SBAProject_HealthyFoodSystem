@@ -59,6 +59,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         } catch (JwtException | IllegalArgumentException | UsernameNotFoundException ex) {
+            log.debug("JWT authentication skipped/failed: {}", ex.getMessage());
+            SecurityContextHolder.clearContext();
+        } catch (Exception ex) {
+            log.warn("Unexpected authentication filter issue: {}", ex.getMessage());
             SecurityContextHolder.clearContext();
         }
 
