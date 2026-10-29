@@ -1,4 +1,5 @@
 import { categories } from '../data/seed.js';
+import { parseQuantity } from '../utils/productQuantity.js';
 
 export function validImage(value) {
   if (!value) return true;
@@ -12,6 +13,7 @@ export function validateProduct(values) {
   if (!categories.includes(values.category)) errors.category = 'Vui lòng chọn danh mục.';
   if (!values.description.trim() || values.description.length > 2000) errors.description = 'Mô tả cần từ 1 đến 2.000 ký tự.';
   if (String(values.price).trim() === '' || !Number.isSafeInteger(Number(values.price)) || Number(values.price) <= 0 || Number(values.price) > 100000000) errors.price = 'Giá phải là số nguyên từ 1 đến 100.000.000 đồng.';
+  if (parseQuantity(values.quantity) === null) errors.quantity = 'Số lượng phải là số nguyên từ 0 đến 2.147.483.647.';
   if (!validImage(values.image.trim())) errors.image = 'Dùng URL http/https hoặc ảnh PNG, JPG, WebP.';
   return errors;
 }
