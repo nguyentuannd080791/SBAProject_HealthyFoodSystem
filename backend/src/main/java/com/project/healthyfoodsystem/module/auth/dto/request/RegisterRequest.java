@@ -28,6 +28,6 @@ public class RegisterRequest {
     private String phone;
 
     @NotBlank(message = "Vui lòng nhập mật khẩu.")
-    @Size(min = 6, max = 72, message = "Mật khẩu phải từ 6 đến 72 ký tự.")
+    @Size(min = 6, max = 32, message = "Mật khẩu phải từ 6 đến 32 ký tự.")
     private String password;
 }

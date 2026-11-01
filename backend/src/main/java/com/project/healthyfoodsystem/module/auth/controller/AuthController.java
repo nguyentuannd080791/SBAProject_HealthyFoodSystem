@@ -5,7 +5,9 @@ import com.project.healthyfoodsystem.module.auth.dto.request.RefreshTokenRequest
 import com.project.healthyfoodsystem.module.auth.dto.request.RegisterRequest;
 import com.project.healthyfoodsystem.module.auth.dto.response.AuthResponse;
 import com.project.healthyfoodsystem.module.auth.dto.response.RegisterResponse;
+import com.project.healthyfoodsystem.module.auth.dto.response.UserDto;
 import com.project.healthyfoodsystem.module.auth.entity.RefreshToken;
+import com.project.healthyfoodsystem.module.auth.entity.User;
 import com.project.healthyfoodsystem.module.auth.entity.UserInfoDetails;
 import com.project.healthyfoodsystem.module.auth.service.JwtService;
 import com.project.healthyfoodsystem.module.auth.service.RefreshTokenService;
@@ -54,7 +56,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest) {
+    public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
         String normalizedEmail = loginRequest.getEmail().trim().toLowerCase();
 
         Authentication authentication = authenticationManager.authenticate(
@@ -62,17 +64,29 @@ public class AuthController {
         );
 
         if (authentication.isAuthenticated()) {
-            String accessToken = jwtService.generateToken(normalizedEmail);
+            UserInfoDetails userInfoDetails = (UserInfoDetails) authentication.getPrincipal();
+
+            String roleName = userInfoDetails.getRole();
+            String accessToken = jwtService.generateToken(normalizedEmail, roleName);
             String refreshToken = refreshTokenService.createRefreshToken(normalizedEmail);
 
             ResponseCookie accessCookie = createCookie("access_token", accessToken, jwtService.getAccessTokenExpiration());
             ResponseCookie refreshCookie = createCookie("refresh_token", refreshToken, refreshTokenDurationMs / 1000);
 
-            UserInfoDetails userInfoDetails = (UserInfoDetails) authentication.getPrincipal();
+            UserDto userDto = UserDto.builder()
+                    .id(userInfoDetails.getId())
+                    .fullName(userInfoDetails.getFullName())
+                    .email(userInfoDetails.getUsername())
+                    .phone(userInfoDetails.getPhone())
+                    .role(roleName)
+                    .status(userInfoDetails.getStatus())
+                    .build();
+
             AuthResponse response = AuthResponse.builder()
                     .fullName(userInfoDetails.getFullName())
                     .token(accessToken)
                     .refreshToken(refreshToken)
+                    .user(userDto)
                     .build();
 
             return ResponseEntity.ok()
@@ -91,7 +105,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(
+    public ResponseEntity<AuthResponse> refreshToken(
             @CookieValue(name = "refresh_token", required = false) String cookieRefreshToken,
             @RequestBody(required = false) RefreshTokenRequest requestBody
     ) {
@@ -101,21 +115,33 @@ public class AuthController {
         }
 
         RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(token);
-        String newAccessToken = jwtService.generateToken(newRefreshToken.getUser().getEmail());
+        User user = newRefreshToken.getUser();
+        String roleName = user.getRoleName();
+        String newAccessToken = jwtService.generateToken(user.getEmail(), roleName);
 
         ResponseCookie accessCookie = createCookie("access_token", newAccessToken, jwtService.getAccessTokenExpiration());
         ResponseCookie refreshCookie = createCookie("refresh_token", newRefreshToken.getToken(), refreshTokenDurationMs / 1000);
 
+        UserDto userDto = UserDto.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .role(roleName)
+                .status(user.getStatus())
+                .build();
+
         AuthResponse response = AuthResponse.builder()
-                .fullName(newRefreshToken.getUser().getFullName())
+                .fullName(user.getFullName())
                 .token(newAccessToken)
                 .refreshToken(newRefreshToken.getToken())
+                .user(userDto)
                 .build();
 
         return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                    .body(response);
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(response);
     }
 
     @PostMapping("/logout")

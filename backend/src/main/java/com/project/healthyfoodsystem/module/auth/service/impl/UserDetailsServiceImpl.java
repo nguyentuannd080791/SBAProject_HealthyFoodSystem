@@ -2,11 +2,13 @@ package com.project.healthyfoodsystem.module.auth.service.impl;
 
 import com.project.healthyfoodsystem.module.auth.dto.request.RegisterRequest;
 import com.project.healthyfoodsystem.module.auth.dto.response.RegisterResponse;
+import com.project.healthyfoodsystem.module.auth.entity.Role;
 import com.project.healthyfoodsystem.module.auth.entity.User;
 import com.project.healthyfoodsystem.module.auth.entity.UserInfoDetails;
+import com.project.healthyfoodsystem.module.auth.repository.RoleRepository;
 import com.project.healthyfoodsystem.module.auth.repository.UserRepository;
 import com.project.healthyfoodsystem.module.exception.EmailAlreadyExistsException;
-import org.springframework.context.annotation.Lazy;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,15 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository repository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder encoder;
-
-    public UserDetailsServiceImpl(UserRepository repository, @Lazy PasswordEncoder encoder) {
-        this.repository = repository;
-        this.encoder = encoder;
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -43,12 +42,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new EmailAlreadyExistsException("Email đã được đăng ký: " + normalizedEmail);
         }
 
+        Role customerRole = roleRepository.findByNameIgnoreCase("CUSTOMER")
+                .orElseGet(() -> roleRepository.save(
+                        Role.builder()
+                                .name("CUSTOMER")
+                                .description("Khách hàng")
+                                .build()
+                ));
+
         User user = User.builder()
                 .fullName(register.getFullName().trim())
                 .email(normalizedEmail)
                 .phone(register.getPhone() != null ? register.getPhone().trim() : "")
                 .hashPassword(encoder.encode(register.getPassword()))
-                .roles("customer")
+                .role(customerRole)
                 .status("active")
                 .build();
 

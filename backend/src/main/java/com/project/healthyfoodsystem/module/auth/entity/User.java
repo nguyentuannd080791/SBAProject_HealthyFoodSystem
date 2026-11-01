@@ -33,9 +33,9 @@ public class User {
     @Builder.Default
     private String phone = "";
 
-    @Column(name = "roles", nullable = false, length = 50)
-    @Builder.Default
-    private String roles = "customer";
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private Role role;
 
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
@@ -43,4 +43,8 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RefreshToken> refreshTokens;
+
+    public String getRoleName() {
+        return role != null && role.getName() != null ? role.getName() : "CUSTOMER";
+    }
 }
