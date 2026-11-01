@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/change-password").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/user/**").hasAnyAuthority("ROLE_USER", "ROLE_CUSTOMER", "ROLE_MANAGER", "ROLE_ADMIN", "ROLE_ADMINISTRATOR")
                         .requestMatchers("/api/manager/**").hasAnyAuthority("ROLE_MANAGER", "ROLE_ADMIN", "ROLE_ADMINISTRATOR")

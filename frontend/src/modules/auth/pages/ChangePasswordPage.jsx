@@ -5,7 +5,7 @@ import { ChangePasswordSection } from "../components/ChangePasswordSection";
 export function ChangePasswordPage() {
   const { user } = useAuth();
 
-  if (user?.role === "customer") {
+  if ((user?.role || "").toLowerCase() === "customer") {
     return <Navigate to="/profile?tab=password" replace />;
   }
 

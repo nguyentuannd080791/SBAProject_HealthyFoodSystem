@@ -1,5 +1,6 @@
 package com.project.healthyfoodsystem.module.auth.controller;
 
+import com.project.healthyfoodsystem.module.auth.dto.request.ChangePasswordRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.LoginRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.RefreshTokenRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.RegisterRequest;
@@ -13,6 +14,7 @@ import com.project.healthyfoodsystem.module.auth.service.JwtService;
 import com.project.healthyfoodsystem.module.auth.service.RefreshTokenService;
 import com.project.healthyfoodsystem.module.auth.service.impl.UserDetailsServiceImpl;
 import com.project.healthyfoodsystem.module.exception.TokenException;
+import com.project.healthyfoodsystem.module.exception.UnauthorizedException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -163,6 +165,18 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, cleanAccessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, cleanRefreshCookie.toString())
                 .body(Map.of("message", "Logged out successfully"));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            Authentication authentication,
+            @RequestBody @Valid ChangePasswordRequest request
+    ) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            throw new UnauthorizedException("Vui lòng đăng nhập để đổi mật khẩu.");
+        }
+        service.changePassword(authentication.getName(), request);
+        return ResponseEntity.ok(Map.of("message", "Đổi mật khẩu thành công."));
     }
 
     private String resolveToken(String cookieToken, RefreshTokenRequest requestBody) {
