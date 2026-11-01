@@ -4,6 +4,7 @@ import com.project.healthyfoodsystem.module.auth.dto.request.LoginRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.RefreshTokenRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.RegisterRequest;
 import com.project.healthyfoodsystem.module.auth.dto.response.AuthResponse;
+import com.project.healthyfoodsystem.module.auth.dto.response.RegisterResponse;
 import com.project.healthyfoodsystem.module.auth.entity.RefreshToken;
 import com.project.healthyfoodsystem.module.auth.entity.UserInfoDetails;
 import com.project.healthyfoodsystem.module.auth.service.JwtService;
@@ -84,9 +85,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest registerRequest) {
-        service.register(registerRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "User registered successfully"));
+    public ResponseEntity<RegisterResponse> register(@RequestBody @Valid RegisterRequest registerRequest) {
+        RegisterResponse response = service.register(registerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/refresh")
@@ -112,9 +113,9 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(response);
+                    .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                    .body(response);
     }
 
     @PostMapping("/logout")

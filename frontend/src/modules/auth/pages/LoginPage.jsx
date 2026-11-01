@@ -37,9 +37,6 @@ export function LoginPage() {
       <p className="mt-1 mb-0 text-center">
         Chưa có tài khoản? <Link to="/register">Đăng ký</Link>
       </p>
-      <p className="mt-1 mb-0 text-center">
-        <Link to="/verify-email">Xác thực email</Link>
-      </p>
     </Card>
   );
 }
