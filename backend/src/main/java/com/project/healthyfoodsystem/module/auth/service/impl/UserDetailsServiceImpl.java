@@ -1,6 +1,7 @@
 package com.project.healthyfoodsystem.module.auth.service.impl;
 
 import com.project.healthyfoodsystem.module.auth.dto.request.RegisterRequest;
+import com.project.healthyfoodsystem.module.auth.dto.response.RegisterResponse;
 import com.project.healthyfoodsystem.module.auth.entity.User;
 import com.project.healthyfoodsystem.module.auth.entity.UserInfoDetails;
 import com.project.healthyfoodsystem.module.auth.repository.UserRepository;
@@ -36,19 +37,27 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Transactional
-    public void register(RegisterRequest register) {
+    public RegisterResponse register(RegisterRequest register) {
         String normalizedEmail = register.getEmail().trim().toLowerCase();
         if (repository.findByEmail(normalizedEmail).isPresent()) {
-            throw new EmailAlreadyExistsException("Email already exists: " + normalizedEmail);
+            throw new EmailAlreadyExistsException("Email đã được đăng ký: " + normalizedEmail);
         }
 
-        User user = new User(
-                null,
-                register.getFullName().trim(),
-                normalizedEmail,
-                encoder.encode(register.getPassword()),
-                "ROLE_USER");
+        User user = User.builder()
+                .fullName(register.getFullName().trim())
+                .email(normalizedEmail)
+                .phone(register.getPhone() != null ? register.getPhone().trim() : "")
+                .hashPassword(encoder.encode(register.getPassword()))
+                .roles("customer")
+                .status("active")
+                .build();
 
         repository.save(user);
+
+        return RegisterResponse.builder()
+                .message("Đăng ký tài khoản thành công")
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .build();
     }
 }

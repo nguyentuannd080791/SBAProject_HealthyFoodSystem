@@ -15,7 +15,9 @@ export function RegisterPage() {
     const result = await authApi.register(values);
     setIsSubmitting(false);
     if (result.error) return setSubmitError(result.error);
-    navigate("/verify-email", { state: { email: result.data.email } });
+    navigate("/login", {
+      state: { notice: "Đăng ký tài khoản thành công! Vui lòng đăng nhập." },
+    });
   }
 
   return (
