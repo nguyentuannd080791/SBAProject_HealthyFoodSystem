@@ -5,11 +5,15 @@ import com.project.healthyfoodsystem.module.auth.dto.request.RefreshTokenRequest
 import com.project.healthyfoodsystem.module.auth.dto.request.RegisterRequest;
 import com.project.healthyfoodsystem.module.auth.dto.response.AuthResponse;
 import com.project.healthyfoodsystem.module.auth.dto.response.RegisterResponse;
+import com.project.healthyfoodsystem.module.auth.dto.response.UserSessionDto;
 import com.project.healthyfoodsystem.module.auth.entity.RefreshToken;
+import com.project.healthyfoodsystem.module.auth.entity.User;
 import com.project.healthyfoodsystem.module.auth.entity.UserInfoDetails;
+import com.project.healthyfoodsystem.module.auth.repository.UserRepository;
 import com.project.healthyfoodsystem.module.auth.service.JwtService;
 import com.project.healthyfoodsystem.module.auth.service.RefreshTokenService;
 import com.project.healthyfoodsystem.module.auth.service.impl.UserDetailsServiceImpl;
+import com.project.healthyfoodsystem.module.exception.AppException;
 import com.project.healthyfoodsystem.module.exception.TokenException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,13 +31,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping({"/api/auth", "/auth"})
 public class AuthController {
 
     private final UserDetailsServiceImpl service;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
     private final long refreshTokenDurationMs;
     private final boolean cookieSecure;
 
@@ -42,6 +47,7 @@ public class AuthController {
             JwtService jwtService,
             RefreshTokenService refreshTokenService,
             AuthenticationManager authenticationManager,
+            UserRepository userRepository,
             @Value("${REFRESH_TOKEN_EXPIRATION:604800000}") long refreshTokenDurationMs,
             @Value("${COOKIE_SECURE:false}") boolean cookieSecure
     ) {
@@ -49,13 +55,29 @@ public class AuthController {
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
         this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
         this.refreshTokenDurationMs = refreshTokenDurationMs;
         this.cookieSecure = cookieSecure;
+    }
+
+    private String toFrontendRole(String dbRole) {
+        if (dbRole == null) return "customer";
+        String normalized = dbRole.toUpperCase().trim();
+        if (normalized.contains("ADMIN")) return "administrator";
+        if (normalized.contains("MANAGER")) return "manager";
+        if (normalized.contains("STAFF")) return "staff";
+        if (normalized.contains("DELIVERY")) return "delivery_partner";
+        return "customer";
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest) {
         String normalizedEmail = loginRequest.getEmail().trim().toLowerCase();
+
+        User user = userRepository.findByEmail(normalizedEmail).orElse(null);
+        if (user != null && "inactive".equalsIgnoreCase(user.getStatus())) {
+            throw new AppException(HttpStatus.FORBIDDEN, "Tài khoản đã bị tạm khóa. Vui lòng liên hệ quản trị viên.");
+        }
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(normalizedEmail, loginRequest.getPassword())
@@ -69,10 +91,19 @@ public class AuthController {
             ResponseCookie refreshCookie = createCookie("refresh_token", refreshToken, refreshTokenDurationMs / 1000);
 
             UserInfoDetails userInfoDetails = (UserInfoDetails) authentication.getPrincipal();
+
+            UserSessionDto sessionUser = UserSessionDto.builder()
+                    .id(user != null ? user.getId() : null)
+                    .fullName(userInfoDetails.getFullName())
+                    .email(userInfoDetails.getUsername())
+                    .role(user != null ? toFrontendRole(user.getRoles()) : "customer")
+                    .build();
+
             AuthResponse response = AuthResponse.builder()
                     .fullName(userInfoDetails.getFullName())
                     .token(accessToken)
                     .refreshToken(refreshToken)
+                    .user(sessionUser)
                     .build();
 
             return ResponseEntity.ok()
@@ -106,16 +137,25 @@ public class AuthController {
         ResponseCookie accessCookie = createCookie("access_token", newAccessToken, jwtService.getAccessTokenExpiration());
         ResponseCookie refreshCookie = createCookie("refresh_token", newRefreshToken.getToken(), refreshTokenDurationMs / 1000);
 
+        User user = newRefreshToken.getUser();
+        UserSessionDto sessionUser = UserSessionDto.builder()
+                .id(user != null ? user.getId() : null)
+                .fullName(user != null ? user.getFullName() : "")
+                .email(user != null ? user.getEmail() : "")
+                .role(user != null ? toFrontendRole(user.getRoles()) : "customer")
+                .build();
+
         AuthResponse response = AuthResponse.builder()
                 .fullName(newRefreshToken.getUser().getFullName())
                 .token(newAccessToken)
                 .refreshToken(newRefreshToken.getToken())
+                .user(sessionUser)
                 .build();
 
         return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                    .body(response);
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(response);
     }
 
     @PostMapping("/logout")
