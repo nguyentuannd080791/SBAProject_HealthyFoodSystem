@@ -1,5 +1,6 @@
 package com.project.healthyfoodsystem.config;
 
+import com.project.healthyfoodsystem.module.auth.constant.RoleConstants;
 import com.project.healthyfoodsystem.module.auth.entity.Role;
 import com.project.healthyfoodsystem.module.auth.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +18,11 @@ public class RoleDataInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
 
     private static final Map<String, String> DEFAULT_ROLES = Map.of(
-            "CUSTOMER", "Khách hàng sử dụng dịch vụ",
-            "STAFF", "Nhân viên chế biến / đóng gói",
-            "MANAGER", "Quản lý cửa hàng và thực đơn",
-            "ADMINISTRATOR", "Quản trị viên hệ thống",
-            "DELIVERY_PARTNER", "Đối tác giao hàng"
+            RoleConstants.CUSTOMER, "Khách hàng sử dụng dịch vụ",
+            RoleConstants.STAFF, "Nhân viên chế biến / đóng gói",
+            RoleConstants.MANAGER, "Quản lý cửa hàng và thực đơn",
+            RoleConstants.ADMINISTRATOR, "Quản trị viên hệ thống",
+            RoleConstants.DELIVERY_PARTNER, "Đối tác giao hàng"
     );
 
     @Override

@@ -1,5 +1,6 @@
 package com.project.healthyfoodsystem.config;
 
+import com.project.healthyfoodsystem.module.auth.constant.RoleConstants;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,9 +43,21 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/change-password").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/user/**").hasAnyAuthority("ROLE_USER", "ROLE_CUSTOMER", "ROLE_MANAGER", "ROLE_ADMIN", "ROLE_ADMINISTRATOR")
-                        .requestMatchers("/api/manager/**").hasAnyAuthority("ROLE_MANAGER", "ROLE_ADMIN", "ROLE_ADMINISTRATOR")
-                        .requestMatchers("/api/admin/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_ADMINISTRATOR")
+                        .requestMatchers("/api/user/**").hasAnyAuthority(
+                                RoleConstants.ROLE_PREFIX + RoleConstants.CUSTOMER,
+                                RoleConstants.ROLE_PREFIX + RoleConstants.MANAGER,
+                                RoleConstants.ROLE_PREFIX + RoleConstants.ADMINISTRATOR,
+                                "ROLE_USER", "ROLE_ADMIN"
+                        )
+                        .requestMatchers("/api/manager/**").hasAnyAuthority(
+                                RoleConstants.ROLE_PREFIX + RoleConstants.MANAGER,
+                                RoleConstants.ROLE_PREFIX + RoleConstants.ADMINISTRATOR,
+                                "ROLE_ADMIN"
+                        )
+                        .requestMatchers("/api/admin/**").hasAnyAuthority(
+                                RoleConstants.ROLE_PREFIX + RoleConstants.ADMINISTRATOR,
+                                "ROLE_ADMIN"
+                        )
                         .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

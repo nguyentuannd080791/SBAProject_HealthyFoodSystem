@@ -1,13 +1,16 @@
 package com.project.healthyfoodsystem.module.auth.dto.response;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserDto {
     private Integer id;
     private String fullName;
@@ -16,4 +19,3 @@ public class UserDto {
     private String role;
     private String status;
 }
-

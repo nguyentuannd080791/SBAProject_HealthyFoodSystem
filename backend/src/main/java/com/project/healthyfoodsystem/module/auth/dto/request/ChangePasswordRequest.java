@@ -2,14 +2,17 @@ package com.project.healthyfoodsystem.module.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ChangePasswordRequest {
 
     @NotBlank(message = "Vui lòng nhập mật khẩu hiện tại.")
@@ -19,4 +22,3 @@ public class ChangePasswordRequest {
     @Size(min = 6, max = 72, message = "Mật khẩu mới phải từ 6 đến 72 ký tự.")
     private String newPassword;
 }
-

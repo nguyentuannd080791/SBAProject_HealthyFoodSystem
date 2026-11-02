@@ -1,5 +1,6 @@
 package com.project.healthyfoodsystem.module.auth.entity;
 
+import com.project.healthyfoodsystem.module.auth.constant.RoleConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,10 +30,10 @@ public class UserInfoDetails implements UserDetails {
         this.username = user.getEmail();
         this.phone = user.getPhone();
         this.role = user.getRoleName();
-        this.status = user.getStatus() != null ? user.getStatus() : "active";
+        this.status = user.getStatus() != null ? user.getStatus() : UserStatus.ACTIVE.getValue();
         this.password = user.getHashPassword();
 
-        String authority = this.role.startsWith("ROLE_") ? this.role : "ROLE_" + this.role;
+        String authority = RoleConstants.toAuthority(this.role);
         this.authorities = List.of(new SimpleGrantedAuthority(authority));
     }
 
@@ -58,7 +59,8 @@ public class UserInfoDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !"inactive".equalsIgnoreCase(status);
+        return !UserStatus.INACTIVE.getValue().equalsIgnoreCase(status)
+                && !UserStatus.LOCKED.getValue().equalsIgnoreCase(status);
     }
 
     @Override
@@ -68,6 +70,6 @@ public class UserInfoDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return !"inactive".equalsIgnoreCase(status);
+        return !UserStatus.INACTIVE.getValue().equalsIgnoreCase(status);
     }
 }

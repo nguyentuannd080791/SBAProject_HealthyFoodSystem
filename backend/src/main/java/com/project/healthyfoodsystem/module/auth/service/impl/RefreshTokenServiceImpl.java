@@ -35,7 +35,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public String createRefreshToken(String email) {
-        String normalizedEmail = email.trim().toLowerCase();
+        String normalizedEmail = email == null ? "" : email.trim().toLowerCase();
         User user = userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + normalizedEmail));
 
@@ -47,33 +47,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 .build();
 
         refreshTokenRepository.save(refreshToken);
-
         return refreshToken.getToken();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public RefreshToken verifyRefreshToken(String token) {
-        if (token == null || token.isBlank()) {
-            throw new TokenException("Refresh token is required");
-        }
-
-        RefreshToken refreshToken = refreshTokenRepository.findByTokenWithUser(token)
-                .orElseThrow(() -> new TokenException("Refresh token not found"));
-        return verifyExpiration(refreshToken);
-    }
-
-    @Override
-    @Transactional
-    public RefreshToken verifyExpiration(RefreshToken token) {
-        if (token.isRevoked()) {
-            throw new TokenException("Refresh token was revoked. Please sign in again.");
-        }
-        if (token.getExpiryDate().isBefore(Instant.now())) {
-            refreshTokenRepository.delete(token);
-            throw new TokenException("Refresh token has expired. Please sign in again.");
-        }
-        return token;
     }
 
     @Override
@@ -97,11 +71,9 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             throw new TokenException("Refresh token has expired. Please sign in again.");
         }
 
-        // Revoke the old token
         oldToken.setRevoked(true);
         refreshTokenRepository.save(oldToken);
 
-        // Issue a new token for the user
         RefreshToken newToken = RefreshToken.builder()
                 .user(oldToken.getUser())
                 .token(UUID.randomUUID().toString())
@@ -126,7 +98,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public void revokeAllUserTokens(String email) {
-        String normalizedEmail = email.trim().toLowerCase();
+        String normalizedEmail = email == null ? "" : email.trim().toLowerCase();
         userRepository.findByEmail(normalizedEmail).ifPresent(refreshTokenRepository::revokeAllByUser);
     }
 }

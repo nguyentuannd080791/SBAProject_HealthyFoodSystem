@@ -4,14 +4,17 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class RegisterRequest {
 
     @NotBlank(message = "Vui lòng nhập họ và tên.")
@@ -28,6 +31,6 @@ public class RegisterRequest {
     private String phone;
 
     @NotBlank(message = "Vui lòng nhập mật khẩu.")
-    @Size(min = 6, max = 32, message = "Mật khẩu phải từ 6 đến 32 ký tự.")
+    @Size(min = 6, max = 72, message = "Mật khẩu phải từ 6 đến 72 ký tự.")
     private String password;
 }

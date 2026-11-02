@@ -1,21 +1,12 @@
 package com.project.healthyfoodsystem.module.auth.service.impl;
 
-import com.project.healthyfoodsystem.module.auth.dto.request.ChangePasswordRequest;
-import com.project.healthyfoodsystem.module.auth.dto.request.RegisterRequest;
-import com.project.healthyfoodsystem.module.auth.dto.response.RegisterResponse;
-import com.project.healthyfoodsystem.module.auth.entity.Role;
 import com.project.healthyfoodsystem.module.auth.entity.User;
 import com.project.healthyfoodsystem.module.auth.entity.UserInfoDetails;
-import com.project.healthyfoodsystem.module.auth.repository.RoleRepository;
 import com.project.healthyfoodsystem.module.auth.repository.UserRepository;
-import com.project.healthyfoodsystem.module.exception.BadRequestException;
-import com.project.healthyfoodsystem.module.exception.EmailAlreadyExistsException;
-import com.project.healthyfoodsystem.module.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,8 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository repository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder encoder;
 
     @Override
     @Transactional(readOnly = true)
@@ -36,57 +25,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         );
 
         return new UserInfoDetails(user);
-    }
-
-    @Transactional
-    public RegisterResponse register(RegisterRequest register) {
-        String normalizedEmail = register.getEmail().trim().toLowerCase();
-        if (repository.findByEmail(normalizedEmail).isPresent()) {
-            throw new EmailAlreadyExistsException("Email đã được đăng ký: " + normalizedEmail);
-        }
-
-        Role customerRole = roleRepository.findByNameIgnoreCase("CUSTOMER")
-                .orElseGet(() -> roleRepository.save(
-                        Role.builder()
-                                .name("CUSTOMER")
-                                .description("Khách hàng")
-                                .build()
-                ));
-
-        User user = User.builder()
-                .fullName(register.getFullName().trim())
-                .email(normalizedEmail)
-                .phone(register.getPhone() != null ? register.getPhone().trim() : "")
-                .hashPassword(encoder.encode(register.getPassword()))
-                .role(customerRole)
-                .status("active")
-                .build();
-
-        repository.save(user);
-
-        return RegisterResponse.builder()
-                .message("Đăng ký tài khoản thành công")
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .build();
-    }
-
-    @Transactional
-    public void changePassword(String email, ChangePasswordRequest request) {
-        String normalizedEmail = email == null ? "" : email.trim().toLowerCase();
-        User user = repository.findByEmail(normalizedEmail).orElseThrow(
-                () -> new ResourceNotFoundException("Không tìm thấy tài khoản người dùng.")
-        );
-
-        if (!encoder.matches(request.getCurrentPassword(), user.getHashPassword())) {
-            throw new BadRequestException("Mật khẩu hiện tại không chính xác.");
-        }
-
-        if (request.getCurrentPassword().equals(request.getNewPassword())) {
-            throw new BadRequestException("Mật khẩu mới không được trùng với mật khẩu hiện tại.");
-        }
-
-        user.setHashPassword(encoder.encode(request.getNewPassword()));
-        repository.save(user);
     }
 }
