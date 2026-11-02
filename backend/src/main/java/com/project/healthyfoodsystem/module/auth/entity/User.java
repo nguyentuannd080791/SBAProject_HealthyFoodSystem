@@ -10,32 +10,38 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Getter
 @Setter
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Integer id;
 
-    @Column(name = "full_name", nullable = false)
+    @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true, length = 150)
     private String email;
 
     @Column(name = "hash_password", nullable = false)
     private String hashPassword;
 
-    private String roles;
+    @Column(name = "phone", nullable = false, length = 20)
+    @Builder.Default
+    private String phone = "";
 
-    @Column(name = "phone")
-    private String phone;
+    @Column(name = "roles", nullable = false, length = 50)
+    @Builder.Default
+    private String roles = "customer";
 
-    @Column(name = "status")
+    @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
     private String status = "active";
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RefreshToken> refreshTokens;
 
     public User(Integer id, String fullName, String email, String hashPassword, String roles) {
@@ -44,6 +50,7 @@ public class User {
         this.email = email;
         this.hashPassword = hashPassword;
         this.roles = roles;
+        this.phone = "";
         this.status = "active";
     }
 
@@ -53,7 +60,7 @@ public class User {
         this.email = email;
         this.hashPassword = hashPassword;
         this.roles = roles;
-        this.phone = phone;
+        this.phone = phone != null ? phone : "";
         this.status = status != null ? status : "active";
     }
 }

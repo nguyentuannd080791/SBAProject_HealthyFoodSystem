@@ -26,10 +26,16 @@ public class UserInfoDetails implements UserDetails {
         this.fullName = user.getFullName();
         this.username = user.getEmail();
         this.password = user.getHashPassword();
-        this.authorities = Arrays.stream(user.getRoles().split(","))
-                .map(String::trim)
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        if (user.getRoles() == null || user.getRoles().isBlank()) {
+            this.authorities = Collections.emptyList();
+        } else {
+            this.authorities = Arrays.stream(user.getRoles().split(","))
+                    .map(String::trim)
+                    .filter(role -> !role.isEmpty())
+                    .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override

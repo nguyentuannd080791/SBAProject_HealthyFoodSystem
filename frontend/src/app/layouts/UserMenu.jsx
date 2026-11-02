@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { Button, Dropdown } from "react-bootstrap";
+import { Button, Dropdown, Nav } from "react-bootstrap";
 import { authApi } from "../../modules/auth/api/authApi";
 import {
   ChevronDownIcon,
@@ -24,12 +24,12 @@ export function UserMenu() {
 
   if (!user) {
     return (
-      <div className="d-flex align-items-center gap-3 py-2 py-lg-0">
+      <Nav className="d-flex align-items-center gap-3 py-2 py-lg-0">
         <CartBadge />
         <Nav.Link as={Link} to="/login">
           Đăng nhập
         </Nav.Link>
-      </div>
+      </Nav>
     );
   }
 
