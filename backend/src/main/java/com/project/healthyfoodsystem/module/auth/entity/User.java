@@ -9,6 +9,7 @@ import java.util.List;
 @Table(name = "[users]")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 public class User {
@@ -28,6 +29,12 @@ public class User {
 
     private String roles;
 
+    @Column(name = "phone")
+    private String phone;
+
+    @Column(name = "status")
+    private String status = "active";
+
     @OneToMany(mappedBy = "user")
     private List<RefreshToken> refreshTokens;
 
@@ -37,5 +44,16 @@ public class User {
         this.email = email;
         this.hashPassword = hashPassword;
         this.roles = roles;
+        this.status = "active";
+    }
+
+    public User(Integer id, String fullName, String email, String hashPassword, String roles, String phone, String status) {
+        this.id = id;
+        this.fullName = fullName;
+        this.email = email;
+        this.hashPassword = hashPassword;
+        this.roles = roles;
+        this.phone = phone;
+        this.status = status != null ? status : "active";
     }
 }

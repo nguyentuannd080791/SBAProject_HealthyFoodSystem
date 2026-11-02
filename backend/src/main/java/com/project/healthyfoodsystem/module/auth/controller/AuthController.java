@@ -3,14 +3,19 @@ package com.project.healthyfoodsystem.module.auth.controller;
 import com.project.healthyfoodsystem.module.auth.dto.request.LoginRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.RegisterRequest;
 import com.project.healthyfoodsystem.module.auth.dto.response.AuthResponse;
+import com.project.healthyfoodsystem.module.auth.dto.response.UserSessionDto;
 import com.project.healthyfoodsystem.module.auth.entity.RefreshToken;
+import com.project.healthyfoodsystem.module.auth.entity.User;
 import com.project.healthyfoodsystem.module.auth.entity.UserInfoDetails;
+import com.project.healthyfoodsystem.module.auth.repository.UserRepository;
 import com.project.healthyfoodsystem.module.auth.service.JwtService;
 import com.project.healthyfoodsystem.module.auth.service.RefreshTokenService;
 import com.project.healthyfoodsystem.module.auth.service.impl.UserDetailsServiceImpl;
+import com.project.healthyfoodsystem.module.exception.AppException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,16 +26,32 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping({"/api/auth", "/auth"})
 public class AuthController {
 
     private final UserDetailsServiceImpl service;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+
+    private String toFrontendRole(String dbRole) {
+        if (dbRole == null) return "customer";
+        String normalized = dbRole.toUpperCase().trim();
+        if (normalized.contains("ADMIN")) return "administrator";
+        if (normalized.contains("MANAGER")) return "manager";
+        if (normalized.contains("STAFF")) return "staff";
+        if (normalized.contains("DELIVERY")) return "delivery_partner";
+        return "customer";
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest) {
+        User user = userRepository.findByEmail(loginRequest.getEmail()).orElse(null);
+        if (user != null && "inactive".equalsIgnoreCase(user.getStatus())) {
+            throw new AppException(HttpStatus.FORBIDDEN, "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.");
+        }
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
@@ -56,10 +77,19 @@ public class AuthController {
                     .build();
 
             UserInfoDetails userInfoDetails = (UserInfoDetails) authentication.getPrincipal();
+
+            UserSessionDto sessionUser = UserSessionDto.builder()
+                    .id(user != null ? user.getId() : null)
+                    .fullName(userInfoDetails.getFullName())
+                    .email(userInfoDetails.getUsername())
+                    .role(user != null ? toFrontendRole(user.getRoles()) : "customer")
+                    .build();
+
             AuthResponse response = AuthResponse.builder()
                     .fullName(userInfoDetails.getFullName())
                     .token(accessToken)
                     .refreshToken(refreshToken)
+                    .user(sessionUser)
                     .build();
 
             return ResponseEntity.ok()
@@ -96,10 +126,19 @@ public class AuthController {
                 .sameSite("Lax")
                 .build();
 
+        User user = refreshToken.getUser();
+        UserSessionDto sessionUser = UserSessionDto.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .role(toFrontendRole(user.getRoles()))
+                .build();
+
         AuthResponse response = AuthResponse.builder()
                 .fullName(refreshToken.getUser().getFullName())
                 .token(newAccessToken)
                 .refreshToken(token)
+                .user(sessionUser)
                 .build();
 
         return ResponseEntity.ok()
