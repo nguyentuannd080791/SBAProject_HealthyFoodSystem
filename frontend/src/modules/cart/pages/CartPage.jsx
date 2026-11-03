@@ -6,12 +6,13 @@ import { useCart } from "../hooks/useCart";
 
 export function CartPage() {
   const { items, updateQuantity, removeFromCart, clearCart, totalItems,
-    totalPrice, totalCalories, storageError } = useCart();
+    totalPrice, totalCalories, storageError, cartError, isServerCart } = useCart();
 
   return (
     <>
       <h1 className="h2 mb-4">Giỏ hàng của bạn</h1>
       {storageError && <Alert variant="warning">{storageError}</Alert>}
+      {cartError && <Alert variant="danger">Không tải được giỏ hàng: {cartError}</Alert>}
       {items.length === 0 ? (
         <Card body className="text-center py-5 border-0 shadow-sm">
           <div className="display-4 mb-3" aria-hidden="true">🛒</div>
@@ -36,10 +37,10 @@ export function CartPage() {
                       <Link to={`/products/${item.id}`} className="fw-semibold">{item.name}</Link>
                     </div></td>
                     <td className="text-nowrap">{formatCurrency(item.price)}</td>
-                    <td><QuantityControl quantity={item.quantity} min={0} name={item.name}
+                    <td><QuantityControl quantity={item.quantity} min={0} name={item.name} disabled={isServerCart}
                       onChange={(quantity) => updateQuantity(item.id, quantity)} /></td>
                     <td className="text-nowrap fw-semibold">{formatCurrency(item.price * item.quantity)}</td>
-                    <td><Button variant="outline-danger" size="sm" aria-label={`Xóa ${item.name}`}
+                    <td><Button variant="outline-danger" size="sm" aria-label={`Xóa ${item.name}`} disabled={isServerCart}
                       onClick={() => removeFromCart(item.id)}>Xóa</Button></td>
                   </tr>
                 ))}</tbody>
@@ -47,7 +48,7 @@ export function CartPage() {
             </Card>
             <div className="d-flex flex-wrap justify-content-between gap-2 mt-3">
               <Button as={Link} to="/menu" variant="outline-primary">Tiếp tục chọn món</Button>
-              <Button variant="outline-danger" onClick={clearCart}>Làm rỗng giỏ hàng</Button>
+              <Button variant="outline-danger" onClick={clearCart} disabled={isServerCart}>Làm rỗng giỏ hàng</Button>
             </div>
           </Col>
           <Col lg={4}>
@@ -57,7 +58,8 @@ export function CartPage() {
               <div className="d-flex justify-content-between mb-3"><span>Tổng tiền</span><strong>{formatCurrency(totalPrice)}</strong></div>
               <div className="d-flex justify-content-between gap-2 mb-3"><span>Tổng Calories dự tính</span><strong className="text-success text-nowrap">{totalCalories.toLocaleString("vi-VN")} kcal</strong></div>
               <p className="small text-muted">Dinh dưỡng được ước tính theo khẩu phần. Giá chưa bao gồm phí giao hàng.</p>
-              <Button as={Link} to="/checkout" className="w-100">Tiến hành thanh toán</Button>
+              {isServerCart ? <Button disabled className="w-100">Tiến hành thanh toán</Button>
+                : <Button as={Link} to="/checkout" className="w-100">Tiến hành thanh toán</Button>}
             </Card>
           </Col>
         </Row>

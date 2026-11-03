@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { Badge, Button, Modal } from "react-bootstrap";
+import { Alert, Badge, Button, Modal } from "react-bootstrap";
 import { QuantityControl } from "../../../shared/components/QuantityControl";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 
-export function AddToCartDialog({ product, show, onHide, onConfirm }) {
+export function AddToCartDialog({ product, show, onHide, onConfirm, pending = false, error = "" }) {
   const [quantity, setQuantity] = useState(1);
 
   if (!product) return null;
 
   return (
-    <Modal show={show} onHide={onHide} onShow={() => setQuantity(1)}
+    <Modal show={show} onHide={pending ? undefined : onHide} onShow={() => setQuantity(1)}
       centered dialogClassName="add-to-cart-modal">
       <Modal.Header closeButton>
         <div>
@@ -18,6 +18,7 @@ export function AddToCartDialog({ product, show, onHide, onConfirm }) {
         </div>
       </Modal.Header>
       <Modal.Body>
+        {error && <Alert variant="danger">{error}</Alert>}
         <div className="add-to-cart-product d-flex align-items-center gap-3 p-3 rounded-3 mb-4">
           <img src={product.image} alt={product.name} className="add-to-cart-product-image rounded-3" />
           <div className="add-to-cart-product-info">
@@ -31,7 +32,7 @@ export function AddToCartDialog({ product, show, onHide, onConfirm }) {
             <p className="fw-semibold mb-1">Số lượng</p>
             <p className="small text-muted mb-0">Chọn số phần bạn muốn đặt</p>
           </div>
-          <QuantityControl quantity={quantity} onChange={setQuantity} name={product.name} />
+          <QuantityControl quantity={quantity} onChange={setQuantity} name={product.name} disabled={pending} />
         </div>
         <div className="add-to-cart-total d-flex align-items-center justify-content-between gap-3 rounded-3 p-3 mt-3">
           <div>
@@ -46,8 +47,10 @@ export function AddToCartDialog({ product, show, onHide, onConfirm }) {
         </div>
       </Modal.Body>
       <Modal.Footer className="add-to-cart-footer">
-        <Button variant="outline-secondary" onClick={onHide}>Tiếp tục xem món</Button>
-        <Button onClick={() => onConfirm(product, quantity)}>Xác nhận thêm</Button>
+        <Button variant="outline-secondary" onClick={onHide} disabled={pending}>Tiếp tục xem món</Button>
+        <Button onClick={() => onConfirm(product, quantity)} disabled={pending}>
+          {pending ? "Đang thêm…" : "Xác nhận thêm"}
+        </Button>
       </Modal.Footer>
     </Modal>
   );

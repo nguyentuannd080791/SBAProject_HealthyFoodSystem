@@ -12,7 +12,7 @@ function MacroBadge({ label, value }) {
   );
 }
 
-export function MealCard({ meal, onSelect }) {
+export function MealCard({ meal, onSelect, pending = false }) {
   return (
     <Card className="h-100 shadow-sm border-0 rounded-4 overflow-hidden">
       <div className="position-relative">
@@ -30,9 +30,9 @@ export function MealCard({ meal, onSelect }) {
               Bán chạy
             </Badge>
           )}
-          <Badge bg="dark" className="bg-opacity-75">
+          {meal.weightGrams > 0 && <Badge bg="dark" className="bg-opacity-75">
             {meal.weightGrams}g
-          </Badge>
+          </Badge>}
         </div>
         <Badge
           bg="success"
@@ -58,8 +58,8 @@ export function MealCard({ meal, onSelect }) {
           <span className="fs-5 fw-bold text-success">
             {meal.price.format()}
           </span>
-          <Button variant="success" size="sm" onClick={() => onSelect(meal)}>
-            + Chọn món
+          <Button variant="success" size="sm" onClick={() => onSelect(meal)} disabled={pending}>
+            {pending ? "Đang thêm…" : "+ Chọn món"}
           </Button>
         </div>
       </Card.Body>

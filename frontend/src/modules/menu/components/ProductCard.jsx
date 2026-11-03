@@ -9,9 +9,16 @@ export function ProductCard({ product }) {
   const { addToCart } = useCart();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [addedQuantity, setAddedQuantity] = useState(null);
+  const [pending, setPending] = useState(false);
+  const [addError, setAddError] = useState("");
 
-  function confirmAddToCart(selectedProduct, quantity) {
-    addToCart(selectedProduct, quantity);
+  async function confirmAddToCart(selectedProduct, quantity) {
+    if (pending) return;
+    setPending(true);
+    setAddError("");
+    const result = await addToCart(selectedProduct, quantity);
+    setPending(false);
+    if (result.error) return setAddError(result.error);
     setAddedQuantity(quantity);
     setShowAddDialog(false);
   }
@@ -33,8 +40,9 @@ export function ProductCard({ product }) {
           <p className="fs-5 fw-bold text-success">{formatCurrency(product.price)}</p>
           <div className="d-flex flex-wrap gap-2">
             <Button as={Link} to={`/products/${product.id}`} variant="outline-primary" size="sm">Xem chi tiết</Button>
-            <Button size="sm" onClick={() => setShowAddDialog(true)}>Thêm vào giỏ</Button>
+            <Button size="sm" onClick={() => setShowAddDialog(true)} disabled={pending}>Thêm vào giỏ</Button>
           </div>
+          {addError && <Alert variant="danger" className="small mt-3 mb-0">{addError}</Alert>}
           {addedQuantity !== null && <Alert variant="success" className="small mt-3 mb-0" dismissible
             onClose={() => setAddedQuantity(null)}>
             Đã thêm {addedQuantity} phần {product.name} vào giỏ.
@@ -42,7 +50,7 @@ export function ProductCard({ product }) {
         </div>
       </Card.Body>
       <AddToCartDialog product={product} show={showAddDialog}
-        onHide={() => setShowAddDialog(false)} onConfirm={confirmAddToCart} />
+        onHide={() => setShowAddDialog(false)} onConfirm={confirmAddToCart} pending={pending} error={addError} />
     </Card>
   );
 }
