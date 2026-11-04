@@ -166,6 +166,7 @@ public class AuthServiceImpl implements AuthService {
 
         user.changePassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+        refreshTokenService.revokeAllUserTokens(normalizedEmail);
     }
 
     private String normalizeEmail(String email) {

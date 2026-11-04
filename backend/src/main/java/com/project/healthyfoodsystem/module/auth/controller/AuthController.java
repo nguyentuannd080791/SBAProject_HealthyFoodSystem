@@ -125,7 +125,10 @@ public class AuthController {
         }
 
         authService.changePassword(authentication.getName(), request);
-        return ResponseEntity.ok(new MessageResponse("Đổi mật khẩu thành công."));
+        ResponseCookie cleanRefreshCookie = authCookieService.createCleanRefreshTokenCookie();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cleanRefreshCookie.toString())
+                .body(new MessageResponse("Đổi mật khẩu thành công."));
     }
 
     private String resolveToken(String cookieToken, RefreshTokenRequest requestBody) {
