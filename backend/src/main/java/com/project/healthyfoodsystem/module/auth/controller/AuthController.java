@@ -1,9 +1,11 @@
 package com.project.healthyfoodsystem.module.auth.controller;
 
 import com.project.healthyfoodsystem.module.auth.dto.request.ChangePasswordRequest;
+import com.project.healthyfoodsystem.module.auth.dto.request.ForgotPasswordRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.LoginRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.RefreshTokenRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.RegisterRequest;
+import com.project.healthyfoodsystem.module.auth.dto.request.ResetPasswordRequest;
 import com.project.healthyfoodsystem.module.auth.dto.response.AuthResponse;
 import com.project.healthyfoodsystem.module.auth.dto.response.MessageResponse;
 import com.project.healthyfoodsystem.module.auth.dto.response.RegisterResponse;
@@ -129,6 +131,18 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cleanRefreshCookie.toString())
                 .body(new MessageResponse("Đổi mật khẩu thành công."));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<MessageResponse> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ResponseEntity.ok(new MessageResponse("Mã xác thực đã được gửi tới email của bạn."));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<MessageResponse> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(new MessageResponse("Đặt lại mật khẩu thành công."));
     }
 
     private String resolveToken(String cookieToken, RefreshTokenRequest requestBody) {

@@ -2,8 +2,10 @@ package com.project.healthyfoodsystem.module.auth.service.impl;
 
 import com.project.healthyfoodsystem.module.auth.constant.RoleConstants;
 import com.project.healthyfoodsystem.module.auth.dto.request.ChangePasswordRequest;
+import com.project.healthyfoodsystem.module.auth.dto.request.ForgotPasswordRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.LoginRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.RegisterRequest;
+import com.project.healthyfoodsystem.module.auth.dto.request.ResetPasswordRequest;
 import com.project.healthyfoodsystem.module.auth.dto.response.AuthResponse;
 import com.project.healthyfoodsystem.module.auth.dto.response.RegisterResponse;
 import com.project.healthyfoodsystem.module.auth.dto.response.UserDto;
@@ -12,9 +14,12 @@ import com.project.healthyfoodsystem.module.auth.entity.Role;
 import com.project.healthyfoodsystem.module.auth.entity.User;
 import com.project.healthyfoodsystem.module.auth.entity.UserInfoDetails;
 import com.project.healthyfoodsystem.module.auth.entity.UserStatus;
+import com.project.healthyfoodsystem.module.auth.entity.UserToken;
 import com.project.healthyfoodsystem.module.auth.repository.RoleRepository;
 import com.project.healthyfoodsystem.module.auth.repository.UserRepository;
+import com.project.healthyfoodsystem.module.auth.repository.UserTokenRepository;
 import com.project.healthyfoodsystem.module.auth.service.AuthService;
+import com.project.healthyfoodsystem.module.auth.service.EmailService;
 import com.project.healthyfoodsystem.module.auth.service.JwtService;
 import com.project.healthyfoodsystem.module.auth.service.RefreshTokenService;
 import com.project.healthyfoodsystem.module.exception.BadRequestException;
@@ -31,15 +36,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
+    private static final String PURPOSE_PASSWORD_RESET = "PASSWORD_RESET";
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserTokenRepository userTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
 
     @Override
@@ -166,6 +181,60 @@ public class AuthServiceImpl implements AuthService {
 
         user.changePassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+        refreshTokenService.revokeAllUserTokens(normalizedEmail);
+    }
+
+    @Override
+    @Transactional
+    public void forgotPassword(ForgotPasswordRequest request) {
+        String normalizedEmail = normalizeEmail(request.getEmail());
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản với email: " + normalizedEmail));
+
+        List<UserToken> oldTokens = userTokenRepository.findByUserAndPurposeAndUsedAtIsNull(user, PURPOSE_PASSWORD_RESET);
+        for (UserToken oldToken : oldTokens) {
+            oldToken.setUsedAt(Instant.now());
+        }
+        userTokenRepository.saveAll(oldTokens);
+
+        String otpCode = String.format("%06d", SECURE_RANDOM.nextInt(1_000_000));
+
+        UserToken userToken = UserToken.builder()
+                .user(user)
+                .purpose(PURPOSE_PASSWORD_RESET)
+                .codeHash(passwordEncoder.encode(otpCode))
+                .expiresAt(Instant.now().plus(15, ChronoUnit.MINUTES))
+                .build();
+        userTokenRepository.save(userToken);
+
+        emailService.sendPasswordResetOtp(user.getEmail(), otpCode);
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        String normalizedEmail = normalizeEmail(request.getEmail());
+        User user = userRepository.findByEmail(normalizedEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản với email: " + normalizedEmail));
+
+        UserToken token = userTokenRepository
+                .findTopByUserAndPurposeAndUsedAtIsNullOrderByCreatedAtDesc(user, PURPOSE_PASSWORD_RESET)
+                .orElseThrow(() -> new BadRequestException("Mã xác thực không tồn tại hoặc đã được sử dụng."));
+
+        if (token.isExpired()) {
+            throw new BadRequestException("Mã xác thực đã hết hạn. Vui lòng yêu cầu mã mới.");
+        }
+
+        if (!passwordEncoder.matches(request.getCode().trim(), token.getCodeHash())) {
+            throw new BadRequestException("Mã xác thực không chính xác.");
+        }
+
+        token.setUsedAt(Instant.now());
+        userTokenRepository.save(token);
+
+        user.changePassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+
         refreshTokenService.revokeAllUserTokens(normalizedEmail);
     }
 
