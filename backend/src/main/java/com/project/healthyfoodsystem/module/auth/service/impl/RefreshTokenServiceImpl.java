@@ -12,7 +12,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.HexFormat;
 import java.util.UUID;
 
 @Service
@@ -35,45 +39,21 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public String createRefreshToken(String email) {
-        String normalizedEmail = email.trim().toLowerCase();
+        String normalizedEmail = email == null ? "" : email.trim().toLowerCase();
         User user = userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + normalizedEmail));
 
+        String rawToken = UUID.randomUUID().toString();
         RefreshToken refreshToken = RefreshToken.builder()
                 .user(user)
-                .token(UUID.randomUUID().toString())
+                .token(hashToken(rawToken))
+                .rawToken(rawToken)
                 .expiryDate(Instant.now().plusMillis(refreshTokenDuration))
                 .revoked(false)
                 .build();
 
         refreshTokenRepository.save(refreshToken);
-
-        return refreshToken.getToken();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public RefreshToken verifyRefreshToken(String token) {
-        if (token == null || token.isBlank()) {
-            throw new TokenException("Refresh token is required");
-        }
-
-        RefreshToken refreshToken = refreshTokenRepository.findByTokenWithUser(token)
-                .orElseThrow(() -> new TokenException("Refresh token not found"));
-        return verifyExpiration(refreshToken);
-    }
-
-    @Override
-    @Transactional
-    public RefreshToken verifyExpiration(RefreshToken token) {
-        if (token.isRevoked()) {
-            throw new TokenException("Refresh token was revoked. Please sign in again.");
-        }
-        if (token.getExpiryDate().isBefore(Instant.now())) {
-            refreshTokenRepository.delete(token);
-            throw new TokenException("Refresh token has expired. Please sign in again.");
-        }
-        return token;
+        return rawToken;
     }
 
     @Override
@@ -83,7 +63,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             throw new TokenException("Refresh token is required");
         }
 
-        RefreshToken oldToken = refreshTokenRepository.findByTokenWithUser(token)
+        String hashedToken = hashToken(token);
+        RefreshToken oldToken = refreshTokenRepository.findByTokenWithUser(hashedToken)
                 .orElseThrow(() -> new TokenException("Refresh token not found"));
 
         if (oldToken.isRevoked()) {
@@ -97,26 +78,28 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             throw new TokenException("Refresh token has expired. Please sign in again.");
         }
 
-        // Revoke the old token
         oldToken.setRevoked(true);
         refreshTokenRepository.save(oldToken);
 
-        // Issue a new token for the user
+        String newRawToken = UUID.randomUUID().toString();
         RefreshToken newToken = RefreshToken.builder()
                 .user(oldToken.getUser())
-                .token(UUID.randomUUID().toString())
+                .token(hashToken(newRawToken))
+                .rawToken(newRawToken)
                 .expiryDate(Instant.now().plusMillis(refreshTokenDuration))
                 .revoked(false)
                 .build();
 
-        return refreshTokenRepository.save(newToken);
+        RefreshToken savedToken = refreshTokenRepository.save(newToken);
+        savedToken.setRawToken(newRawToken);
+        return savedToken;
     }
 
     @Override
     @Transactional
     public void revokeToken(String token) {
         if (token != null && !token.isBlank()) {
-            refreshTokenRepository.findByToken(token).ifPresent(rt -> {
+            refreshTokenRepository.findByToken(hashToken(token)).ifPresent(rt -> {
                 rt.setRevoked(true);
                 refreshTokenRepository.save(rt);
             });
@@ -126,7 +109,20 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public void revokeAllUserTokens(String email) {
-        String normalizedEmail = email.trim().toLowerCase();
+        String normalizedEmail = email == null ? "" : email.trim().toLowerCase();
         userRepository.findByEmail(normalizedEmail).ifPresent(refreshTokenRepository::revokeAllByUser);
+    }
+
+    private String hashToken(String token) {
+        if (token == null || token.isBlank()) {
+            return "";
+        }
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.trim().getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 algorithm not available", e);
+        }
     }
 }

@@ -7,5 +7,8 @@ const roleHomePaths = {
 };
 
 export function getHomePath(role) {
-  return Object.hasOwn(roleHomePaths, role) ? roleHomePaths[role] : "/";
+  const normalized = (role || "").toLowerCase();
+  return Object.hasOwn(roleHomePaths, normalized)
+    ? roleHomePaths[normalized]
+    : "/";
 }

@@ -1,5 +1,6 @@
 package com.project.healthyfoodsystem.module.auth.entity;
 
+import com.project.healthyfoodsystem.module.auth.constant.RoleConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,35 +8,33 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 public class UserInfoDetails implements UserDetails {
+    private Integer id;
     private String fullName;
     private String username;
+    private String phone;
+    private String role;
+    private String status;
     private String password;
     private List<GrantedAuthority> authorities;
 
     public UserInfoDetails(User user) {
+        this.id = user.getId();
         this.fullName = user.getFullName();
         this.username = user.getEmail();
+        this.phone = user.getPhone();
+        this.role = user.getRoleName();
+        this.status = user.getStatus() != null ? user.getStatus() : UserStatus.ACTIVE.getValue();
         this.password = user.getHashPassword();
-        if (user.getRoles() == null || user.getRoles().isBlank()) {
-            this.authorities = Collections.emptyList();
-        } else {
-            this.authorities = Arrays.stream(user.getRoles().split(","))
-                    .map(String::trim)
-                    .filter(role -> !role.isEmpty())
-                    .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
-        }
+
+        String authority = RoleConstants.toAuthority(this.role);
+        this.authorities = List.of(new SimpleGrantedAuthority(authority));
     }
 
     @Override
@@ -60,7 +59,8 @@ public class UserInfoDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !UserStatus.INACTIVE.getValue().equalsIgnoreCase(status)
+                && !UserStatus.LOCKED.getValue().equalsIgnoreCase(status);
     }
 
     @Override
@@ -70,6 +70,6 @@ public class UserInfoDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return !UserStatus.INACTIVE.getValue().equalsIgnoreCase(status);
     }
 }
