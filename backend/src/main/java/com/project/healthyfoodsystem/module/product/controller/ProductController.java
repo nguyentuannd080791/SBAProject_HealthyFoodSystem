@@ -2,32 +2,42 @@ package com.project.healthyfoodsystem.module.product.controller;
 
 import com.project.healthyfoodsystem.module.product.dto.request.CreateProductRequest;
 import com.project.healthyfoodsystem.module.product.dto.response.ProductResponse;
+import com.project.healthyfoodsystem.module.product.model.Category;
 import com.project.healthyfoodsystem.module.product.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/manager/products")
 public class ProductController {
-    private final Optional<ProductService> productService;
+    private final ProductService productService;
 
-    public ProductController(Optional<ProductService> productService) {
+    public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
-    @PostMapping
-    public ResponseEntity<ProductResponse> create(@Valid @RequestBody CreateProductRequest request) {
-        if (productService.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-        }
-        ProductResponse created = productService.get().create(request);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductResponse> create(@Valid @ModelAttribute CreateProductRequest request) {
+        ProductResponse created = productService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ProductResponse>> list() {
+        return ResponseEntity.ok(productService.list());
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<Category>> categories() {
+        return ResponseEntity.ok(productService.categories());
     }
 }

@@ -1,8 +1,9 @@
 import { Navigate } from 'react-router';
 import { RequireRole } from '../RequireRole';
 import { ManagerLayout } from '../../../modules/manager/components/ManagerLayout';
-import { ProductListPage } from '../../../modules/manager/pages/ProductListPage';
+import { DatabaseProductListPage } from '../../../modules/manager/pages/DatabaseProductListPage';
 import { ProductEditorPage } from '../../../modules/manager/pages/ProductEditorPage';
+import { AddProductPage } from '../../../modules/manager/pages/AddProductPage';
 import { PromotionsPage } from '../../../modules/manager/pages/PromotionsPage';
 
 export const managerRoutes = [{
@@ -10,8 +11,8 @@ export const managerRoutes = [{
   element: <RequireRole roles={['manager']}><ManagerLayout /></RequireRole>,
   children: [
     { index: true, element: <Navigate to="products" replace /> },
-    { path: 'products', element: <ProductListPage /> },
-    { path: 'products/new', element: <ProductEditorPage /> },
+    { path: 'products', element: <DatabaseProductListPage /> },
+    { path: 'products/new', element: <AddProductPage /> },
     { path: 'products/:productId/edit', element: <ProductEditorPage /> },
     { path: 'promotions', element: <PromotionsPage /> },
     { path: '*', element: <Navigate to="/manager/products" replace /> },
