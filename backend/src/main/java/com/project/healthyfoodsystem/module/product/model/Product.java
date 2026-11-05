@@ -3,11 +3,19 @@ package com.project.healthyfoodsystem.module.product.model;
 import java.math.BigDecimal;
 
 public record Product(
-        String id,
+        Integer id,
+        Integer categoryId,
         String name,
-        String category,
         String description,
+        String imageUrl,
         BigDecimal price,
-        String image,
-        Integer quantity
+        String ingredientsText,
+        Integer caloriesKcal,
+        BigDecimal proteinG,
+        BigDecimal carbohydrateG,
+        BigDecimal fatG,
+        BigDecimal fiberG,
+        BigDecimal sugarG,
+        BigDecimal sodiumMg,
+        String status
 ) {}
