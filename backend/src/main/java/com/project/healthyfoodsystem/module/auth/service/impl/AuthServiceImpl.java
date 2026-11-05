@@ -146,10 +146,14 @@ public class AuthServiceImpl implements AuthService {
                 user.getStatus()
         );
 
+        String returnRefreshToken = (newRefreshToken.getRawToken() != null && !newRefreshToken.getRawToken().isBlank())
+                ? newRefreshToken.getRawToken()
+                : newRefreshToken.getToken();
+
         return AuthResponse.builder()
                 .fullName(user.getFullName())
                 .token(newAccessToken)
-                .refreshToken(newRefreshToken.getToken())
+                .refreshToken(returnRefreshToken)
                 .user(userDto)
                 .build();
     }

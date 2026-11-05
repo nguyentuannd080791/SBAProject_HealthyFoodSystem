@@ -28,7 +28,6 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendPasswordResetOtp(String toEmail, String otpCode) {
-        // Luôn ghi log ra console để thuận tiện kiểm thử cục bộ / demo đồ án
         log.info("==========================================================");
         log.info("[OTP RESET PASSWORD] Gửi tới: {} | Mã OTP: {}", toEmail, otpCode);
         log.info("==========================================================");
