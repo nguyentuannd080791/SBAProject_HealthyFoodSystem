@@ -31,7 +31,11 @@ public class CartService {
     private final ProductRepository productRepository;
 
     @Transactional
-    public CartResponse add(String email, Integer productId, int quantity) {
+    public CartResponse add(String email, Integer productId, Integer quantity) {
+        if (productId == null || productId < 1 || quantity == null || quantity < 1) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Product ID and quantity must be positive");
+        }
+        // Serialize all cart writes for this user, including first-cart creation.
         User user = userRepository.findByEmailForCartUpdate(email)
                 .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "User session is no longer valid"));
         Product product = productRepository.findById(productId)
@@ -58,7 +62,47 @@ public class CartService {
         } catch (ArithmeticException ex) {
             throw new ApiException(HttpStatus.CONFLICT, "Cart quantity is too large");
         }
-        cartItemRepository.save(item);
+        cartItemRepository.saveAndFlush(item);
+        return responseFor(cart);
+    }
+
+    @Transactional
+    public CartResponse update(String email, Integer itemId, Integer quantity) {
+        if (itemId == null || itemId < 1 || quantity == null || quantity < 1) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Cart item ID and quantity must be positive");
+        }
+        User user = userRepository.findByEmailForCartUpdate(email)
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "User session is no longer valid"));
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Cart item not found"));
+        CartItem item = cartItemRepository.findByIdAndCartId(itemId, cart.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Cart item not found"));
+
+        if (quantity > item.getQuantity()) {
+            Product product = productRepository.findById(item.getProductId())
+                    .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Product not found"));
+            if (!"AVAILABLE".equals(product.getStatus())) {
+                throw new ApiException(HttpStatus.CONFLICT, "Product is not available for sale");
+            }
+        }
+        item.setQuantity(quantity);
+        cartItemRepository.saveAndFlush(item);
+        return responseFor(cart);
+    }
+
+    @Transactional
+    public CartResponse remove(String email, Integer itemId) {
+        if (itemId == null || itemId < 1) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Cart item ID must be positive");
+        }
+        User user = userRepository.findByEmailForCartUpdate(email)
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "User session is no longer valid"));
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Cart item not found"));
+        CartItem item = cartItemRepository.findByIdAndCartId(itemId, cart.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Cart item not found"));
+        cartItemRepository.delete(item);
+        cartItemRepository.flush();
         return responseFor(cart);
     }
 
@@ -79,13 +123,11 @@ public class CartService {
                 .collect(Collectors.toMap(Product::getId, Function.identity()));
         List<CartResponse.Item> items = cartItems.stream().map(cartItem -> {
             Product product = products.get(cartItem.getProductId());
-            if (product == null) {
-                throw new ApiException(HttpStatus.CONFLICT, "Cart contains a missing product");
-            }
+            if (product == null) throw new ApiException(HttpStatus.CONFLICT, "Cart contains a missing product");
             ProductResponse.Nutrition nutrition = new ProductResponse.Nutrition(
                     product.getCaloriesKcal(), product.getProteinGrams(),
-                    product.getCarbohydrateGrams(), product.getFatGrams());
-            return new CartResponse.Item(product.getId(), product.getName(), product.getImageUrl(),
+                    product.getCarbsGrams(), product.getFatGrams());
+            return new CartResponse.Item(cartItem.getId(), product.getId(), product.getName(), product.getImageUrl(),
                     product.getPrice(), nutrition, cartItem.getQuantity());
         }).toList();
         long totalItems = items.stream().mapToLong(CartResponse.Item::quantity).sum();

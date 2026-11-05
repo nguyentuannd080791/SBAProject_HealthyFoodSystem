@@ -20,6 +20,17 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ErrorResponse> handleApiException(ApiException ex) {
+        ErrorResponse response = ErrorResponse.builder()
+                .timestamp(Instant.now())
+                .status(ex.getStatus().value())
+                .error(ex.getStatus().getReasonPhrase())
+                .message(ex.getMessage())
+                .build();
+        return ResponseEntity.status(ex.getStatus()).body(response);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();

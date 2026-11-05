@@ -20,6 +20,7 @@ export function LoginPage() {
     if (result.error) return setSubmitError(result.error);
     login(result.data.user, result.data.token);
     navigate("/", { replace: true });
+    );
   }
 
   return (

@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { Alert, Button, Card, Col, Image, Row, Table } from "react-bootstrap";
 import { Link } from "react-router";
 import { QuantityControl } from "../../../shared/components/QuantityControl";
@@ -7,12 +8,26 @@ import { useCart } from "../hooks/useCart";
 export function CartPage() {
   const { items, updateQuantity, removeFromCart, clearCart, totalItems,
     totalPrice, totalCalories, storageError, cartError, isServerCart } = useCart();
+  const pendingRef = useRef(new Set());
+  const [pendingIds, setPendingIds] = useState(new Set());
+
+  async function runItemAction(itemId, action) {
+    if (pendingRef.current.has(itemId)) return;
+    pendingRef.current.add(itemId);
+    setPendingIds(new Set(pendingRef.current));
+    try {
+      await action();
+    } finally {
+      pendingRef.current.delete(itemId);
+      setPendingIds(new Set(pendingRef.current));
+    }
+  }
 
   return (
     <>
       <h1 className="h2 mb-4">Giỏ hàng của bạn</h1>
       {storageError && <Alert variant="warning">{storageError}</Alert>}
-      {cartError && <Alert variant="danger">Không tải được giỏ hàng: {cartError}</Alert>}
+      {cartError && <Alert variant="danger">{cartError}</Alert>}
       {items.length === 0 ? (
         <Card body className="text-center py-5 border-0 shadow-sm">
           <div className="display-4 mb-3" aria-hidden="true">🛒</div>
@@ -31,17 +46,21 @@ export function CartPage() {
                   <th scope="col">Số lượng</th><th scope="col">Thành tiền</th><th scope="col">Thao tác</th>
                 </tr></thead>
                 <tbody>{items.map((item) => (
-                  <tr key={item.id}>
+                  <tr key={item.cartItemId}>
                     <td><div className="d-flex align-items-center gap-3">
                       <Image src={item.image} alt={item.name} rounded width={72} height={64} style={{ objectFit: "cover" }} />
                       <Link to={`/products/${item.id}`} className="fw-semibold">{item.name}</Link>
                     </div></td>
                     <td className="text-nowrap">{formatCurrency(item.price)}</td>
-                    <td><QuantityControl quantity={item.quantity} min={0} name={item.name} disabled={isServerCart}
-                      onChange={(quantity) => updateQuantity(item.id, quantity)} /></td>
+                    <td><QuantityControl quantity={item.quantity} min={1} name={item.name}
+                      disabled={pendingIds.has(item.cartItemId)}
+                      onChange={(quantity) => runItemAction(item.cartItemId,
+                        () => updateQuantity(item.cartItemId, quantity))} /></td>
                     <td className="text-nowrap fw-semibold">{formatCurrency(item.price * item.quantity)}</td>
-                    <td><Button variant="outline-danger" size="sm" aria-label={`Xóa ${item.name}`} disabled={isServerCart}
-                      onClick={() => removeFromCart(item.id)}>Xóa</Button></td>
+                    <td><Button variant="outline-danger" size="sm" aria-label={`Xóa ${item.name}`}
+                      disabled={pendingIds.has(item.cartItemId)}
+                      onClick={() => runItemAction(item.cartItemId,
+                        () => removeFromCart(item.cartItemId))}>Xóa</Button></td>
                   </tr>
                 ))}</tbody>
               </Table>

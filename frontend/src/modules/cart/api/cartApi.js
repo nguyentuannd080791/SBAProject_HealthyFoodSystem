@@ -8,4 +8,10 @@ export const cartApi = {
   add(productId, quantity) {
     return callApi(() => httpClient.post("/api/user/cart/items", { productId, quantity }));
   },
+  update(itemId, quantity) {
+    return callApi(() => httpClient.patch(`/api/user/cart/items/${itemId}`, { quantity }));
+  },
+  remove(itemId) {
+    return callApi(() => httpClient.delete(`/api/user/cart/items/${itemId}`));
+  },
 };

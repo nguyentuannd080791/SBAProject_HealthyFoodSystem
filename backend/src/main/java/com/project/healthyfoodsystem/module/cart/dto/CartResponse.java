@@ -6,6 +6,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record CartResponse(List<Item> items, long totalItems, BigDecimal totalPrice) {
-    public record Item(Integer id, String name, String image, BigDecimal price,
+    public record Item(Integer cartItemId, Integer id, String name, String image, BigDecimal price,
                        Nutrition nutrition, Integer quantity) {}
 }
