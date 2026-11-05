@@ -3,6 +3,7 @@ package com.project.healthyfoodsystem.module.admin.controller;
 import com.project.healthyfoodsystem.module.admin.dto.request.CreateInternalAccountRequest;
 import com.project.healthyfoodsystem.module.admin.dto.request.UpdateUserRequest;
 import com.project.healthyfoodsystem.module.admin.dto.response.AdminStatsResponse;
+import com.project.healthyfoodsystem.module.admin.dto.response.RoleDto;
 import com.project.healthyfoodsystem.module.admin.dto.response.UserAdminResponse;
 import com.project.healthyfoodsystem.module.admin.service.AdminService;
 import jakarta.validation.Valid;
@@ -17,8 +18,9 @@ import java.util.List;
 
 /**
  * Controller xử lý các chức năng Quản trị hệ thống (Admin):
- * UC 1: Create Internal Account (Tạo tài khoản nội bộ)
- * UC 2: Manage User Accounts (Quản lý tài khoản, tìm kiếm/lọc, thống kê, khóa tài khoản)
+ * 1. Create Internal Account (Tạo tài khoản nội bộ)
+ * 2. Manage User Accounts (Quản lý tài khoản người dùng, tìm kiếm, thống kê)
+ * 3. Roles and Permissions (Phân quyền và vai trò)
  */
 @RestController
 @RequestMapping({"/api/admin", "/admin"})
@@ -75,11 +77,11 @@ public class AdminController {
     }
 
     // =========================================================================
-    // UC 2: CẬP NHẬT THÔNG TIN & KHÓA TÀI KHOẢN
+    // UC 2 & UC 3: CẬP NHẬT THÔNG TIN, PHÂN QUYỀN & KHÓA TÀI KHOẢN
     // =========================================================================
 
     /**
-     * API 5: Chỉnh sửa thông tin tài khoản và vai trò người dùng
+     * API 5: Chỉnh sửa thông tin tài khoản và cập nhật vai trò người dùng
      * PUT /api/admin/users/{id}
      */
     @PutMapping("/users/{id}")
@@ -99,5 +101,14 @@ public class AdminController {
                                                           @AuthenticationPrincipal UserDetails userDetails) {
         String currentAdminEmail = (userDetails != null) ? userDetails.getUsername() : null;
         return ResponseEntity.ok(adminService.toggleStatus(id, currentAdminEmail));
+    }
+
+    /**
+     * API 7: Lấy danh sách các vai trò và quyền hạn tương ứng
+     * GET /api/admin/roles
+     */
+    @GetMapping("/roles")
+    public ResponseEntity<List<RoleDto>> getRoles() {
+        return ResponseEntity.ok(adminService.getRolesAndPermissions());
     }
 }
