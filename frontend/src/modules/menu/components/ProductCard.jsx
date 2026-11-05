@@ -1,26 +1,30 @@
 import { useState } from "react";
 import { Alert, Badge, Button, Card } from "react-bootstrap";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useAuth } from "../../../app/provider/useAuth";
 import { useCart } from "../../cart/hooks/useCart";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
-import { AddToCartDialog } from "./AddToCartDialog";
 
 export function ProductCard({ product }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const { addToCart } = useCart();
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [addedQuantity, setAddedQuantity] = useState(null);
+  const [added, setAdded] = useState(false);
   const [pending, setPending] = useState(false);
   const [addError, setAddError] = useState("");
 
-  async function confirmAddToCart(selectedProduct, quantity) {
+  async function handleAddToCart() {
     if (pending) return;
+    if (!user) {
+      navigate("/login", { state: { from: "/menu", notice: "Vui lòng đăng nhập để thêm món vào giỏ." } });
+      return;
+    }
     setPending(true);
     setAddError("");
-    const result = await addToCart(selectedProduct, quantity);
+    const result = await addToCart(product, 1);
     setPending(false);
     if (result.error) return setAddError(result.error);
-    setAddedQuantity(quantity);
-    setShowAddDialog(false);
+    setAdded(true);
   }
 
   return (
@@ -40,17 +44,17 @@ export function ProductCard({ product }) {
           <p className="fs-5 fw-bold text-success">{formatCurrency(product.price)}</p>
           <div className="d-flex flex-wrap gap-2">
             <Button as={Link} to={`/products/${product.id}`} variant="outline-primary" size="sm">Xem chi tiết</Button>
-            <Button size="sm" onClick={() => setShowAddDialog(true)} disabled={pending}>Thêm vào giỏ</Button>
+            <Button size="sm" onClick={handleAddToCart} disabled={pending || product.status !== "AVAILABLE"}>
+              {product.status === "AVAILABLE" ? "Thêm vào giỏ" : "Hết hàng"}
+            </Button>
           </div>
           {addError && <Alert variant="danger" className="small mt-3 mb-0">{addError}</Alert>}
-          {addedQuantity !== null && <Alert variant="success" className="small mt-3 mb-0" dismissible
-            onClose={() => setAddedQuantity(null)}>
-            Đã thêm {addedQuantity} phần {product.name} vào giỏ.
+          {added && <Alert variant="success" className="small mt-3 mb-0" dismissible
+            onClose={() => setAdded(false)}>
+            Đã thêm 1 phần {product.name} vào giỏ.
           </Alert>}
         </div>
       </Card.Body>
-      <AddToCartDialog product={product} show={showAddDialog}
-        onHide={() => setShowAddDialog(false)} onConfirm={confirmAddToCart} pending={pending} error={addError} />
     </Card>
   );
 }
