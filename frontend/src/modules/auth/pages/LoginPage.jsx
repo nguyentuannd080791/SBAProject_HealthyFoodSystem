@@ -18,6 +18,9 @@ export function LoginPage() {
     const result = await authApi.login(email, password);
     setIsSubmitting(false);
     if (result.error) return setSubmitError(result.error);
+    if (!result.data?.user || !result.data?.token) {
+      return setSubmitError("Đăng nhập thất bại: dữ liệu người dùng không hợp lệ.");
+    }
     login(result.data.user, result.data.token);
     navigate("/", { replace: true });
     );

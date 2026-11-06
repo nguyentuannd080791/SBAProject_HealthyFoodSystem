@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(loadSessionUser);
 
   function login(sessionUser, token) {
+    if (!sessionUser || !token) return;
     saveToken(token);
     saveSessionUser(sessionUser);
     setUser(sessionUser);

@@ -3,6 +3,7 @@ import { Alert, Button, Col, Form, Row } from 'react-bootstrap';
 import { FormField } from '../../../shared/components/FormField';
 import { validatePromotion } from '../validation/validators';
 import { money, toLocalInput } from '../utils/format';
+import { quantityLabel } from '../utils/productQuantity';
 
 export function PromotionForm({ promotion, products, onSave, onCancel, busy, submitError }) {
   const [values, setValues] = useState(promotion ? { ...promotion, startsAt: toLocalInput(promotion.startsAt), endsAt: toLocalInput(promotion.endsAt) } : { name: '', type: 'percentage', value: '', productIds: [], startsAt: '', endsAt: '', enabled: true });
@@ -27,7 +28,7 @@ export function PromotionForm({ promotion, products, onSave, onCancel, busy, sub
       <Row><Col md={6}><FormField label="Bắt đầu *" name="startsAt" type="datetime-local" value={values.startsAt} onChange={change} error={errors.startsAt} /></Col><Col md={6}><FormField label="Kết thúc *" name="endsAt" type="datetime-local" value={values.endsAt} onChange={change} error={errors.endsAt} /></Col></Row>
       <p className="small text-muted">Thời gian theo múi giờ của thiết bị. Chương trình đã hết hạn cần sửa thời gian để áp dụng lại.</p>
       <fieldset className="mb-3"><legend className="fs-6">Sản phẩm áp dụng * ({values.productIds.length} đã chọn)</legend>
-        <div className="manager-products-picker">{products.length ? products.map(product => <Form.Check className="mb-2" key={product.id} id={`promotion-product-${product.id}`} label={`${product.name} · ${money(product.price)}${product.isAvailable ? '' : ' · Hết hàng'}`} checked={values.productIds.includes(product.id)} onChange={event => { setValues(current => ({ ...current, productIds: event.target.checked ? [...current.productIds, product.id] : current.productIds.filter(id => id !== product.id) })); setErrors(current => ({ ...current, productIds: '' })); }} />) : <span className="text-muted">Chưa có sản phẩm. Hãy thêm sản phẩm trước.</span>}</div>
+        <div className="manager-products-picker">{products.length ? products.map(product => <Form.Check className="mb-2" key={product.id} id={`promotion-product-${product.id}`} label={`${product.name} · ${money(product.price)} · ${quantityLabel(product.quantity)}`} checked={values.productIds.includes(product.id)} onChange={event => { setValues(current => ({ ...current, productIds: event.target.checked ? [...current.productIds, product.id] : current.productIds.filter(id => id !== product.id) })); setErrors(current => ({ ...current, productIds: '' })); }} />) : <span className="text-muted">Chưa có sản phẩm. Hãy thêm sản phẩm trước.</span>}</div>
         {errors.productIds && <div className="text-danger small mt-1" role="alert">{errors.productIds}</div>}
       </fieldset>
       <Form.Check type="switch" id="promotion-enabled" name="enabled" label="Bật chương trình theo lịch đã chọn" checked={values.enabled} onChange={change} />

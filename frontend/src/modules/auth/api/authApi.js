@@ -16,18 +16,6 @@ export const authApi = {
     );
   },
 
-  verifyEmail(email, code) {
-    return callApi(() =>
-      httpClient.post("/auth/verify-email", { email, code }),
-    );
-  },
-
-  resendVerification(email) {
-    return callApi(() =>
-      httpClient.post("/auth/resend-verification", { email }),
-    );
-  },
-
   forgotPassword(email) {
     return callApi(() => httpClient.post("/auth/forgot-password", { email }));
   },

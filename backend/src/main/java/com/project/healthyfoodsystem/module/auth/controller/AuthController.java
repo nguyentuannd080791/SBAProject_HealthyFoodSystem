@@ -1,142 +1,148 @@
 package com.project.healthyfoodsystem.module.auth.controller;
 
+import com.project.healthyfoodsystem.module.auth.dto.request.ChangePasswordRequest;
+import com.project.healthyfoodsystem.module.auth.dto.request.ForgotPasswordRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.LoginRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.RefreshTokenRequest;
 import com.project.healthyfoodsystem.module.auth.dto.request.RegisterRequest;
+import com.project.healthyfoodsystem.module.auth.dto.request.ResetPasswordRequest;
 import com.project.healthyfoodsystem.module.auth.dto.response.AuthResponse;
+import com.project.healthyfoodsystem.module.auth.dto.response.MessageResponse;
 import com.project.healthyfoodsystem.module.auth.dto.response.RegisterResponse;
-import com.project.healthyfoodsystem.module.auth.entity.RefreshToken;
-import com.project.healthyfoodsystem.module.auth.entity.UserInfoDetails;
+import com.project.healthyfoodsystem.module.auth.service.AuthCookieService;
+import com.project.healthyfoodsystem.module.auth.service.AuthService;
 import com.project.healthyfoodsystem.module.auth.service.JwtService;
-import com.project.healthyfoodsystem.module.auth.service.RefreshTokenService;
-import com.project.healthyfoodsystem.module.auth.service.impl.UserDetailsServiceImpl;
 import com.project.healthyfoodsystem.module.exception.TokenException;
+import com.project.healthyfoodsystem.module.exception.UnauthorizedException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserDetailsServiceImpl service;
+    private final AuthService authService;
+    private final AuthCookieService authCookieService;
     private final JwtService jwtService;
-    private final RefreshTokenService refreshTokenService;
-    private final AuthenticationManager authenticationManager;
     private final long refreshTokenDurationMs;
-    private final boolean cookieSecure;
 
     public AuthController(
-            UserDetailsServiceImpl service,
+            AuthService authService,
+            AuthCookieService authCookieService,
             JwtService jwtService,
-            RefreshTokenService refreshTokenService,
-            AuthenticationManager authenticationManager,
-            @Value("${REFRESH_TOKEN_EXPIRATION:604800000}") long refreshTokenDurationMs,
-            @Value("${COOKIE_SECURE:false}") boolean cookieSecure
+            @Value("${REFRESH_TOKEN_EXPIRATION:604800000}") long refreshTokenDurationMs
     ) {
-        this.service = service;
+        this.authService = authService;
+        this.authCookieService = authCookieService;
         this.jwtService = jwtService;
-        this.refreshTokenService = refreshTokenService;
-        this.authenticationManager = authenticationManager;
         this.refreshTokenDurationMs = refreshTokenDurationMs;
-        this.cookieSecure = cookieSecure;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest loginRequest) {
-        String normalizedEmail = loginRequest.getEmail().trim().toLowerCase();
+    public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
+        AuthResponse response = authService.login(loginRequest);
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(normalizedEmail, loginRequest.getPassword())
+        ResponseCookie accessCookie = authCookieService.createAccessTokenCookie(
+                response.getToken(),
+                jwtService.getAccessTokenExpiration()
+        );
+        ResponseCookie refreshCookie = authCookieService.createRefreshTokenCookie(
+                response.getRefreshToken(),
+                refreshTokenDurationMs / 1000
         );
 
-        if (authentication.isAuthenticated()) {
-            String accessToken = jwtService.generateToken(normalizedEmail);
-            String refreshToken = refreshTokenService.createRefreshToken(normalizedEmail);
-
-            ResponseCookie accessCookie = createCookie("access_token", accessToken, jwtService.getAccessTokenExpiration());
-            ResponseCookie refreshCookie = createCookie("refresh_token", refreshToken, refreshTokenDurationMs / 1000);
-
-            UserInfoDetails userInfoDetails = (UserInfoDetails) authentication.getPrincipal();
-            AuthResponse response = AuthResponse.builder()
-                    .fullName(userInfoDetails.getFullName())
-                    .token(accessToken)
-                    .refreshToken(refreshToken)
-                    .build();
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                    .body(response);
-        } else {
-            throw new UsernameNotFoundException("Invalid user credentials");
-        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(response);
     }
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@RequestBody @Valid RegisterRequest registerRequest) {
-        RegisterResponse response = service.register(registerRequest);
+        RegisterResponse response = authService.register(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(
+    public ResponseEntity<AuthResponse> refreshToken(
             @CookieValue(name = "refresh_token", required = false) String cookieRefreshToken,
             @RequestBody(required = false) RefreshTokenRequest requestBody
     ) {
         String token = resolveToken(cookieRefreshToken, requestBody);
         if (token == null || token.isBlank()) {
-            throw new TokenException("Refresh Token is missing");
+            throw new TokenException("Refresh token không được để trống.");
         }
 
-        RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(token);
-        String newAccessToken = jwtService.generateToken(newRefreshToken.getUser().getEmail());
+        AuthResponse response = authService.refreshToken(token);
 
-        ResponseCookie accessCookie = createCookie("access_token", newAccessToken, jwtService.getAccessTokenExpiration());
-        ResponseCookie refreshCookie = createCookie("refresh_token", newRefreshToken.getToken(), refreshTokenDurationMs / 1000);
-
-        AuthResponse response = AuthResponse.builder()
-                .fullName(newRefreshToken.getUser().getFullName())
-                .token(newAccessToken)
-                .refreshToken(newRefreshToken.getToken())
-                .build();
+        ResponseCookie accessCookie = authCookieService.createAccessTokenCookie(
+                response.getToken(),
+                jwtService.getAccessTokenExpiration()
+        );
+        ResponseCookie refreshCookie = authCookieService.createRefreshTokenCookie(
+                response.getRefreshToken(),
+                refreshTokenDurationMs / 1000
+        );
 
         return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                    .body(response);
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(response);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(
+    public ResponseEntity<MessageResponse> logout(
             @CookieValue(name = "refresh_token", required = false) String cookieRefreshToken,
             @RequestBody(required = false) RefreshTokenRequest requestBody
     ) {
         String token = resolveToken(cookieRefreshToken, requestBody);
-        if (token != null && !token.isBlank()) {
-            refreshTokenService.revokeToken(token);
-        }
+        authService.logout(token);
 
-        SecurityContextHolder.clearContext();
-
-        ResponseCookie cleanAccessCookie = createCookie("access_token", "", 0);
-        ResponseCookie cleanRefreshCookie = createCookie("refresh_token", "", 0);
+        ResponseCookie cleanAccessCookie = authCookieService.createCleanAccessTokenCookie();
+        ResponseCookie cleanRefreshCookie = authCookieService.createCleanRefreshTokenCookie();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cleanAccessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, cleanRefreshCookie.toString())
-                .body(Map.of("message", "Logged out successfully"));
+                .body(new MessageResponse("Logged out successfully"));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<MessageResponse> changePassword(
+            Authentication authentication,
+            @RequestBody @Valid ChangePasswordRequest request
+    ) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            throw new UnauthorizedException("Vui lòng đăng nhập để đổi mật khẩu.");
+        }
+
+        authService.changePassword(authentication.getName(), request);
+        ResponseCookie cleanRefreshCookie = authCookieService.createCleanRefreshTokenCookie();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cleanRefreshCookie.toString())
+                .body(new MessageResponse("Đổi mật khẩu thành công."));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<MessageResponse> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ResponseEntity.ok(new MessageResponse("Mã xác thực đã được gửi tới email của bạn."));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<MessageResponse> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(new MessageResponse("Đặt lại mật khẩu thành công."));
     }
 
     private String resolveToken(String cookieToken, RefreshTokenRequest requestBody) {
@@ -147,15 +153,5 @@ public class AuthController {
             return requestBody.getRefreshToken();
         }
         return null;
-    }
-
-    private ResponseCookie createCookie(String name, String value, long maxAgeSeconds) {
-        return ResponseCookie.from(name, value)
-                .httpOnly(true)
-                .secure(cookieSecure)
-                .path("/")
-                .maxAge(maxAgeSeconds)
-                .sameSite("Lax")
-                .build();
     }
 }
