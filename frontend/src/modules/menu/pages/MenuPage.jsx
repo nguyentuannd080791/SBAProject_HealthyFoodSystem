@@ -9,9 +9,11 @@ export function MenuPage() {
     <>
       <h1 className="h2">Thực đơn healthy</h1>
       <p className="text-muted mb-4">Chọn bữa ăn phù hợp với khẩu vị và mục tiêu dinh dưỡng của bạn.</p>
+      {catalog.error && <Alert variant="danger">Không tải được thực đơn: {catalog.error}</Alert>}
+      {catalog.loading && <p role="status">Đang tải thực đơn…</p>}
       <MenuFilterBar {...catalog} />
       <p className="small text-muted" role="status">Tìm thấy {catalog.filteredProducts.length} món ăn</p>
-      {catalog.filteredProducts.length === 0 ? (
+      {!catalog.loading && !catalog.error && catalog.filteredProducts.length === 0 ? (
         <Alert variant="light" className="text-center py-5 border">
           <h2 className="h5">Không tìm thấy món phù hợp với bộ lọc</h2>
           <p>Thử đổi từ khóa, danh mục hoặc mức Calories tối đa.</p>

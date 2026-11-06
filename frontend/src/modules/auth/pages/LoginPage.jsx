@@ -22,8 +22,7 @@ export function LoginPage() {
       return setSubmitError("Đăng nhập thất bại: dữ liệu người dùng không hợp lệ.");
     }
     login(result.data.user, result.data.token);
-    navigate("/", { replace: true });
-    );
+    navigate(location.state?.from || "/", { replace: true });
   }
 
   return (

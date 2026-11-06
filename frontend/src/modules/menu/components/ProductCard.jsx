@@ -29,10 +29,10 @@ export function ProductCard({ product }) {
 
   return (
     <Card className="h-100 border-0 shadow-sm overflow-hidden">
-      <Link to={`/products/${product.id}`} tabIndex={-1} aria-hidden="true">
+      {product.image ? <Link to={`/products/${product.id}`} tabIndex={-1} aria-hidden="true">
         <Card.Img variant="top" src={product.image} alt="" loading="lazy"
           style={{ aspectRatio: "8 / 5", objectFit: "cover" }} />
-      </Link>
+      </Link> : <div className="bg-light d-flex align-items-center justify-content-center text-muted" style={{ aspectRatio: "8 / 5" }}>Chưa có ảnh</div>}
       <Card.Body className="d-flex flex-column">
         <div className="d-flex flex-wrap gap-2 mb-3">
           <Badge bg="success">{product.categoryName}</Badge>

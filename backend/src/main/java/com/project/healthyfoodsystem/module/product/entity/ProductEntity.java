@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -21,9 +22,11 @@ public class ProductEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity category;
+    @Nationalized
     @Column(nullable = false, unique = true, length = 150)
     private String name;
-    @Column(columnDefinition = "VARCHAR(MAX)")
+    @Nationalized
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
     @Column(name = "image_url", length = 500)
     private String imageUrl;
@@ -31,7 +34,8 @@ public class ProductEntity {
     private BigDecimal price;
     @Column(name = "stock_quantity")
     private Integer stockQuantity;
-    @Column(name = "ingredients_text", columnDefinition = "VARCHAR(MAX)")
+    @Nationalized
+    @Column(name = "ingredients_text", columnDefinition = "NVARCHAR(MAX)")
     private String ingredientsText;
     @Column(name = "calories_kcal", nullable = false)
     private Integer caloriesKcal;

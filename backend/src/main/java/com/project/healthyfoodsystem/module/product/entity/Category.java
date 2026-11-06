@@ -10,6 +10,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Nationalized;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -23,9 +24,11 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Nationalized
     @Column(nullable = false, unique = true, length = 100)
     private String name;
 
+    @Nationalized
     @Column(length = 500)
     private String description;
 

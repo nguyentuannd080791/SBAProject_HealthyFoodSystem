@@ -8,8 +8,7 @@ import com.project.healthyfoodsystem.module.cart.entity.CartItem;
 import com.project.healthyfoodsystem.module.cart.repository.CartItemRepository;
 import com.project.healthyfoodsystem.module.cart.repository.CartRepository;
 import com.project.healthyfoodsystem.module.exception.ApiException;
-import com.project.healthyfoodsystem.module.product.dto.ProductResponse;
-import com.project.healthyfoodsystem.module.product.entity.Product;
+import com.project.healthyfoodsystem.module.product.entity.ProductEntity;
 import com.project.healthyfoodsystem.module.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -38,7 +37,7 @@ public class CartService {
         // Serialize all cart writes for this user, including first-cart creation.
         User user = userRepository.findByEmailForCartUpdate(email)
                 .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "User session is no longer valid"));
-        Product product = productRepository.findById(productId)
+        ProductEntity product = productRepository.findById(productId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Product not found"));
         if (!"AVAILABLE".equals(product.getStatus())) {
             throw new ApiException(HttpStatus.CONFLICT, "Product is not available for sale");
@@ -79,7 +78,7 @@ public class CartService {
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Cart item not found"));
 
         if (quantity > item.getQuantity()) {
-            Product product = productRepository.findById(item.getProductId())
+            ProductEntity product = productRepository.findById(item.getProductId())
                     .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Product not found"));
             if (!"AVAILABLE".equals(product.getStatus())) {
                 throw new ApiException(HttpStatus.CONFLICT, "Product is not available for sale");
@@ -118,15 +117,15 @@ public class CartService {
 
     private CartResponse responseFor(Cart cart) {
         List<CartItem> cartItems = cartItemRepository.findByCartIdOrderByIdAsc(cart.getId());
-        Map<Integer, Product> products = productRepository.findAllById(
+        Map<Integer, ProductEntity> products = productRepository.findAllById(
                         cartItems.stream().map(CartItem::getProductId).toList()).stream()
-                .collect(Collectors.toMap(Product::getId, Function.identity()));
+                .collect(Collectors.toMap(ProductEntity::getId, Function.identity()));
         List<CartResponse.Item> items = cartItems.stream().map(cartItem -> {
-            Product product = products.get(cartItem.getProductId());
+            ProductEntity product = products.get(cartItem.getProductId());
             if (product == null) throw new ApiException(HttpStatus.CONFLICT, "Cart contains a missing product");
-            ProductResponse.Nutrition nutrition = new ProductResponse.Nutrition(
-                    product.getCaloriesKcal(), product.getProteinGrams(),
-                    product.getCarbsGrams(), product.getFatGrams());
+            CartResponse.Nutrition nutrition = new CartResponse.Nutrition(
+                    product.getCaloriesKcal(), product.getProteinG(),
+                    product.getCarbohydrateG(), product.getFatG());
             return new CartResponse.Item(cartItem.getId(), product.getId(), product.getName(), product.getImageUrl(),
                     product.getPrice(), nutrition, cartItem.getQuantity());
         }).toList();
