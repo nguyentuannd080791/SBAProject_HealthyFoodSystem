@@ -28,13 +28,22 @@ export function ResetPasswordForm({
 
   return (
     <Form noValidate onSubmit={form.handleSubmit(submitTrimmed)}>
-      {notice && <Alert variant="success">{notice}</Alert>}
-      {submitError && <Alert variant="danger">{submitError}</Alert>}
+      {notice && (
+        <Alert variant="info" className="py-2 small">
+          {notice}
+        </Alert>
+      )}
+      {submitError && (
+        <Alert variant="danger" className="py-2 small">
+          {submitError}
+        </Alert>
+      )}
 
       <FormField
         label="Email"
         name="email"
         type="email"
+        placeholder="name@example.com"
         autoComplete="email"
         value={form.values.email}
         error={form.errors.email}
@@ -42,12 +51,13 @@ export function ResetPasswordForm({
         onBlur={form.handleBlur}
       />
       <FormField
-        label="Mã xác thực"
+        label="Mã xác thực OTP"
         name="code"
         inputMode="numeric"
         maxLength={6}
+        placeholder="123456"
         autoComplete="one-time-code"
-        hint="Nhập mã gồm 6 chữ số đã gửi tới email của bạn."
+        hint="Nhập mã gồm 6 chữ số đã được gửi tới email của bạn."
         value={form.values.code}
         error={form.errors.code}
         onChange={form.handleChange}
@@ -57,8 +67,9 @@ export function ResetPasswordForm({
         label="Mật khẩu mới"
         name="password"
         type="password"
+        placeholder="••••••••"
         autoComplete="new-password"
-        hint="Ít nhất 8 ký tự, gồm cả chữ và số."
+        hint="Tối thiểu 8 ký tự, gồm cả chữ và số."
         value={form.values.password}
         error={form.errors.password}
         onChange={form.handleChange}
@@ -68,6 +79,7 @@ export function ResetPasswordForm({
         label="Nhập lại mật khẩu mới"
         name="confirmPassword"
         type="password"
+        placeholder="••••••••"
         autoComplete="new-password"
         value={form.values.confirmPassword}
         error={form.errors.confirmPassword}
@@ -75,8 +87,17 @@ export function ResetPasswordForm({
         onBlur={form.handleBlur}
       />
 
-      <Button type="submit" className="w-100 mt-2" disabled={isSubmitting}>
-        {isSubmitting ? "Đang đặt lại..." : "Đặt lại mật khẩu"}
+      <Button
+        variant="primary"
+        type="submit"
+        className="w-100 mt-3 py-2 fw-semibold"
+        disabled={isSubmitting}
+        style={{
+          backgroundColor: "var(--hf-primary)",
+          borderColor: "var(--hf-primary)",
+        }}
+      >
+        {isSubmitting ? "Đang cập nhật..." : "Đặt lại mật khẩu"}
       </Button>
     </Form>
   );

@@ -11,7 +11,7 @@ export function UserMenu() {
   async function handleLogout() {
     await authApi.logout();
     logout();
-    navigate("/login");
+    navigate("/");
   }
 
   if (!user) {
