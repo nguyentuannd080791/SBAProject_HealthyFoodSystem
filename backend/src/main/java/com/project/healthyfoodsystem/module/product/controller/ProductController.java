@@ -1,8 +1,8 @@
 package com.project.healthyfoodsystem.module.product.controller;
 
 import com.project.healthyfoodsystem.module.product.dto.request.CreateProductRequest;
+import com.project.healthyfoodsystem.module.product.dto.response.CategoryResponse;
 import com.project.healthyfoodsystem.module.product.dto.response.ProductResponse;
-import com.project.healthyfoodsystem.module.product.model.Category;
 import com.project.healthyfoodsystem.module.product.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -50,7 +50,7 @@ public class ProductController {
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<List<Category>> categories() {
+    public ResponseEntity<List<CategoryResponse>> categories() {
         return ResponseEntity.ok(productService.categories());
     }
 }

@@ -1,7 +1,7 @@
 package com.project.healthyfoodsystem.module.product.controller;
 
+import com.project.healthyfoodsystem.module.product.dto.response.CategoryResponse;
 import com.project.healthyfoodsystem.module.product.dto.response.ProductResponse;
-import com.project.healthyfoodsystem.module.product.model.Category;
 import com.project.healthyfoodsystem.module.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +28,7 @@ public class CatalogController {
     }
 
     @GetMapping("/categories")
-    public List<Category> categories() {
+    public List<CategoryResponse> categories() {
         return productService.categories();
     }
 }

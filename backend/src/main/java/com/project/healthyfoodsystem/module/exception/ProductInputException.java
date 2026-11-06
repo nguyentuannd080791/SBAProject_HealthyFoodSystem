@@ -1,4 +1,4 @@
-package com.project.healthyfoodsystem.module.product.service;
+package com.project.healthyfoodsystem.module.exception;
 
 public class ProductInputException extends RuntimeException {
     private final String field;

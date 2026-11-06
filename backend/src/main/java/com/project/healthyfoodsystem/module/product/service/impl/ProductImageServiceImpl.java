@@ -1,5 +1,7 @@
-package com.project.healthyfoodsystem.module.product.service;
+package com.project.healthyfoodsystem.module.product.service.impl;
 
+import com.project.healthyfoodsystem.module.exception.ProductInputException;
+import com.project.healthyfoodsystem.module.product.service.ProductImageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,14 +15,15 @@ import java.util.Iterator;
 import java.util.UUID;
 
 @Service
-public class ProductImageStorage {
+public class ProductImageServiceImpl implements ProductImageService {
     public static final long MAX_BYTES = 5L * 1024 * 1024;
     private final Path directory;
 
-    public ProductImageStorage(@Value("${product.images.directory:uploads/products}") String directory) {
+    public ProductImageServiceImpl(@Value("${product.images.directory:uploads/products}") String directory) {
         this.directory = Path.of(directory).toAbsolutePath().normalize();
     }
 
+    @Override
     public String store(MultipartFile file) {
         if (file == null || file.isEmpty()) return null;
         if (file.getSize() > MAX_BYTES) {
@@ -63,11 +66,13 @@ public class ProductImageStorage {
         return "/uploads/products/" + filename;
     }
 
+    @Override
     public void delete(String url) {
         if (url == null || !url.matches("/uploads/products/[a-f0-9-]+\\.(jpg|png)")) return;
         try { Files.deleteIfExists(directory.resolve(url.substring(url.lastIndexOf('/') + 1))); }
         catch (IOException ignored) { }
     }
 
+    @Override
     public Path directory() { return directory; }
 }
