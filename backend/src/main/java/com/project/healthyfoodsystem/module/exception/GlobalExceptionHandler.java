@@ -1,6 +1,5 @@
 package com.project.healthyfoodsystem.module.exception;
 
-import com.project.healthyfoodsystem.module.product.service.ProductInputException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

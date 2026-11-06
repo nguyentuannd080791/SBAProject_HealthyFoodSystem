@@ -1,8 +1,8 @@
 package com.project.healthyfoodsystem.module.cart.controller;
 
-import com.project.healthyfoodsystem.module.cart.dto.AddCartItemRequest;
-import com.project.healthyfoodsystem.module.cart.dto.CartResponse;
-import com.project.healthyfoodsystem.module.cart.dto.UpdateCartItemRequest;
+import com.project.healthyfoodsystem.module.cart.dto.request.AddCartItemRequest;
+import com.project.healthyfoodsystem.module.cart.dto.request.UpdateCartItemRequest;
+import com.project.healthyfoodsystem.module.cart.dto.response.CartResponse;
 import com.project.healthyfoodsystem.module.cart.service.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,14 +30,14 @@ public class CartController {
 
     @PostMapping("/items")
     public CartResponse add(@Valid @RequestBody AddCartItemRequest request, Principal principal) {
-        return cartService.add(principal.getName(), request.productId(), request.quantity());
+        return cartService.add(principal.getName(), request.getProductId(), request.getQuantity());
     }
 
     @PatchMapping("/items/{itemId}")
     public CartResponse update(@PathVariable Integer itemId,
                                @Valid @RequestBody UpdateCartItemRequest request,
                                Principal principal) {
-        return cartService.update(principal.getName(), itemId, request.quantity());
+        return cartService.update(principal.getName(), itemId, request.getQuantity());
     }
 
     @DeleteMapping("/items/{itemId}")
