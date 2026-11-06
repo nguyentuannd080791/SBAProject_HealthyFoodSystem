@@ -47,11 +47,14 @@ export function DatabaseProductListPage() {
         <option value="">Tất cả danh mục</option>{categories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
       </Form.Select></div>
       {loading ? <Spinner animation="border" role="status" /> : <Table responsive hover><thead><tr>
-        <th>Sản phẩm</th><th>Danh mục</th><th>Giá bán</th><th>Trạng thái</th>
+        <th>Sản phẩm</th><th>Danh mục</th><th>Giá bán</th><th>Tồn kho</th><th>Trạng thái bán</th><th>Thao tác</th>
       </tr></thead><tbody>{filtered.map(product => <tr key={product.id}>
         <td><div className="d-flex align-items-center gap-3"><ProductImage src={imageSource(product.imageUrl)} name={product.name} /><strong>{product.name}</strong></div></td>
         <td>{categories.find(item => item.id === product.categoryId)?.name || `#${product.categoryId}`}</td>
-        <td>{money(product.price)}</td><td>{product.status}</td>
+        <td>{money(product.price)}</td>
+        <td>{product.stockQuantity == null ? 'Chưa cập nhật tồn kho' : product.stockQuantity === 0 ? 'Hết hàng (0)' : product.stockQuantity}</td>
+        <td>{product.status === 'AVAILABLE' ? 'Đang bán' : product.status === 'UNAVAILABLE' ? 'Ngừng bán' : product.status}</td>
+        <td><Button as={Link} to={`/manager/products/${product.id}/edit`} size="sm" variant="outline-primary">Sửa</Button></td>
       </tr>)}</tbody></Table>}
     </Card>
   </>;

@@ -29,6 +29,8 @@ public class ProductEntity {
     private String imageUrl;
     @Column(nullable = false, precision = 12, scale = 0)
     private BigDecimal price;
+    @Column(name = "stock_quantity")
+    private Integer stockQuantity;
     @Column(name = "ingredients_text", columnDefinition = "VARCHAR(MAX)")
     private String ingredientsText;
     @Column(name = "calories_kcal", nullable = false)
@@ -54,7 +56,7 @@ public class ProductEntity {
 
     protected ProductEntity() {}
     public ProductEntity(CategoryEntity category, String name, String description, String imageUrl,
-                         BigDecimal price, String ingredientsText, Integer caloriesKcal, BigDecimal proteinG,
+                         BigDecimal price, Integer stockQuantity, String ingredientsText, Integer caloriesKcal, BigDecimal proteinG,
                          BigDecimal carbohydrateG, BigDecimal fatG, BigDecimal fiberG, BigDecimal sugarG,
                          BigDecimal sodiumMg, String status) {
         this.category = category;
@@ -62,6 +64,7 @@ public class ProductEntity {
         this.description = description;
         this.imageUrl = imageUrl;
         this.price = price;
+        this.stockQuantity = stockQuantity;
         this.ingredientsText = ingredientsText;
         this.caloriesKcal = caloriesKcal;
         this.proteinG = proteinG;
@@ -75,11 +78,33 @@ public class ProductEntity {
         this.updatedAt = this.createdAt;
     }
     public Integer getId() { return id; }
+    public void update(CategoryEntity category, String name, String description, String imageUrl,
+                       BigDecimal price, Integer stockQuantity, String ingredientsText, Integer caloriesKcal,
+                       BigDecimal proteinG, BigDecimal carbohydrateG, BigDecimal fatG, BigDecimal fiberG,
+                       BigDecimal sugarG, BigDecimal sodiumMg, String status) {
+        this.category = category;
+        this.name = name;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.price = price;
+        this.stockQuantity = stockQuantity;
+        this.ingredientsText = ingredientsText;
+        this.caloriesKcal = caloriesKcal;
+        this.proteinG = proteinG;
+        this.carbohydrateG = carbohydrateG;
+        this.fatG = fatG;
+        this.fiberG = fiberG;
+        this.sugarG = sugarG;
+        this.sodiumMg = sodiumMg;
+        this.status = status;
+        this.updatedAt = OffsetDateTime.now();
+    }
     public CategoryEntity getCategory() { return category; }
     public String getName() { return name; }
     public String getDescription() { return description; }
     public String getImageUrl() { return imageUrl; }
     public BigDecimal getPrice() { return price; }
+    public Integer getStockQuantity() { return stockQuantity; }
     public String getIngredientsText() { return ingredientsText; }
     public Integer getCaloriesKcal() { return caloriesKcal; }
     public BigDecimal getProteinG() { return proteinG; }

@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +36,17 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<List<ProductResponse>> list() {
         return ResponseEntity.ok(productService.list());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> get(@PathVariable Integer id) {
+        return ResponseEntity.ok(productService.get(id));
+    }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductResponse> update(@PathVariable Integer id,
+            @Valid @ModelAttribute CreateProductRequest request) {
+        return ResponseEntity.ok(productService.update(id, request));
     }
 
     @GetMapping("/categories")

@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<ProductEntity, Integer> {
     boolean existsByNameIgnoreCase(String name);
+    boolean existsByNameIgnoreCaseAndIdNot(String name, Integer id);
     List<ProductEntity> findAllByOrderByIdDesc();
 }

@@ -5,10 +5,12 @@ import com.project.healthyfoodsystem.module.product.model.Category;
 import com.project.healthyfoodsystem.module.product.model.Product;
 import com.project.healthyfoodsystem.module.product.service.ProductDataAccess;
 import com.project.healthyfoodsystem.module.product.service.ProductInputException;
+import com.project.healthyfoodsystem.module.exception.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.sql.SQLException;
 
 @Repository
@@ -26,7 +28,7 @@ public class JpaProductDataAccess implements ProductDataAccess {
         var category = categories.findByIdAndActiveTrue(product.categoryId())
                 .orElseThrow(() -> new ProductInputException("categoryId", "Danh mục không tồn tại hoặc không hoạt động."));
         var entity = new ProductEntity(category, product.name(), product.description(), product.imageUrl(),
-                product.price(), product.ingredientsText(), product.caloriesKcal(), product.proteinG(),
+                product.price(), product.stockQuantity(), product.ingredientsText(), product.caloriesKcal(), product.proteinG(),
                 product.carbohydrateG(), product.fatG(), product.fiberG(), product.sugarG(),
                 product.sodiumMg(), product.status());
         try {
@@ -40,7 +42,35 @@ public class JpaProductDataAccess implements ProductDataAccess {
     }
 
     @Override
+    public Product update(Product product) {
+        var entity = products.findById(product.id())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm."));
+        var category = categories.findByIdAndActiveTrue(product.categoryId())
+                .orElseThrow(() -> new ProductInputException("categoryId", "Danh mục không tồn tại hoặc không hoạt động."));
+        entity.update(category, product.name(), product.description(), product.imageUrl(), product.price(),
+                product.stockQuantity(), product.ingredientsText(), product.caloriesKcal(), product.proteinG(),
+                product.carbohydrateG(), product.fatG(), product.fiberG(), product.sugarG(),
+                product.sodiumMg(), product.status());
+        try {
+            return toModel(products.saveAndFlush(entity));
+        } catch (DataIntegrityViolationException ex) {
+            if (isUniqueViolation(ex)) throw new ProductInputException("name", "Tên sản phẩm đã tồn tại.");
+            throw ex;
+        }
+    }
+
+    @Override
+    public Optional<Product> findById(Integer id) {
+        return products.findById(id).map(JpaProductDataAccess::toModel);
+    }
+
+    @Override
     public boolean existsByName(String name) { return products.existsByNameIgnoreCase(name); }
+
+    @Override
+    public boolean existsByNameExceptId(String name, Integer id) {
+        return products.existsByNameIgnoreCaseAndIdNot(name, id);
+    }
 
     @Override
     public boolean categoryExists(Integer categoryId) {
@@ -60,7 +90,7 @@ public class JpaProductDataAccess implements ProductDataAccess {
 
     private static Product toModel(ProductEntity item) {
         return new Product(item.getId(), item.getCategory().getId(), item.getName(), item.getDescription(),
-                item.getImageUrl(), item.getPrice(), item.getIngredientsText(), item.getCaloriesKcal(),
+                item.getImageUrl(), item.getPrice(), item.getStockQuantity(), item.getIngredientsText(), item.getCaloriesKcal(),
                 item.getProteinG(), item.getCarbohydrateG(), item.getFatG(), item.getFiberG(),
                 item.getSugarG(), item.getSodiumMg(), item.getStatus());
     }

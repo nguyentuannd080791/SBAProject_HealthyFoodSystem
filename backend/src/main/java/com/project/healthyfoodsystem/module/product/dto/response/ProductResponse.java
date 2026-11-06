@@ -9,6 +9,7 @@ public record ProductResponse(
         String description,
         String imageUrl,
         BigDecimal price,
+        Integer stockQuantity,
         String ingredientsText,
         Integer caloriesKcal,
         BigDecimal proteinG,

@@ -12,6 +12,14 @@ function listResult(response) {
   return { data: response.data };
 }
 
+function productBody(values) {
+  const body = new FormData();
+  for (const [name, value] of Object.entries(values)) {
+    if (value !== null && value !== undefined && value !== '') body.append(name, value);
+  }
+  return body;
+}
+
 export const productApi = {
   async list() {
     try { const response = await httpClient.get('/manager/products'); return listResult(response); }
@@ -21,14 +29,20 @@ export const productApi = {
     try { const response = await httpClient.get('/manager/products/categories'); return listResult(response); }
     catch (error) { return failure(error); }
   },
+  async get(id) {
+    try { const response = await httpClient.get(`/manager/products/${id}`); return { data: response.data }; }
+    catch (error) { return { ...failure(error), notFound: error.response?.status === 404 }; }
+  },
   async create(values) {
-    const body = new FormData();
-    for (const [name, value] of Object.entries(values)) {
-      if (value !== null && value !== undefined && value !== '') body.append(name, value);
-    }
     try {
-      const response = await httpClient.post('/manager/products', body, { headers: { 'Content-Type': undefined } });
+      const response = await httpClient.post('/manager/products', productBody(values), { headers: { 'Content-Type': undefined } });
       return { data: response.data };
     } catch (error) { return failure(error); }
+  },
+  async update(id, values) {
+    try {
+      const response = await httpClient.put(`/manager/products/${id}`, productBody(values), { headers: { 'Content-Type': undefined } });
+      return { data: response.data };
+    } catch (error) { return { ...failure(error), notFound: error.response?.status === 404 }; }
   },
 };

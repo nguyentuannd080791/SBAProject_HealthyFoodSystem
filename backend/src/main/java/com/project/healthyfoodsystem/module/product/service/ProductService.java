@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface ProductService {
     ProductResponse create(CreateProductRequest request);
+    ProductResponse get(Integer id);
+    ProductResponse update(Integer id, CreateProductRequest request);
     List<ProductResponse> list();
     List<Category> categories();
 }
