@@ -1,14 +1,6 @@
 package com.project.healthyfoodsystem.module.product.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
@@ -16,12 +8,13 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "products")
-public class ProductEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id", nullable = false)
-    private CategoryEntity category;
+    private Category category;
     @Nationalized
     @Column(nullable = false, unique = true, length = 150)
     private String name;
@@ -58,11 +51,13 @@ public class ProductEntity {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
-    protected ProductEntity() {}
-    public ProductEntity(CategoryEntity category, String name, String description, String imageUrl,
-                         BigDecimal price, Integer stockQuantity, String ingredientsText, Integer caloriesKcal, BigDecimal proteinG,
-                         BigDecimal carbohydrateG, BigDecimal fatG, BigDecimal fiberG, BigDecimal sugarG,
-                         BigDecimal sodiumMg, String status) {
+    protected Product() {
+    }
+
+    public Product(Category category, String name, String description, String imageUrl,
+                   BigDecimal price, Integer stockQuantity, String ingredientsText, Integer caloriesKcal, BigDecimal proteinG,
+                   BigDecimal carbohydrateG, BigDecimal fatG, BigDecimal fiberG, BigDecimal sugarG,
+                   BigDecimal sodiumMg, String status) {
         this.category = category;
         this.name = name;
         this.description = description;
@@ -81,8 +76,12 @@ public class ProductEntity {
         this.createdAt = OffsetDateTime.now();
         this.updatedAt = this.createdAt;
     }
-    public Integer getId() { return id; }
-    public void update(CategoryEntity category, String name, String description, String imageUrl,
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void update(Category category, String name, String description, String imageUrl,
                        BigDecimal price, Integer stockQuantity, String ingredientsText, Integer caloriesKcal,
                        BigDecimal proteinG, BigDecimal carbohydrateG, BigDecimal fatG, BigDecimal fiberG,
                        BigDecimal sugarG, BigDecimal sodiumMg, String status) {
@@ -103,19 +102,64 @@ public class ProductEntity {
         this.status = status;
         this.updatedAt = OffsetDateTime.now();
     }
-    public CategoryEntity getCategory() { return category; }
-    public String getName() { return name; }
-    public String getDescription() { return description; }
-    public String getImageUrl() { return imageUrl; }
-    public BigDecimal getPrice() { return price; }
-    public Integer getStockQuantity() { return stockQuantity; }
-    public String getIngredientsText() { return ingredientsText; }
-    public Integer getCaloriesKcal() { return caloriesKcal; }
-    public BigDecimal getProteinG() { return proteinG; }
-    public BigDecimal getCarbohydrateG() { return carbohydrateG; }
-    public BigDecimal getFatG() { return fatG; }
-    public BigDecimal getFiberG() { return fiberG; }
-    public BigDecimal getSugarG() { return sugarG; }
-    public BigDecimal getSodiumMg() { return sodiumMg; }
-    public String getStatus() { return status; }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public Integer getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public String getIngredientsText() {
+        return ingredientsText;
+    }
+
+    public Integer getCaloriesKcal() {
+        return caloriesKcal;
+    }
+
+    public BigDecimal getProteinG() {
+        return proteinG;
+    }
+
+    public BigDecimal getCarbohydrateG() {
+        return carbohydrateG;
+    }
+
+    public BigDecimal getFatG() {
+        return fatG;
+    }
+
+    public BigDecimal getFiberG() {
+        return fiberG;
+    }
+
+    public BigDecimal getSugarG() {
+        return sugarG;
+    }
+
+    public BigDecimal getSodiumMg() {
+        return sodiumMg;
+    }
+
+    public String getStatus() {
+        return status;
+    }
 }
