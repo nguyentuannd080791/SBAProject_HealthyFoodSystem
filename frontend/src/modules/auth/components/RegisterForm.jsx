@@ -25,10 +25,15 @@ export function RegisterForm({ onSubmit, submitError, isSubmitting }) {
 
   return (
     <Form noValidate onSubmit={handleSubmit(onSubmit)}>
-      {submitError && <Alert variant="danger">{submitError}</Alert>}
+      {submitError && (
+        <Alert variant="danger" className="py-2 small">
+          {submitError}
+        </Alert>
+      )}
 
       <FormField
         label="Họ và tên"
+        placeholder="Nguyễn Văn A"
         autoComplete="name"
         error={errors.fullName?.message}
         {...register("fullName")}
@@ -36,6 +41,7 @@ export function RegisterForm({ onSubmit, submitError, isSubmitting }) {
       <FormField
         label="Email"
         type="email"
+        placeholder="name@example.com"
         autoComplete="email"
         error={errors.email?.message}
         {...register("email")}
@@ -43,6 +49,7 @@ export function RegisterForm({ onSubmit, submitError, isSubmitting }) {
       <FormField
         label="Số điện thoại"
         type="tel"
+        placeholder="0912345678"
         autoComplete="tel"
         error={errors.phone?.message}
         {...register("phone")}
@@ -50,21 +57,32 @@ export function RegisterForm({ onSubmit, submitError, isSubmitting }) {
       <FormField
         label="Mật khẩu"
         type="password"
+        placeholder="••••••••"
         autoComplete="new-password"
-        hint="Ít nhất 8 ký tự, gồm cả chữ và số."
+        hint="Tối thiểu 8 ký tự, bao gồm cả chữ và số."
         error={errors.password?.message}
         {...register("password")}
       />
       <FormField
         label="Nhập lại mật khẩu"
         type="password"
+        placeholder="••••••••"
         autoComplete="new-password"
         error={errors.confirmPassword?.message}
         {...register("confirmPassword")}
       />
 
-      <Button type="submit" className="w-100 mt-2" disabled={isSubmitting}>
-        {isSubmitting ? "Đang đăng ký..." : "Đăng ký"}
+      <Button
+        variant="primary"
+        type="submit"
+        className="w-100 mt-3 py-2 fw-semibold"
+        disabled={isSubmitting}
+        style={{
+          backgroundColor: "var(--hf-primary)",
+          borderColor: "var(--hf-primary)",
+        }}
+      >
+        {isSubmitting ? "Đang tạo tài khoản..." : "Đăng ký tài khoản"}
       </Button>
     </Form>
   );

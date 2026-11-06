@@ -26,7 +26,7 @@ function PageLoadingFallback() {
 
 export function RoleHomeRedirect() {
   const { user } = useAuth();
-  const homePath = user ? getHomePath(user.role) : "/menu";
+  const homePath = user ? getHomePath(user.role) : "/";
 
   if (homePath !== "/") return <Navigate to={homePath} replace />;
 
