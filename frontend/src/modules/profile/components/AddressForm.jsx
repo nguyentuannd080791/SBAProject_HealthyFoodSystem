@@ -1,4 +1,4 @@
-import { Button, Form } from "react-bootstrap";
+import { Button, Col, Form, Row } from "react-bootstrap";
 import { FormField } from "../../../shared/components/FormField";
 import { useForm } from "../../../shared/hooks/useForm";
 import { validateAddressValues } from "../utils/addressValidators";
@@ -18,71 +18,106 @@ export function AddressForm({ address, onSubmit, onCancel, isSubmitting }) {
 
   return (
     <Form noValidate onSubmit={form.handleSubmit(onSubmit)}>
-      <FormField
-        label="Tên người nhận"
-        name="recipientName"
-        autoComplete="name"
-        value={form.values.recipientName}
-        error={form.errors.recipientName}
-        onChange={form.handleChange}
-        onBlur={form.handleBlur}
-      />
-      <FormField
-        label="Số điện thoại người nhận"
-        name="recipientPhone"
-        type="tel"
-        autoComplete="tel"
-        value={form.values.recipientPhone}
-        error={form.errors.recipientPhone}
-        onChange={form.handleChange}
-        onBlur={form.handleBlur}
-      />
-      <FormField
-        label="Số nhà, tên đường"
-        name="street"
-        autoComplete="address-line1"
-        value={form.values.street}
-        error={form.errors.street}
-        onChange={form.handleChange}
-        onBlur={form.handleBlur}
-      />
-      <FormField
-        label="Phường/Xã"
-        name="ward"
-        value={form.values.ward}
-        error={form.errors.ward}
-        onChange={form.handleChange}
-        onBlur={form.handleBlur}
-      />
-      <FormField
-        label="Quận/Huyện"
-        name="district"
-        value={form.values.district}
-        error={form.errors.district}
-        onChange={form.handleChange}
-        onBlur={form.handleBlur}
-      />
-      <FormField
-        label="Tỉnh/Thành phố"
-        name="city"
-        autoComplete="address-level1"
-        value={form.values.city}
-        error={form.errors.city}
-        onChange={form.handleChange}
-        onBlur={form.handleBlur}
-      />
+      <Row className="g-3">
+        <Col xs={12} sm={6}>
+          <FormField
+            label="Tên người nhận"
+            name="recipientName"
+            placeholder="Ví dụ: Nguyễn Văn A"
+            autoComplete="name"
+            value={form.values.recipientName}
+            error={form.errors.recipientName}
+            onChange={form.handleChange}
+            onBlur={form.handleBlur}
+          />
+        </Col>
 
-      <div className="d-flex gap-2 mt-2">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Đang lưu..." : "Lưu địa chỉ"}
-        </Button>
+        <Col xs={12} sm={6}>
+          <FormField
+            label="Số điện thoại nhận hàng"
+            name="recipientPhone"
+            type="tel"
+            placeholder="0912345678"
+            autoComplete="tel"
+            value={form.values.recipientPhone}
+            error={form.errors.recipientPhone}
+            onChange={form.handleChange}
+            onBlur={form.handleBlur}
+          />
+        </Col>
+
+        <Col xs={12}>
+          <FormField
+            label="Số nhà, tên đường / Tòa nhà"
+            name="street"
+            placeholder="Ví dụ: Số 123 Đường Lê Lợi"
+            autoComplete="address-line1"
+            value={form.values.street}
+            error={form.errors.street}
+            onChange={form.handleChange}
+            onBlur={form.handleBlur}
+          />
+        </Col>
+
+        <Col xs={12} sm={4}>
+          <FormField
+            label="Phường / Xã"
+            name="ward"
+            placeholder="Phường Bến Nghé"
+            value={form.values.ward}
+            error={form.errors.ward}
+            onChange={form.handleChange}
+            onBlur={form.handleBlur}
+          />
+        </Col>
+
+        <Col xs={12} sm={4}>
+          <FormField
+            label="Quận / Huyện"
+            name="district"
+            placeholder="Quận 1"
+            value={form.values.district}
+            error={form.errors.district}
+            onChange={form.handleChange}
+            onBlur={form.handleBlur}
+          />
+        </Col>
+
+        <Col xs={12} sm={4}>
+          <FormField
+            label="Tỉnh / Thành phố"
+            name="city"
+            placeholder="TP. Hồ Chí Minh"
+            autoComplete="address-level1"
+            value={form.values.city}
+            error={form.errors.city}
+            onChange={form.handleChange}
+            onBlur={form.handleBlur}
+          />
+        </Col>
+      </Row>
+
+      <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
         <Button
           type="button"
           variant="outline-secondary"
+          className="px-4 rounded-pill"
           disabled={isSubmitting}
           onClick={onCancel}
         >
-          Hủy
+          Hủy bỏ
+        </Button>
+        <Button
+          type="submit"
+          variant="primary"
+          className="px-4 fw-semibold rounded-pill"
+          disabled={isSubmitting}
+          style={{
+            backgroundColor: "var(--hf-primary)",
+            borderColor: "var(--hf-primary)",
+          }}
+        >
+          {isSubmitting ? "Đang lưu..." : address ? "Cập nhật địa chỉ" : "Lưu địa chỉ mới"}
         </Button>
       </div>
     </Form>

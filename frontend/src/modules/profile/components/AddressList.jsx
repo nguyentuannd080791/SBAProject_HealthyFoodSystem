@@ -1,5 +1,11 @@
-import { Badge, Button, ListGroup } from "react-bootstrap";
+import { Badge, Button } from "react-bootstrap";
 import { formatAddress } from "../utils/addressMapping";
+import {
+  CheckIcon,
+  MapPinIcon,
+  PencilIcon,
+  TrashIcon,
+} from "../../../shared/components/Icons";
 
 export function AddressList({
   addresses,
@@ -9,25 +15,44 @@ export function AddressList({
   onMakeDefault,
 }) {
   return (
-    <ListGroup>
+    <div className="d-flex flex-column gap-3">
       {addresses.map((address) => (
-        <ListGroup.Item key={address.id}>
-          <div className="d-flex justify-content-between flex-wrap gap-2">
-            <div>
-              <strong>{address.recipientName}</strong> ·{" "}
-              {address.recipientPhone}
+        <div
+          key={address.id}
+          className={`address-item-card ${address.isDefault ? "is-default" : ""}`}
+        >
+          <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+            <div className="d-flex align-items-center gap-2 flex-wrap">
+              <div
+                className="rounded-circle d-flex align-items-center justify-content-center p-2"
+                style={{
+                  backgroundColor: address.isDefault ? "#dcfce7" : "#f1f5f9",
+                  color: address.isDefault ? "var(--hf-primary)" : "#64748b",
+                }}
+              >
+                <MapPinIcon size={18} />
+              </div>
+              <span className="fw-bold text-dark fs-6">
+                {address.recipientName}
+              </span>
+              <span className="text-muted small">· {address.recipientPhone}</span>
               {address.isDefault && (
-                <Badge bg="primary" className="ms-2">
+                <Badge
+                  bg="success-subtle"
+                  className="text-success border border-success-subtle px-2 py-1 small fw-normal"
+                >
+                  <CheckIcon size={12} className="me-1" />
                   Mặc định
                 </Badge>
               )}
-              <div>{formatAddress(address)}</div>
             </div>
-            <div className="d-flex flex-wrap gap-2 align-items-start">
+
+            <div className="d-flex align-items-center gap-1">
               {!address.isDefault && (
                 <Button
-                  variant="outline-primary"
+                  variant="outline-secondary"
                   size="sm"
+                  className="rounded-pill px-3 py-1 small me-1"
                   disabled={isBusy}
                   onClick={() => onMakeDefault(address)}
                 >
@@ -35,25 +60,33 @@ export function AddressList({
                 </Button>
               )}
               <Button
-                variant="outline-primary"
+                variant="light"
                 size="sm"
+                className="rounded-3 p-2 text-secondary"
+                title="Sửa địa chỉ"
                 disabled={isBusy}
                 onClick={() => onEdit(address)}
               >
-                Sửa
+                <PencilIcon size={16} />
               </Button>
               <Button
-                variant="outline-danger"
+                variant="light"
                 size="sm"
+                className="rounded-3 p-2 text-danger"
+                title="Xóa địa chỉ"
                 disabled={isBusy}
                 onClick={() => onRemove(address)}
               >
-                Xóa
+                <TrashIcon size={16} />
               </Button>
             </div>
           </div>
-        </ListGroup.Item>
+
+          <div className="text-secondary small ps-md-4 ms-md-3">
+            {formatAddress(address)}
+          </div>
+        </div>
       ))}
-    </ListGroup>
+    </div>
   );
 }
