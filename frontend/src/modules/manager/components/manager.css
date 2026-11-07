@@ -14,3 +14,19 @@
 .manager-area td { padding-top: 16px; padding-bottom: 16px; }
 .manager-area .table { min-width: 720px; }
 @media (max-width: 575px) { .manager-banner { padding: 20px; } .manager-image-preview { height: 190px; } }
+.manager-order-code { overflow-wrap: anywhere; font-size: .85rem; }
+.manager-order-totals { display: grid; grid-template-columns: 1fr auto; gap: .75rem 1.5rem; max-width: 420px; }
+.manager-order-totals dt { font-weight: 500; }
+.manager-order-totals dd { margin: 0; text-align: right; }
+.manager-unpaid-print-notice { display: none; }
+@media print {
+  .manager-unpaid-order > * { display: none !important; }
+  .manager-unpaid-order > .manager-unpaid-print-notice { display: block !important; }
+  body:has(.manager-order-sheet) .navbar,
+  .manager-banner, .manager-nav, .manager-order-actions { display: none !important; }
+  .manager-order-sheet { border: 0 !important; box-shadow: none !important; padding: 0 !important; }
+  .manager-area .manager-order-lines { min-width: 0; }
+  .manager-order-sheet .table-responsive { overflow: visible; }
+  .manager-order-sheet tr { break-inside: avoid; }
+  .manager-order-sheet thead { display: table-header-group; }
+}

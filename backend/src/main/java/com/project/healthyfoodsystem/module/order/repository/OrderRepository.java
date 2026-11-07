@@ -1,6 +1,6 @@
-package com.project.healthyfoodsystem.module.payment.repository;
+package com.project.healthyfoodsystem.module.order.repository;
 
-import com.project.healthyfoodsystem.module.payment.entity.CustomerOrder;
+import com.project.healthyfoodsystem.module.order.entity.CustomerOrder;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

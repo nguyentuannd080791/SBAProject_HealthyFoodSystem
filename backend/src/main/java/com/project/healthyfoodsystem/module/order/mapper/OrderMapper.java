@@ -1,7 +1,7 @@
-package com.project.healthyfoodsystem.module.payment.mapper;
+package com.project.healthyfoodsystem.module.order.mapper;
 
-import com.project.healthyfoodsystem.module.payment.dto.response.OrderResponse;
-import com.project.healthyfoodsystem.module.payment.entity.CustomerOrder;
+import com.project.healthyfoodsystem.module.order.dto.response.OrderResponse;
+import com.project.healthyfoodsystem.module.order.entity.CustomerOrder;
 import com.project.healthyfoodsystem.module.payment.entity.Payment;
 
 public final class OrderMapper {
