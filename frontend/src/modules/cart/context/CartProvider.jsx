@@ -70,6 +70,7 @@ export function CartProvider({ children }) {
   return (
     <CartContext.Provider value={{
       items, addToCart,
+      refreshCart: () => mutate(() => cartApi.get()),
       updateQuantity, removeFromCart, clearCart: () => {},
       ...getCartTotals(items), storageError: "", cartError, isServerCart: true,
     }}>

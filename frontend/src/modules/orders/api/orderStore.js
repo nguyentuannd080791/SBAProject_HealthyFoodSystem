@@ -1,47 +1,25 @@
-const storageKey = "healthy_orders_v1";
+import { callApi } from "../../../shared/api/callApi";
+import { httpClient } from "../../../shared/api/httpClient";
 
-function readOrders() {
-  const parsed = JSON.parse(localStorage.getItem(storageKey) ?? "[]");
-  return Array.isArray(parsed) ? parsed : [];
-}
-
-function withStorage(action) {
-  try {
-    return { data: action() };
-  } catch {
-    return { error: "Không thể lưu đơn hàng trên trình duyệt. Hãy kiểm tra dung lượng lưu trữ." };
-  }
+function mapOrder(order) {
+  return { ...order, items: order.items.map((item) => ({ ...item,
+    image: item.image ? new URL(item.image, httpClient.defaults.baseURL).href : "",
+  })) };
 }
 
 export const orderStore = {
-  list(customerId) {
-    return withStorage(() => readOrders()
-      .filter((order) => String(order.customerId) === String(customerId))
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+  async list() {
+    const result = await callApi(() => httpClient.get("/api/orders"));
+    return result.error ? result : { data: result.data.map(mapOrder) };
   },
-  get(customerId, orderId) {
-    return withStorage(() => readOrders().find((order) =>
-      String(order.customerId) === String(customerId) && String(order.id) === String(orderId)) ?? null);
+  async get(orderId) {
+    const result = await callApi(() => httpClient.get(`/api/orders/${encodeURIComponent(orderId)}`));
+    return result.error ? result : { data: mapOrder(result.data) };
   },
-  create(order) {
-    return withStorage(() => {
-      const orders = readOrders();
-      orders.unshift(order);
-      localStorage.setItem(storageKey, JSON.stringify(orders));
-      return order;
-    });
+  create(request) { return callApi(() => httpClient.post("/api/orders", request)); },
+  async cancel(orderId) {
+    const result = await callApi(() => httpClient.post(`/api/orders/${encodeURIComponent(orderId)}/cancel`));
+    return result.error ? result : { data: mapOrder(result.data) };
   },
-  cancel(customerId, orderId) {
-    return withStorage(() => {
-      const orders = readOrders();
-      const order = orders.find((item) => String(item.customerId) === String(customerId) && String(item.id) === String(orderId));
-      if (!order) throw new Error("Không tìm thấy đơn hàng.");
-      if (!["processing", "pending_payment"].includes(order.status)) {
-        throw new Error("Đơn hàng hiện không thể hủy.");
-      }
-      const updated = { ...order, status: "cancelled", paymentStatus: "cancelled", updatedAt: new Date().toISOString() };
-      localStorage.setItem(storageKey, JSON.stringify(orders.map((item) => item === order ? updated : item)));
-      return updated;
-    });
-  },
+  payment(orderId) { return callApi(() => httpClient.get(`/api/orders/${encodeURIComponent(orderId)}/payment`)); },
 };
