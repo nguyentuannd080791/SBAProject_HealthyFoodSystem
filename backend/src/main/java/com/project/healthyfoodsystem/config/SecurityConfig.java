@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers("/api/auth/change-password").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/payments/sepay/webhook").permitAll()
                         .requestMatchers("/api/user/**").hasAnyAuthority(
                                 RoleConstants.ROLE_PREFIX + RoleConstants.CUSTOMER,
                                 RoleConstants.ROLE_PREFIX + RoleConstants.MANAGER,

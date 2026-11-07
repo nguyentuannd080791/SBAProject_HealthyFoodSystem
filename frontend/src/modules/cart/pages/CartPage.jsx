@@ -77,8 +77,8 @@ export function CartPage() {
               <div className="d-flex justify-content-between mb-3"><span>Tổng tiền</span><strong>{formatCurrency(totalPrice)}</strong></div>
               <div className="d-flex justify-content-between gap-2 mb-3"><span>Tổng Calories dự tính</span><strong className="text-success text-nowrap">{totalCalories.toLocaleString("vi-VN")} kcal</strong></div>
               <p className="small text-muted">Dinh dưỡng được ước tính theo khẩu phần. Giá chưa bao gồm phí giao hàng.</p>
-              {isServerCart ? <Button disabled className="w-100">Tiến hành thanh toán</Button>
-                : <Button as={Link} to="/checkout" className="w-100">Tiến hành thanh toán</Button>}
+              <Button as={Link} to="/checkout" className="w-100"
+                disabled={pendingIds.size > 0}>Tiến hành thanh toán</Button>
             </Card>
           </Col>
         </Row>

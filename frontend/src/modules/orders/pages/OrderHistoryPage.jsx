@@ -14,9 +14,13 @@ export function OrderHistoryPage() {
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    const result = orderStore.list(user.id);
-    if (result.error) setError(result.error);
-    else setOrders(result.data);
+    let active = true;
+    orderStore.list().then((result) => {
+      if (!active) return;
+      if (result.error) setError(result.error);
+      else setOrders(result.data);
+    });
+    return () => { active = false; };
   }, [user.id]);
 
   const visibleOrders = (orders ?? []).filter((order) => {
