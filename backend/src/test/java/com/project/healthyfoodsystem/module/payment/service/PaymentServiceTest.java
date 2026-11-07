@@ -11,14 +11,16 @@ import com.project.healthyfoodsystem.module.cart.repository.CartItemRepository;
 import com.project.healthyfoodsystem.module.cart.repository.CartRepository;
 import com.project.healthyfoodsystem.module.exception.ApiException;
 import com.project.healthyfoodsystem.module.payment.config.SePaySettings;
-import com.project.healthyfoodsystem.module.payment.dto.request.CheckoutRequest;
+import com.project.healthyfoodsystem.module.order.dto.request.CheckoutRequest;
 import com.project.healthyfoodsystem.module.payment.dto.request.SePayWebhookRequest;
-import com.project.healthyfoodsystem.module.payment.entity.CustomerOrder;
+import com.project.healthyfoodsystem.module.order.entity.CustomerOrder;
 import com.project.healthyfoodsystem.module.payment.entity.Payment;
-import com.project.healthyfoodsystem.module.payment.repository.OrderRepository;
+import com.project.healthyfoodsystem.module.order.repository.OrderRepository;
 import com.project.healthyfoodsystem.module.payment.repository.PaymentRepository;
 import com.project.healthyfoodsystem.module.payment.repository.PaymentTransactionRepository;
 import com.project.healthyfoodsystem.module.payment.service.impl.PaymentServiceImpl;
+import com.project.healthyfoodsystem.module.order.service.OrderService;
+import com.project.healthyfoodsystem.module.order.service.impl.OrderServiceImpl;
 import com.project.healthyfoodsystem.module.product.entity.Product;
 import com.project.healthyfoodsystem.module.product.repository.ProductRepository;
 
@@ -42,7 +44,8 @@ class PaymentServiceTest {
     private final SePaySettings settings = mock(SePaySettings.class);
     private final PaymentService service =
             new PaymentServiceImpl(
-                    users, carts, cartItems, products, orders, payments, transactions, settings);
+                    users, orders, payments, transactions, settings);
+    private final OrderService orderService = new OrderServiceImpl(users, carts, cartItems, products, orders, payments, settings);
     private final String email = "customer@example.com";
     private List<CartItem> rows;
 
@@ -132,7 +135,7 @@ class PaymentServiceTest {
     @Test
     void checkoutReadsRealCartAndClearsOnlyAfterCreatingOrder() {
         cart();
-        var result = service.checkout(email, request("cash"));
+        var result = orderService.checkout(email, request("cash"));
         assertEquals(new BigDecimal("125200"), result.getTotal());
         assertEquals("unpaid", result.getPaymentStatus());
         var sequence = inOrder(orders, payments, cartItems);
@@ -143,7 +146,7 @@ class PaymentServiceTest {
 
     @Test
     void emptyCartCannotCheckout() {
-        assertThrows(ApiException.class, () -> service.checkout(email, request("cash")));
+        assertThrows(ApiException.class, () -> orderService.checkout(email, request("cash")));
         verifyNoInteractions(transactions);
         verify(orders, never()).save(any());
         verify(cartItems, never()).deleteAll(any());
@@ -154,7 +157,7 @@ class PaymentServiceTest {
         cart();
         var request = request("cash");
         request.setExpectedCart(Map.of(10, 1));
-        assertThrows(ApiException.class, () -> service.checkout(email, request));
+        assertThrows(ApiException.class, () -> orderService.checkout(email, request));
         verify(orders, never()).save(any());
         verify(cartItems, never()).deleteAll(any());
     }
@@ -164,7 +167,7 @@ class PaymentServiceTest {
         cart();
         var request = request("cash");
         request.setExpectedSubtotal(BigDecimal.ONE);
-        assertThrows(ApiException.class, () -> service.checkout(email, request));
+        assertThrows(ApiException.class, () -> orderService.checkout(email, request));
         verify(orders, never()).save(any());
         verify(cartItems, never()).deleteAll(any());
     }
@@ -173,7 +176,7 @@ class PaymentServiceTest {
     void retryReturnsOriginalOrderEvenAfterCartHasBeenCleared() {
         when(orders.findByCustomerIdAndRequestId(1, "retry-1")).thenReturn(Optional.of(order()));
         when(payments.findByOrderId("o1")).thenReturn(Optional.of(payment()));
-        assertEquals("o1", service.checkout(email, request("sepay")).getId());
+        assertEquals("o1", orderService.checkout(email, request("sepay")).getId());
         verifyNoInteractions(carts);
         verify(orders, never()).save(any());
     }
@@ -183,12 +186,12 @@ class PaymentServiceTest {
         CustomerOrder order = order();
         order.setCustomerId(99);
         when(orders.findById("o1")).thenReturn(Optional.of(order));
-        assertThrows(ApiException.class, () -> service.detail(email, "o1"));
+        assertThrows(ApiException.class, () -> orderService.detail(email, "o1"));
     }
 
     @Test
     void missingSePayConfigDoesNotConsumeCart() {
-        assertThrows(ApiException.class, () -> service.checkout(email, request("sepay")));
+        assertThrows(ApiException.class, () -> orderService.checkout(email, request("sepay")));
         verifyNoInteractions(carts);
         verify(orders, never()).save(any());
     }

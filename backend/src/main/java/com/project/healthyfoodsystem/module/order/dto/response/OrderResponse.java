@@ -1,4 +1,4 @@
-package com.project.healthyfoodsystem.module.payment.dto.response;
+package com.project.healthyfoodsystem.module.order.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -41,7 +41,10 @@
   .tracking-step:last-child > div { border-left-color: transparent; }
   .tracking-dot { grid-row: span 2; }
 }
+.unpaid-print-notice { display: none; }
 @media print {
+  .order-payment-required > * { display: none !important; }
+  .order-payment-required > .unpaid-print-notice { display: block !important; }
   .navbar, .btn, .order-back, .order-eyebrow { display: none !important; }
   .orders-page { max-width: 100%; }
   body { background: #fff !important; }

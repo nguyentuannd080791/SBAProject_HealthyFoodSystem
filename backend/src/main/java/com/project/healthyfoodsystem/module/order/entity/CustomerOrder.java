@@ -1,4 +1,4 @@
-package com.project.healthyfoodsystem.module.payment.entity;
+package com.project.healthyfoodsystem.module.order.entity;
 
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
