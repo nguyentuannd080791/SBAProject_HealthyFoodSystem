@@ -1,7 +1,6 @@
 package com.project.healthyfoodsystem.module.product.controller;
 
 import com.project.healthyfoodsystem.module.product.dto.request.CreateProductRequest;
-import com.project.healthyfoodsystem.module.product.dto.response.CategoryResponse;
 import com.project.healthyfoodsystem.module.product.dto.response.ProductResponse;
 import com.project.healthyfoodsystem.module.product.service.ProductService;
 import jakarta.validation.Valid;
@@ -47,10 +46,5 @@ public class ProductController {
     public ResponseEntity<ProductResponse> update(@PathVariable Integer id,
             @Valid @ModelAttribute CreateProductRequest request) {
         return ResponseEntity.ok(productService.update(id, request));
-    }
-
-    @GetMapping("/categories")
-    public ResponseEntity<List<CategoryResponse>> categories() {
-        return ResponseEntity.ok(productService.categories());
     }
 }

@@ -1,16 +1,13 @@
 import { callApi } from "../../../shared/api/callApi";
 import { httpClient } from "../../../shared/api/httpClient";
+import { categoryApi } from "../../category/api/categoryApi";
 import { mapProduct } from "../utils/mapProduct";
-
-async function categories() {
-  return callApi(() => httpClient.get("/api/products/categories"));
-}
 
 export const productApi = {
   async list() {
     const [products, categoryResult] = await Promise.all([
       callApi(() => httpClient.get("/api/products")),
-      categories(),
+      categoryApi.list(),
     ]);
     if (products.error) return products;
     if (categoryResult.error) return categoryResult;
@@ -24,7 +21,7 @@ export const productApi = {
   async get(id) {
     const [product, categoryResult] = await Promise.all([
       callApi(() => httpClient.get(`/api/products/${id}`)),
-      categories(),
+      categoryApi.list(),
     ]);
     if (product.error) return product;
     if (categoryResult.error) return categoryResult;

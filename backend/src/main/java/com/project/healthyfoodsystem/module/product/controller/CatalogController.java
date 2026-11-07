@@ -1,6 +1,5 @@
 package com.project.healthyfoodsystem.module.product.controller;
 
-import com.project.healthyfoodsystem.module.product.dto.response.CategoryResponse;
 import com.project.healthyfoodsystem.module.product.dto.response.ProductResponse;
 import com.project.healthyfoodsystem.module.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +24,5 @@ public class CatalogController {
     @GetMapping("/{id}")
     public ProductResponse get(@PathVariable Integer id) {
         return productService.get(id);
-    }
-
-    @GetMapping("/categories")
-    public List<CategoryResponse> categories() {
-        return productService.categories();
     }
 }

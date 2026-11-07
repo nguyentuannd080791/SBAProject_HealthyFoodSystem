@@ -1,5 +1,6 @@
 package com.project.healthyfoodsystem.module.product.entity;
 
+import com.project.healthyfoodsystem.module.category.entity.Category;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Nationalized;
 

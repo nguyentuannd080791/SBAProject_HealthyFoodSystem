@@ -1,16 +1,15 @@
 package com.project.healthyfoodsystem.module.product.service.impl;
 
+import com.project.healthyfoodsystem.module.category.entity.Category;
+import com.project.healthyfoodsystem.module.category.service.CategoryService;
+import com.project.healthyfoodsystem.module.exception.ProductInputException;
+import com.project.healthyfoodsystem.module.exception.ResourceNotFoundException;
 import com.project.healthyfoodsystem.module.product.dto.request.CreateProductRequest;
-import com.project.healthyfoodsystem.module.product.dto.response.CategoryResponse;
 import com.project.healthyfoodsystem.module.product.dto.response.ProductResponse;
-import com.project.healthyfoodsystem.module.product.entity.Category;
 import com.project.healthyfoodsystem.module.product.entity.Product;
-import com.project.healthyfoodsystem.module.product.repository.CategoryRepository;
 import com.project.healthyfoodsystem.module.product.repository.ProductRepository;
 import com.project.healthyfoodsystem.module.product.service.ProductImageService;
-import com.project.healthyfoodsystem.module.exception.ProductInputException;
 import com.project.healthyfoodsystem.module.product.service.ProductService;
-import com.project.healthyfoodsystem.module.exception.ResourceNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
@@ -26,11 +25,11 @@ import java.util.Set;
 
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository products;
-    private final CategoryRepository categories;
+    private final CategoryService categories;
     private final Validator validator;
     private final ProductImageService images;
 
-    public ProductServiceImpl(ProductRepository products, CategoryRepository categories,
+    public ProductServiceImpl(ProductRepository products, CategoryService categories,
                               Validator validator, ProductImageService images) {
         this.products = Objects.requireNonNull(products);
         this.categories = Objects.requireNonNull(categories);
@@ -113,7 +112,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Category findActiveCategory(Integer id) {
-        return categories.findByIdAndIsActiveTrue(id)
+        return categories.findActiveById(id)
                 .orElseThrow(() -> new ProductInputException("categoryId", "Danh mục không tồn tại hoặc không hoạt động."));
     }
 
@@ -152,13 +151,6 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public List<ProductResponse> list() {
         return products.findAllByOrderByIdDesc().stream().map(ProductServiceImpl::toResponse).toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<CategoryResponse> categories() {
-        return categories.findByIsActiveTrueOrderByNameAsc().stream()
-                .map(category -> new CategoryResponse(category.getId(), category.getName())).toList();
     }
 
     private static ProductResponse toResponse(Product saved) {
