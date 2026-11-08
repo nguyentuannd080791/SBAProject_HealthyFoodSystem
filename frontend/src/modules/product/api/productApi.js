@@ -31,13 +31,13 @@ export const productApi = {
   },
   async create(values) {
     try {
-      const response = await httpClient.post('/api/manager/products', productBody(values));
+      const response = await httpClient.post('/api/manager/products', productBody(values), { headers: { 'Content-Type': undefined } });
       return { data: response.data };
     } catch (error) { return failure(error); }
   },
   async update(id, values) {
     try {
-      const response = await httpClient.put(`/api/manager/products/${id}`, productBody(values));
+      const response = await httpClient.put(`/api/manager/products/${id}`, productBody(values), { headers: { 'Content-Type': undefined } });
       return { data: response.data };
     } catch (error) { return { ...failure(error), notFound: error.response?.status === 404 }; }
   },

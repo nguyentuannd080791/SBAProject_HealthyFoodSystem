@@ -50,13 +50,14 @@ export function ManagerOrderListPage() {
     setParams(next);
   }
 
-  return <>
+  return <div className="manager-orders-page">
     <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-      <div><h2 className="h4 mb-1">Quản lý đơn hàng</h2>
+      <div><div className="manager-section-label">VẬN HÀNH CỬA HÀNG</div><h2 className="h4 mb-1">Quản lý đơn hàng</h2>
         <p className="text-secondary mb-0">Theo dõi đơn hàng, thông tin giao nhận và trạng thái thanh toán.</p></div>
       <Button variant="outline-primary" disabled={loading} onClick={() => setReload((value) => value + 1)}>Làm mới</Button>
     </div>
-    <Card body className="mb-3">
+    <Card body className="manager-order-filters mb-4">
+      <div className="d-flex justify-content-between align-items-center mb-3"><h3 className="h6 mb-0">Tìm kiếm & bộ lọc</h3><span className="small text-secondary">Lọc nhanh đơn bạn cần</span></div>
       <Form key={`${search}|${method}|${status}|${paymentStatus}|${from}|${to}`} onSubmit={applyFilters}>
         <Row className="g-3 align-items-end">
           <Col lg={4}><Form.Label htmlFor="order-search">Tìm đơn hàng</Form.Label>
@@ -92,7 +93,7 @@ export function ManagerOrderListPage() {
       </Form>
     </Card>
     {error && <Alert variant="danger">{error}</Alert>}
-    <Card body aria-busy={loading}>
+    <Card body className="manager-order-results" aria-busy={loading}>
       {loading ? <div className="text-center py-4"><Spinner animation="border" role="status">
         <span className="visually-hidden">Đang tải đơn hàng...</span></Spinner></div>
         : result && <>
@@ -120,5 +121,5 @@ export function ManagerOrderListPage() {
           </nav>}
         </>}
     </Card>
-  </>;
+  </div>;
 }

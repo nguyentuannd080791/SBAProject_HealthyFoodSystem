@@ -4,6 +4,8 @@ import { Link } from "react-router";
 import { QuantityControl } from "../../../shared/components/QuantityControl";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { useCart } from "../hooks/useCart";
+import { OrderPageHeader } from "../../orders/components/OrderPageHeader";
+import "../../orders/styles/orders.css";
 
 export function CartPage() {
   const { items, updateQuantity, removeFromCart, clearCart, totalItems,
@@ -24,8 +26,11 @@ export function CartPage() {
   }
 
   return (
-    <>
-      <h1 className="h2 mb-4">Giỏ hàng của bạn</h1>
+    <div className="orders-page cart-page">
+      <OrderPageHeader eyebrow="BỮA ĂN CỦA BẠN" title="Giỏ hàng"
+        description="Một bữa ăn ngon bắt đầu từ những lựa chọn lành mạnh.">
+        <span className="order-count-pill">{totalItems} món đã chọn</span>
+      </OrderPageHeader>
       {storageError && <Alert variant="warning">{storageError}</Alert>}
       {cartError && <Alert variant="danger">{cartError}</Alert>}
       {items.length === 0 ? (
@@ -38,7 +43,7 @@ export function CartPage() {
       ) : (
         <Row className="g-4">
           <Col lg={8}>
-            <Card className="border-0 shadow-sm">
+            <Card className="cart-items-panel">
               <Table responsive hover className="align-middle mb-0">
                 <caption className="visually-hidden">Các món trong giỏ hàng</caption>
                 <thead><tr>
@@ -71,18 +76,19 @@ export function CartPage() {
             </div>
           </Col>
           <Col lg={4}>
-            <Card body className="border-0 shadow-sm">
+            <Card body className="order-panel cart-summary-panel">
+              <div className="order-eyebrow mb-2">KIỂM TRA LẦN CUỐI</div>
               <h2 className="h4 mb-4">Tóm tắt đơn hàng</h2>
               <div className="d-flex justify-content-between mb-3"><span>Tổng số món</span><strong>{totalItems}</strong></div>
               <div className="d-flex justify-content-between mb-3"><span>Tổng tiền</span><strong>{formatCurrency(totalPrice)}</strong></div>
               <div className="d-flex justify-content-between gap-2 mb-3"><span>Tổng Calories dự tính</span><strong className="text-success text-nowrap">{totalCalories.toLocaleString("vi-VN")} kcal</strong></div>
               <p className="small text-muted">Dinh dưỡng được ước tính theo khẩu phần. Giá chưa bao gồm phí giao hàng.</p>
               <Button as={Link} to="/checkout" className="w-100"
-                disabled={pendingIds.size > 0}>Tiến hành thanh toán</Button>
+                disabled={pendingIds.size > 0}>Tiến hành thanh toán <span aria-hidden="true">→</span></Button>
             </Card>
           </Col>
         </Row>
       )}
-    </>
+    </div>
   );
 }

@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router";
 import { useAuth } from "../../../app/provider/useAuth";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { orderStore } from "../api/orderStore";
+import { rememberPendingPayment } from "../utils/paymentNotifications";
 import { canCancelOrder, formatOrderAddress, formatOrderDate, orderStatuses } from "../utils/orderFormatting";
 import "../styles/orders.css";
 
@@ -33,6 +34,7 @@ export function OrderDetailPage() {
         return;
       }
       setOrder(result.data);
+      rememberPendingPayment(user?.id, result.data);
       if (result.data?.paymentStatus === "pending") {
         const info = await orderStore.payment(orderId);
         if (!active) return;
@@ -70,7 +72,7 @@ export function OrderDetailPage() {
       {!canPrintInvoice && <p className="unpaid-print-notice">Chỉ có thể in hóa đơn sau khi đơn hàng đã thanh toán.</p>}
       <Link to="/orders" className="order-back">← Lịch sử đơn hàng</Link>
       {loadError && <Alert className="mt-3" variant="danger">{loadError}</Alert>}
-      <div className="d-flex flex-wrap justify-content-between align-items-start gap-3 mt-3 mb-4">
+      <div className="order-detail-header d-flex flex-wrap justify-content-between align-items-start gap-3 mt-3 mb-4">
         <div><div className="order-eyebrow">CHI TIẾT ĐƠN</div><h1 className="h2 mb-1">Đơn #{String(order.id).slice(-8)}</h1>
           <p className="text-secondary mb-0">Đặt lúc {formatOrderDate(order.createdAt)}</p></div><Badge bg={status.variant} className="fs-6">{status.label}</Badge>
       </div>
@@ -81,8 +83,10 @@ export function OrderDetailPage() {
       </Alert>}
       {order.paymentMethod === "sepay" && order.paymentStatus === "pending" && !payment &&
         <Alert variant="info">Đang tải thông tin chuyển khoản. Nếu chưa thấy mã QR, hãy tải lại trang.</Alert>}
-      {payment && <Card body className="text-center mb-3">
-        <h2 className="h5">Quét mã thanh toán</h2>
+      {payment && <Card body className="qr-payment-panel text-center mb-4">
+        <div className="order-eyebrow mb-2">CHUYỂN KHOẢN NGÂN HÀNG</div>
+        <h2 className="h4">Quét mã, thanh toán nhanh</h2>
+        <p className="small text-secondary">Mở ứng dụng ngân hàng và quét mã QR bên dưới.</p>
         {failedQrUrl === payment.qrUrl ? <Alert variant="warning">
           <p>Chưa tải được mã QR. Bạn có thể chuyển khoản theo thông tin bên dưới, giữ đúng số tiền và nội dung.</p>
           <Button variant="outline-primary" size="sm" onClick={() => {
@@ -91,10 +95,11 @@ export function OrderDetailPage() {
           }}>Tải lại mã QR</Button>
         </Alert> : <img key={`${payment.qrUrl}-${qrAttempt}`} src={payment.qrUrl}
           onError={() => setFailedQrUrl(payment.qrUrl)}
-          alt="QR thanh toán đơn hàng" width="240" height="240" className="mx-auto" />}
+          alt="QR thanh toán đơn hàng" width="240" height="240" className="qr-payment-image mx-auto" />}
         <p>{payment.bank} · {payment.accountNumber} · {payment.accountName}</p>
         <p>Số tiền: <strong>{formatCurrency(payment.amount)}</strong></p>
-        <p className="mb-0">Nội dung: <strong>{payment.content}</strong></p>
+        <p className="qr-payment-reference mb-0">Nội dung: <strong>{payment.content}</strong></p>
+        <small className="d-block text-secondary mt-3">Trạng thái tự cập nhật sau khi hệ thống nhận được thanh toán.</small>
       </Card>}
       {order.status === "cancelled" ? <Alert variant="secondary">Đơn hàng đã được hủy.</Alert> : <Card body className="tracking-card mb-3">
         <h2 className="h5">Theo dõi đơn hàng</h2><div className="tracking-steps">{stages.map((stage, index) => <div className={`tracking-step ${currentStage >= index && order.status !== "pending_payment" ? "is-complete" : ""}`} key={stage}>
