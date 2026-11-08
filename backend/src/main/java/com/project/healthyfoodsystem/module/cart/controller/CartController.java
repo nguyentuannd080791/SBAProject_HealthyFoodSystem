@@ -44,4 +44,9 @@ public class CartController {
     public CartResponse remove(@PathVariable Integer itemId, Principal principal) {
         return cartService.remove(principal.getName(), itemId);
     }
+
+    @DeleteMapping
+    public CartResponse clear(Principal principal) {
+        return cartService.clear(principal.getName());
+    }
 }

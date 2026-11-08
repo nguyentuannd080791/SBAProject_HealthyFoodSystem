@@ -58,11 +58,14 @@ public class CartServiceImpl implements CartService {
                     created.setQuantity(0);
                     return created;
                 });
+        int requestedQuantity;
         try {
-            item.setQuantity(Math.addExact(item.getQuantity(), quantity));
+            requestedQuantity = Math.addExact(item.getQuantity(), quantity);
         } catch (ArithmeticException ex) {
             throw new ApiException(HttpStatus.CONFLICT, "Cart quantity is too large");
         }
+        requireAvailableStock(product, requestedQuantity);
+        item.setQuantity(requestedQuantity);
         cartItemRepository.saveAndFlush(item);
         return responseFor(cart);
     }
@@ -86,6 +89,7 @@ public class CartServiceImpl implements CartService {
             if (!"AVAILABLE".equals(product.getStatus())) {
                 throw new ApiException(HttpStatus.CONFLICT, "Product is not available for sale");
             }
+            requireAvailableStock(product, quantity);
         }
         item.setQuantity(quantity);
         cartItemRepository.saveAndFlush(item);
@@ -110,6 +114,16 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
+    public CartResponse clear(String email) {
+        User user = userRepository.findByEmailForCartUpdate(email)
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "User session is no longer valid"));
+        cartRepository.findByUserId(user.getId())
+                .ifPresent(cart -> cartItemRepository.deleteAllByCartId(cart.getId()));
+        return new CartResponse(List.of(), 0, BigDecimal.ZERO);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public CartResponse get(String email) {
         Integer userId = userRepository.findByEmail(email)
@@ -118,6 +132,14 @@ public class CartServiceImpl implements CartService {
         return cartRepository.findByUserId(userId)
                 .map(this::responseFor)
                 .orElseGet(() -> new CartResponse(List.of(), 0, BigDecimal.ZERO));
+    }
+
+    private void requireAvailableStock(Product product, int requestedQuantity) {
+        Integer stockQuantity = product.getStockQuantity();
+        if (stockQuantity != null && requestedQuantity > stockQuantity) {
+            throw new ApiException(HttpStatus.CONFLICT,
+                    "Sản phẩm " + product.getName() + " chỉ còn " + stockQuantity + " trong kho.");
+        }
     }
 
     private CartResponse responseFor(Cart cart) {

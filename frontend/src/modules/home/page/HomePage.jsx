@@ -1,7 +1,6 @@
 // src/modules/home/pages/HomePage.jsx
 import { useEffect, useState } from "react";
 import { Alert } from "react-bootstrap";
-import { useAuth } from "../../../app/provider/useAuth";
 import { useCart } from "../../cart/hooks/useCart";
 import { productApi } from "../../menu/api/productApi";
 import { HeroBanner } from "../components/HeroBanner";
@@ -11,12 +10,7 @@ import { DeliveryProcessSection } from "../components/DeliveryProcessSection";
 import { HomeFooter } from "../components/HomeFooter";
 import { DEFAULT_MEAL_CATALOG, Meal, MealCatalog, MacroNutrients, Money, NUTRITION_CATEGORIES } from "../utils/mealModels";
 
-export function HomePage({
-  catalog = DEFAULT_MEAL_CATALOG,
-  onSelectMeal,
-  onSelectPlan,
-}) {
-  const { user } = useAuth();
+export function HomePage({ onSelectMeal, onSelectPlan }) {
   const { addToCart } = useCart();
   const [serverCatalog, setServerCatalog] = useState(null);
   const [loadError, setLoadError] = useState("");
@@ -27,7 +21,6 @@ export function HomePage({
   const [notificationType, setNotificationType] = useState("success");
 
   useEffect(() => {
-    if (!user) return;
     let active = true;
     productApi.list().then((result) => {
       if (!active) return;
@@ -48,9 +41,9 @@ export function HomePage({
       setLoadError("");
     });
     return () => { active = false; };
-  }, [user]);
+  }, []);
 
-  const filteredMeals = (user ? serverCatalog ?? new MealCatalog() : catalog)
+  const filteredMeals = (serverCatalog ?? new MealCatalog())
     .filterBy(selectedCategory, searchKeyword);
 
   const scrollToSection = (sectionId) => {
@@ -97,7 +90,7 @@ export function HomePage({
       />
 
       {loadError && <Alert variant="danger">Không tải được thực đơn: {loadError}</Alert>}
-      {user && !serverCatalog && !loadError && <p role="status">Đang tải thực đơn…</p>}
+      {!serverCatalog && !loadError && <p role="status">Đang tải thực đơn…</p>}
 
       <FeaturedMealList
         meals={filteredMeals}

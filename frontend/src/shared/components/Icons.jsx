@@ -211,6 +211,18 @@ export function ShoppingBagIcon({ size = 18, className = "" }) {
   );
 }
 
+export function CartIcon({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+      strokeLinejoin="round" className={className} aria-hidden="true">
+      <circle cx="9" cy="21" r="1" />
+      <circle cx="20" cy="21" r="1" />
+      <path d="M1 2h3l2.4 12.4a2 2 0 0 0 2 1.6h10.8a2 2 0 0 0 2-1.6L23 6H5" />
+    </svg>
+  );
+}
+
 export function HeartPulseIcon({ size = 18, className = "" }) {
   return (
     <svg

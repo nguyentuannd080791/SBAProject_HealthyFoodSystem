@@ -1,18 +1,24 @@
 import { useRef, useState } from "react";
 import { Alert, Button, Card, Col, Image, Row, Table } from "react-bootstrap";
 import { Link } from "react-router";
+import { useAuth } from "../../../app/provider/useAuth";
+import { ConfirmDialog } from "../../../shared/components/ConfirmDialog";
 import { QuantityControl } from "../../../shared/components/QuantityControl";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { useCart } from "../hooks/useCart";
 
 export function CartPage() {
+  const { user } = useAuth();
   const { items, updateQuantity, removeFromCart, clearCart, totalItems,
-    totalPrice, totalCalories, storageError, cartError, isServerCart } = useCart();
+    totalPrice, totalCalories, storageError, cartError, pendingGuestItems,
+    retryGuestCart, isCartLoading } = useCart();
   const pendingRef = useRef(new Set());
   const [pendingIds, setPendingIds] = useState(new Set());
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearPending, setClearPending] = useState(false);
 
   async function runItemAction(itemId, action) {
-    if (pendingRef.current.has(itemId)) return;
+    if (clearPending || pendingRef.current.has(itemId)) return;
     pendingRef.current.add(itemId);
     setPendingIds(new Set(pendingRef.current));
     try {
@@ -23,11 +29,28 @@ export function CartPage() {
     }
   }
 
+  async function handleClearCart() {
+    if (clearPending || pendingRef.current.size > 0) return;
+    setClearPending(true);
+    try {
+      await clearCart();
+    } finally {
+      setClearPending(false);
+      setShowClearConfirm(false);
+    }
+  }
+
   return (
     <>
       <h1 className="h2 mb-4">Giỏ hàng của bạn</h1>
       {storageError && <Alert variant="warning">{storageError}</Alert>}
       {cartError && <Alert variant="danger">{cartError}</Alert>}
+      {user && pendingGuestItems > 0 && !isCartLoading && (
+        <Alert variant="warning">
+          {pendingGuestItems} món trong giỏ tạm chưa được chuyển vào tài khoản. Hãy chỉnh số lượng nếu cần, rồi{" "}
+          <Button variant="outline-warning" size="sm" onClick={retryGuestCart}>Thử chuyển lại</Button>
+        </Alert>
+      )}
       {items.length === 0 ? (
         <Card body className="text-center py-5 border-0 shadow-sm">
           <div className="display-4 mb-3" aria-hidden="true">🛒</div>
@@ -50,15 +73,16 @@ export function CartPage() {
                     <td><div className="d-flex align-items-center gap-3">
                       <Image src={item.image} alt={item.name} rounded width={72} height={64} style={{ objectFit: "cover" }} />
                       <Link to={`/products/${item.id}`} className="fw-semibold">{item.name}</Link>
+                      {user && item.pendingGuest && <span className="small text-warning">Chưa chuyển vào tài khoản</span>}
                     </div></td>
                     <td className="text-nowrap">{formatCurrency(item.price)}</td>
                     <td><QuantityControl quantity={item.quantity} min={1} name={item.name}
-                      disabled={pendingIds.has(item.cartItemId)}
+                      disabled={clearPending || isCartLoading || pendingIds.has(item.cartItemId)}
                       onChange={(quantity) => runItemAction(item.cartItemId,
                         () => updateQuantity(item.cartItemId, quantity))} /></td>
                     <td className="text-nowrap fw-semibold">{formatCurrency(item.price * item.quantity)}</td>
                     <td><Button variant="outline-danger" size="sm" aria-label={`Xóa ${item.name}`}
-                      disabled={pendingIds.has(item.cartItemId)}
+                      disabled={clearPending || isCartLoading || pendingIds.has(item.cartItemId)}
                       onClick={() => runItemAction(item.cartItemId,
                         () => removeFromCart(item.cartItemId))}>Xóa</Button></td>
                   </tr>
@@ -67,7 +91,8 @@ export function CartPage() {
             </Card>
             <div className="d-flex flex-wrap justify-content-between gap-2 mt-3">
               <Button as={Link} to="/menu" variant="outline-primary">Tiếp tục chọn món</Button>
-              <Button variant="outline-danger" onClick={clearCart} disabled={isServerCart}>Làm rỗng giỏ hàng</Button>
+              <Button variant="outline-danger" onClick={() => setShowClearConfirm(true)}
+                disabled={clearPending || isCartLoading || pendingIds.size > 0}>Làm rỗng giỏ hàng</Button>
             </div>
           </Col>
           <Col lg={4}>
@@ -77,12 +102,25 @@ export function CartPage() {
               <div className="d-flex justify-content-between mb-3"><span>Tổng tiền</span><strong>{formatCurrency(totalPrice)}</strong></div>
               <div className="d-flex justify-content-between gap-2 mb-3"><span>Tổng Calories dự tính</span><strong className="text-success text-nowrap">{totalCalories.toLocaleString("vi-VN")} kcal</strong></div>
               <p className="small text-muted">Dinh dưỡng được ước tính theo khẩu phần. Giá chưa bao gồm phí giao hàng.</p>
-              <Button as={Link} to="/checkout" className="w-100"
-                disabled={pendingIds.size > 0}>Tiến hành thanh toán</Button>
+              {user && pendingGuestItems > 0 ? (
+                <Button className="w-100" onClick={retryGuestCart}
+                  disabled={isCartLoading || clearPending || pendingIds.size > 0}>Chuyển giỏ tạm để thanh toán</Button>
+              ) : (
+                <Button as={Link} to={user ? "/checkout" : "/login"}
+                  state={user ? undefined : { from: "/checkout", notice: "Vui lòng đăng nhập để thanh toán đơn hàng." }}
+                  className="w-100" disabled={isCartLoading || clearPending || pendingIds.size > 0}>
+                  {isCartLoading ? "Đang chuẩn bị giỏ hàng..." : user ? "Tiến hành thanh toán" : "Đăng nhập để thanh toán"}
+                </Button>
+              )}
             </Card>
           </Col>
         </Row>
       )}
+      <ConfirmDialog show={showClearConfirm} title="Làm rỗng giỏ hàng?"
+        message="Tất cả món ăn trong giỏ sẽ bị xóa. Bạn có thể thêm lại từ thực đơn."
+        confirmLabel={clearPending ? "Đang xóa…" : "Làm rỗng giỏ hàng"}
+        isBusy={clearPending} onConfirm={handleClearCart}
+        onCancel={() => { if (!clearPending) setShowClearConfirm(false); }} />
     </>
   );
 }

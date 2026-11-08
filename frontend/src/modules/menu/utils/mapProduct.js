@@ -8,11 +8,12 @@ export function mapProduct(product, categoryNames = new Map()) {
   return {
     id: product.id,
     categoryId: product.categoryId,
-    categoryName: categoryNames.get(product.categoryId) ?? "Món ăn",
+    categoryName: product.categoryName ?? categoryNames.get(product.categoryId) ?? "Món ăn",
     name: product.name,
     description: product.description ?? "",
     image: imageUrl(product.imageUrl),
     price: Number(product.price),
+    stockQuantity: product.stockQuantity == null ? null : Number(product.stockQuantity),
     status: product.status,
     ingredients: product.ingredientsText?.split(",").map((item) => item.trim()).filter(Boolean) ?? [],
     tags: [],

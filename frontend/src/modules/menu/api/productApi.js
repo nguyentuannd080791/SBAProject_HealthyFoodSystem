@@ -19,13 +19,8 @@ export const productApi = {
   },
 
   async get(id) {
-    const [product, categoryResult] = await Promise.all([
-      callApi(() => httpClient.get(`/api/products/${id}`)),
-      categoryApi.list(),
-    ]);
+    const product = await callApi(() => httpClient.get(`/api/products/${id}`));
     if (product.error) return product;
-    if (categoryResult.error) return categoryResult;
-    const categoryNames = new Map(categoryResult.data.map(({ id: categoryId, name }) => [categoryId, name]));
-    return { data: mapProduct(product.data, categoryNames) };
+    return { data: mapProduct(product.data) };
   },
 };

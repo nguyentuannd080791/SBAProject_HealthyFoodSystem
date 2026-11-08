@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Alert, Badge, Button, Col, Image, Row } from "react-bootstrap";
-import { Link, useNavigate } from "react-router";
-import { useAuth } from "../../../app/provider/useAuth";
+import { Link } from "react-router";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { useCart } from "../../cart/hooks/useCart";
 import { AddToCartDialog } from "../components/AddToCartDialog";
@@ -10,8 +9,6 @@ import { useProductDetail } from "../hooks/useProductDetail";
 
 export function ProductDetailPage() {
   const { product, loading, error } = useProductDetail();
-  const { user } = useAuth();
-  const navigate = useNavigate();
   const { addToCart } = useCart();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [addedQuantity, setAddedQuantity] = useState(null);
@@ -19,10 +16,6 @@ export function ProductDetailPage() {
   const [pending, setPending] = useState(false);
 
   async function confirmAddToCart(selectedProduct, quantity) {
-    if (!user) {
-      navigate("/login", { state: { from: `/products/${product.id}`, notice: "Vui lòng đăng nhập để thêm món vào giỏ." } });
-      return;
-    }
     setPending(true);
     setAddError("");
     const result = await addToCart(selectedProduct, quantity);
@@ -42,8 +35,10 @@ export function ProductDetailPage() {
     </Alert>
   );
 
+  const soldOut = product.status !== "AVAILABLE" || product.stockQuantity === 0;
+
   return (
-    <>
+    <div className="pb-5">
       <Button as={Link} to="/menu" variant="link" className="px-0 mb-3">← Quay lại thực đơn</Button>
       <Row className="g-4 g-lg-5">
         <Col md={6}>
@@ -54,6 +49,9 @@ export function ProductDetailPage() {
           <Badge bg="success" className="mb-2">{product.categoryName}</Badge>
           <h1 className="h2">{product.name}</h1>
           <p className="fs-3 fw-bold text-success">{formatCurrency(product.price)}</p>
+          <p className={soldOut || product.stockQuantity == null ? "text-secondary" : product.stockQuantity <= 5 ? "text-warning" : "text-success"}>
+            {soldOut ? "Tạm hết hàng" : product.stockQuantity == null ? "Chưa cập nhật tồn kho" : `Còn ${product.stockQuantity} sản phẩm`}
+          </p>
           <p>{product.description}</p>
           <div className="d-flex flex-wrap gap-2 mb-3">{product.tags.map((tag) => (
             <Badge key={tag} bg="light" text="dark" className="border">{tag}</Badge>
@@ -61,8 +59,8 @@ export function ProductDetailPage() {
           <h2 className="h5">Thành phần nguyên liệu</h2>
           <ul className="mb-4">{product.ingredients.map((ingredient) => <li key={ingredient}>{ingredient}</li>)}</ul>
           <NutritionFacts nutrition={product.nutrition} />
-          <Button onClick={() => setShowAddDialog(true)} disabled={product.status !== "AVAILABLE"}>
-            {product.status === "AVAILABLE" ? "Thêm vào giỏ hàng" : "Hết hàng"}
+          <Button onClick={() => setShowAddDialog(true)} disabled={soldOut}>
+            {soldOut ? "Hết hàng" : "Thêm vào giỏ hàng"}
           </Button>
           {addedQuantity !== null && <Alert variant="success" className="mt-3" dismissible
             onClose={() => setAddedQuantity(null)}>
@@ -73,6 +71,6 @@ export function ProductDetailPage() {
       <AddToCartDialog product={product} show={showAddDialog}
         onHide={() => setShowAddDialog(false)} onConfirm={confirmAddToCart}
         pending={pending} error={addError} />
-    </>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 export const CART_STORAGE_KEY = "healthy_cart";
 
 function validItem(item) {
-  return item && (typeof item.id === "string" || typeof item.id === "number") &&
+  return item && Number.isSafeInteger(Number(item.id)) && Number(item.id) > 0 &&
     typeof item.name === "string" && Number.isFinite(item.price) && item.price >= 0 &&
     Number.isSafeInteger(item.quantity) && item.quantity > 0;
 }
@@ -15,7 +15,7 @@ function normalizeItem(item) {
     ]),
   );
   return {
-    id: item.id, name: item.name, price: item.price,
+    id: Number(item.id), name: item.name, price: item.price,
     image: typeof item.image === "string" ? item.image : "",
     nutrition, quantity: item.quantity,
   };
