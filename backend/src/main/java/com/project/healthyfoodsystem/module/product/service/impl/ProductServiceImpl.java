@@ -154,7 +154,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private static ProductResponse toResponse(Product saved) {
-        return new ProductResponse(saved.getId(), saved.getCategory().getId(), saved.getName(), saved.getDescription(),
+        return new ProductResponse(saved.getId(), saved.getCategory().getId(), saved.getCategory().getName(),
+                saved.getName(), saved.getDescription(),
                 saved.getImageUrl(), saved.getPrice(), saved.getStockQuantity(), saved.getIngredientsText(),
                 saved.getCaloriesKcal(), saved.getProteinG(), saved.getCarbohydrateG(), saved.getFatG(), saved.getFiberG(),
                 saved.getSugarG(), saved.getSodiumMg(), saved.getStatus());

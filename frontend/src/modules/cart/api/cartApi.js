@@ -14,4 +14,7 @@ export const cartApi = {
   remove(itemId) {
     return callApi(() => httpClient.delete(`/api/user/cart/items/${itemId}`));
   },
+  clear() {
+    return callApi(() => httpClient.delete("/api/user/cart"));
+  },
 };

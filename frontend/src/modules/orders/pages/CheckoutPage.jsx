@@ -13,7 +13,8 @@ import "../styles/orders.css";
 export function CheckoutPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { items, totalItems, totalPrice, refreshCart } = useCart();
+  const { items, totalItems, totalPrice, refreshCart, isCartLoading,
+    pendingGuestItems, cartError } = useCart();
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
@@ -63,10 +64,22 @@ export function CheckoutPage() {
     navigate(`/orders/${encodeURIComponent(result.data.id)}`, { replace: true });
   }
 
+  if (isCartLoading) {
+    return <p role="status">Đang chuẩn bị giỏ hàng để thanh toán…</p>;
+  }
+
+  if (pendingGuestItems > 0) {
+    return <Card body className="order-empty text-center">
+      <h1 className="h4 mt-3">Giỏ hàng cần được cập nhật</h1>
+      <p>{cartError || "Một số món trong giỏ tạm chưa được chuyển vào tài khoản."}</p>
+      <Button as={Link} to="/cart" className="align-self-center">Quay lại giỏ hàng</Button>
+    </Card>;
+  }
+
   if (!items.length) {
     return <Card body className="order-empty text-center">
       <span>🛒</span><h1 className="h4 mt-3">Giỏ hàng đang trống</h1>
-      <p className="text-muted">Thêm món trước khi thanh toán nhé.</p>
+      <p className="text-muted">{cartError || "Thêm món trước khi thanh toán nhé."}</p>
       <Button as={Link} to="/menu" className="align-self-center">Khám phá thực đơn</Button>
     </Card>;
   }

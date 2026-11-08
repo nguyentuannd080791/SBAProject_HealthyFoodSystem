@@ -1,30 +1,39 @@
-import { Link, Outlet } from "react-router";
+import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { Container, Nav, Navbar } from "react-bootstrap";
+import { LeafIcon } from "../../shared/components/Icons";
+import { FloatingCartLink } from "../../modules/cart/components/FloatingCartLink";
 import { UserMenu } from "./UserMenu";
 import { NotificationProvider } from "../../shared/notifications/NotificationProvider";
 import { PaymentNotificationWatcher } from "../../modules/orders/components/PaymentNotificationWatcher";
 import { useAuth } from "../provider/useAuth";
 
 export function MainLayout() {
-  const { user } = useAuth();
+  const pathname = useLocation().pathname;
+  const isMenuPage = pathname === "/menu";
+  const showFloatingCart = pathname === "/" || isMenuPage || pathname.startsWith("/products/");
+
   return (
-    <NotificationProvider key={user?.id ?? "guest"}>
-      <PaymentNotificationWatcher />
-      <Navbar bg="white" expand="lg" className="border-bottom">
-        <Container>
-          <Navbar.Brand as={Link} to="/">Healthy Food</Navbar.Brand>
+    <div className={isMenuPage ? "menu-layout" : undefined}>
+      <Navbar expand="lg" className={isMenuPage ? "menu-navbar" : "border-bottom bg-white"}>
+        <Container fluid={isMenuPage} className={isMenuPage ? "menu-shell menu-navbar-inner" : undefined}>
+          <Navbar.Brand as={Link} to="/" className={isMenuPage ? "menu-brand" : undefined}>
+            {isMenuPage && <span className="menu-brand-mark"><LeafIcon size={24} /></span>}
+            Healthy Food
+          </Navbar.Brand>
           <Navbar.Toggle aria-controls="main-navbar" aria-label="Mở menu điều hướng" />
           <Navbar.Collapse id="main-navbar">
-            <Nav className="me-auto">
-              <Nav.Link as={Link} to="/menu">Thực đơn</Nav.Link>
+            <Nav className={isMenuPage ? "menu-primary-nav me-auto" : "me-auto"}>
+              <Nav.Link as={NavLink} to="/menu">Thực đơn</Nav.Link>
+              {isMenuPage && <Nav.Link as={NavLink} to="/orders">Đơn hàng</Nav.Link>}
             </Nav>
-            <UserMenu />
+            <UserMenu menuStyle={isMenuPage} />
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      <Container as="main" className="py-4">
+      <Container as="main" fluid={isMenuPage} className={isMenuPage ? "menu-shell menu-main" : "py-4"}>
         <Outlet />
       </Container>
-    </NotificationProvider>
+      {showFloatingCart && <FloatingCartLink />}
+    </div>
   );
 }
