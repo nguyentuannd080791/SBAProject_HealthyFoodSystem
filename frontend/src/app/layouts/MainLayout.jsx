@@ -3,6 +3,9 @@ import { Container, Nav, Navbar } from "react-bootstrap";
 import { LeafIcon } from "../../shared/components/Icons";
 import { FloatingCartLink } from "../../modules/cart/components/FloatingCartLink";
 import { UserMenu } from "./UserMenu";
+import { NotificationProvider } from "../../shared/notifications/NotificationProvider";
+import { PaymentNotificationWatcher } from "../../modules/orders/components/PaymentNotificationWatcher";
+import { useAuth } from "../provider/useAuth";
 
 export function MainLayout() {
   const pathname = useLocation().pathname;

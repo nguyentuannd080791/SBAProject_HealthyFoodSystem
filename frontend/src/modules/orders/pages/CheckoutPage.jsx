@@ -5,7 +5,9 @@ import { useAuth } from "../../../app/provider/useAuth";
 import { useCart } from "../../cart/hooks/useCart";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { DeliveryForm } from "../components/DeliveryForm";
+import { OrderPageHeader } from "../components/OrderPageHeader";
 import { orderStore } from "../api/orderStore";
+import { rememberPendingPayment } from "../utils/paymentNotifications";
 import "../styles/orders.css";
 
 export function CheckoutPage() {
@@ -57,6 +59,7 @@ export function CheckoutPage() {
     submitting.current = false;
     setIsSubmitting(false);
     if (result.error) return setError(result.error);
+    rememberPendingPayment(user?.id, result.data);
     await refreshCart();
     navigate(`/orders/${encodeURIComponent(result.data.id)}`, { replace: true });
   }
@@ -84,23 +87,26 @@ export function CheckoutPage() {
   return (
     <div className="orders-page">
       <Link to="/cart" className="order-back">← Quay lại giỏ hàng</Link>
-      <div className="mt-3 mb-4"><div className="order-eyebrow">BƯỚC CUỐI CÙNG</div>
-        <h1 className="h2 mb-1">Thanh toán đơn hàng</h1>
-        <p className="text-secondary">Kiểm tra món và thông tin giao hàng trước khi xác nhận.</p></div>
+      <OrderPageHeader eyebrow="SẮP HOÀN TẤT" title="Thanh toán đơn hàng"
+        description="Chỉ còn một bước nữa để bữa ăn được giao đến bạn." />
+      <ol className="checkout-progress" aria-label="Các bước đặt hàng">
+        <li className="is-done"><span>✓</span> Chọn món</li><li className="is-current" aria-current="step"><span>2</span> Thông tin & thanh toán</li><li><span>3</span> Theo dõi đơn</li>
+      </ol>
       {error && <Alert variant="danger" dismissible onClose={() => setError("")}>{error}</Alert>}
 
       <div className="row g-4 align-items-start">
         <div className="col-lg-7">
           <Card body className="order-panel mb-3">
-            <h2 className="h5 mb-3">Địa chỉ nhận hàng</h2>
+            <h2 className="h5 mb-1">Địa chỉ nhận hàng</h2>
+            <p className="small text-secondary mb-4">Cho chúng mình biết bữa ăn sẽ được giao đến đâu.</p>
             <DeliveryForm initialValues={initialDelivery} onSubmit={placeOrder} isSubmitting={isSubmitting} />
           </Card>
           <Card body className="order-panel">
             <h2 className="h5 mb-3">Phương thức thanh toán</h2>
-            <Form.Check className="payment-choice" type="radio" name="paymentMethod" id="pay-cash"
+            <Form.Check className={`payment-choice${paymentMethod === "cash" ? " is-selected" : ""}`} type="radio" name="paymentMethod" id="pay-cash"
               label={<><strong>Tiền mặt khi nhận hàng</strong><small className="d-block text-secondary">Thanh toán trực tiếp cho nhân viên giao hàng.</small></>}
               checked={paymentMethod === "cash"} onChange={() => setPaymentMethod("cash")} />
-            <Form.Check className="payment-choice mt-3" type="radio" name="paymentMethod" id="pay-sepay"
+            <Form.Check className={`payment-choice mt-3${paymentMethod === "sepay" ? " is-selected" : ""}`} type="radio" name="paymentMethod" id="pay-sepay"
               label={<><strong>Chuyển khoản qua SePay</strong><small className="d-block text-secondary">Đơn sẽ ở trạng thái chờ thanh toán.</small></>}
               checked={paymentMethod === "sepay"} onChange={() => setPaymentMethod("sepay")} />
             {paymentMethod === "sepay" && <Alert variant="info" className="mt-3 mb-0 small">Sau khi đặt đơn, quét QR ở trang chi tiết. Trạng thái tự cập nhật khi ngân hàng xác nhận.</Alert>}

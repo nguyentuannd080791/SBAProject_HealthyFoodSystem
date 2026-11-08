@@ -6,6 +6,8 @@ import { ConfirmDialog } from "../../../shared/components/ConfirmDialog";
 import { QuantityControl } from "../../../shared/components/QuantityControl";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { useCart } from "../hooks/useCart";
+import { OrderPageHeader } from "../../orders/components/OrderPageHeader";
+import "../../orders/styles/orders.css";
 
 export function CartPage() {
   const { user } = useAuth();
@@ -41,8 +43,11 @@ export function CartPage() {
   }
 
   return (
-    <>
-      <h1 className="h2 mb-4">Giỏ hàng của bạn</h1>
+    <div className="orders-page cart-page">
+      <OrderPageHeader eyebrow="BỮA ĂN CỦA BẠN" title="Giỏ hàng"
+        description="Một bữa ăn ngon bắt đầu từ những lựa chọn lành mạnh.">
+        <span className="order-count-pill">{totalItems} món đã chọn</span>
+      </OrderPageHeader>
       {storageError && <Alert variant="warning">{storageError}</Alert>}
       {cartError && <Alert variant="danger">{cartError}</Alert>}
       {user && pendingGuestItems > 0 && !isCartLoading && (
@@ -61,7 +66,7 @@ export function CartPage() {
       ) : (
         <Row className="g-4">
           <Col lg={8}>
-            <Card className="border-0 shadow-sm">
+            <Card className="cart-items-panel">
               <Table responsive hover className="align-middle mb-0">
                 <caption className="visually-hidden">Các món trong giỏ hàng</caption>
                 <thead><tr>
@@ -96,7 +101,8 @@ export function CartPage() {
             </div>
           </Col>
           <Col lg={4}>
-            <Card body className="border-0 shadow-sm">
+            <Card body className="order-panel cart-summary-panel">
+              <div className="order-eyebrow mb-2">KIỂM TRA LẦN CUỐI</div>
               <h2 className="h4 mb-4">Tóm tắt đơn hàng</h2>
               <div className="d-flex justify-content-between mb-3"><span>Tổng số món</span><strong>{totalItems}</strong></div>
               <div className="d-flex justify-content-between mb-3"><span>Tổng tiền</span><strong>{formatCurrency(totalPrice)}</strong></div>
@@ -121,6 +127,7 @@ export function CartPage() {
         confirmLabel={clearPending ? "Đang xóa…" : "Làm rỗng giỏ hàng"}
         isBusy={clearPending} onConfirm={handleClearCart}
         onCancel={() => { if (!clearPending) setShowClearConfirm(false); }} />
-    </>
+    </div>
+    
   );
 }
