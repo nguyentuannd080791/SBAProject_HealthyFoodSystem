@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/api/profile")
+@RequestMapping({"/api/profile", "/profile"})
 @RequiredArgsConstructor
 public class ProfileController {
 

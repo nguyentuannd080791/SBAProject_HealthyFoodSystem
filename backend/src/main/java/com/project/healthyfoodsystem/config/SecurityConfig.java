@@ -52,7 +52,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/payments/sepay/webhook").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/api/profile/**").authenticated()
+                        .requestMatchers("/api/profile/**", "/profile/**").authenticated()
+                        .requestMatchers("/api/addresses/**", "/addresses/**").authenticated()
                         .requestMatchers("/api/user/**", "/user/**").hasAnyAuthority(
                                 RoleConstants.ROLE_PREFIX + RoleConstants.CUSTOMER,
                                 RoleConstants.ROLE_PREFIX + RoleConstants.MANAGER,
