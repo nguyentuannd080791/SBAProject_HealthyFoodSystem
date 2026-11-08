@@ -39,7 +39,7 @@ export function ManagerOrderDetailPage() {
   }
 
   const order = details?.order;
-  return <>
+  return <div className="manager-orders-page">
     <div className="manager-order-actions d-flex flex-wrap justify-content-between gap-2 mb-3">
       <Button as={Link} to="/manager/orders" variant="outline-secondary">← Danh sách đơn hàng</Button>
       {order?.paymentStatus === "paid" && <Button disabled={printing || loading} onClick={printInvoice}>
@@ -84,5 +84,5 @@ export function ManagerOrderDetailPage() {
         </dl>
         <p className="small text-secondary border-top pt-3 mt-4 mb-0">Cảm ơn bạn đã đặt hàng tại Healthy Food.</p>
       </Card>}
-  </>;
+  </div>;
 }

@@ -1,10 +1,15 @@
 import { Link, Outlet } from "react-router";
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { UserMenu } from "./UserMenu";
+import { NotificationProvider } from "../../shared/notifications/NotificationProvider";
+import { PaymentNotificationWatcher } from "../../modules/orders/components/PaymentNotificationWatcher";
+import { useAuth } from "../provider/useAuth";
 
 export function MainLayout() {
+  const { user } = useAuth();
   return (
-    <>
+    <NotificationProvider key={user?.id ?? "guest"}>
+      <PaymentNotificationWatcher />
       <Navbar bg="white" expand="lg" className="border-bottom">
         <Container>
           <Navbar.Brand as={Link} to="/">Healthy Food</Navbar.Brand>
@@ -20,6 +25,6 @@ export function MainLayout() {
       <Container as="main" className="py-4">
         <Outlet />
       </Container>
-    </>
+    </NotificationProvider>
   );
 }
