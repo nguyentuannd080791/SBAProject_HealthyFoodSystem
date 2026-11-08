@@ -9,10 +9,10 @@ import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -21,6 +21,11 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ErrorResponse> handleAppException(AppException ex) {
+        return buildResponse(ex.getStatus(), ex.getMessage());
+    }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponse> handleOversizedUpload(MaxUploadSizeExceededException ex) {
@@ -66,13 +71,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
+        String firstMessage = "Validation failed";
+        for (var error : ex.getBindingResult().getAllErrors()) {
+            if (error instanceof FieldError fieldError) {
+                errors.put(fieldError.getField(), fieldError.getDefaultMessage());
+                if ("Validation failed".equals(firstMessage)) {
+                    firstMessage = fieldError.getDefaultMessage();
+                }
+            }
+        }
 
-        return buildResponse(HttpStatus.BAD_REQUEST, "Dữ liệu nhập không hợp lệ.", errors);
+        return buildResponse(HttpStatus.BAD_REQUEST, firstMessage != null ? firstMessage : "Dữ liệu nhập không hợp lệ.", errors);
     }
 
     @ExceptionHandler(BadRequestException.class)
@@ -117,7 +126,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
-        return buildResponse(HttpStatus.FORBIDDEN, "Bạn không có quyền truy cập chức năng này.");
+        return buildResponse(HttpStatus.FORBIDDEN, "Bạn không có quyền thực hiện thao tác này.");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

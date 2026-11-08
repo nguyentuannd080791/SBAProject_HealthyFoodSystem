@@ -4,10 +4,12 @@ import com.project.healthyfoodsystem.module.auth.constant.RoleConstants;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -24,6 +26,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @AllArgsConstructor
 public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
@@ -42,25 +45,26 @@ public class SecurityConfig {
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/uploads/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers("/api/auth/change-password").authenticated()
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/payments/sepay/webhook").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/profile/**").authenticated()
-                        .requestMatchers("/api/user/**").hasAnyAuthority(
+                        .requestMatchers("/api/user/**", "/user/**").hasAnyAuthority(
                                 RoleConstants.ROLE_PREFIX + RoleConstants.CUSTOMER,
                                 RoleConstants.ROLE_PREFIX + RoleConstants.MANAGER,
                                 RoleConstants.ROLE_PREFIX + RoleConstants.ADMINISTRATOR,
                                 "ROLE_USER", "ROLE_ADMIN"
                         )
-                        .requestMatchers("/api/manager/**").hasAnyAuthority(
+                        .requestMatchers("/api/manager/**", "/manager/**").hasAnyAuthority(
                                 RoleConstants.ROLE_PREFIX + RoleConstants.MANAGER,
                                 RoleConstants.ROLE_PREFIX + RoleConstants.ADMINISTRATOR,
                                 "ROLE_ADMIN"
                         )
-                        .requestMatchers("/api/admin/**").hasAnyAuthority(
+                        .requestMatchers("/api/admin/**", "/admin/**").hasAnyAuthority(
                                 RoleConstants.ROLE_PREFIX + RoleConstants.ADMINISTRATOR,
                                 "ROLE_ADMIN"
                         )
@@ -75,9 +79,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOriginPatterns(List.of("http://localhost:[*]", "http://127.0.0.1:[*]"));
+        corsConfiguration.setAllowedOriginPatterns(List.of(
+                "http://localhost:[*]",
+                "http://127.0.0.1:[*]",
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+                "*"
+        ));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
+        corsConfiguration.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setMaxAge(3600L);
 
