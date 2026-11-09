@@ -24,6 +24,9 @@ public class Product {
     private String description;
     @Column(name = "image_url", length = 500)
     private String imageUrl;
+    @Nationalized
+    @Column(name = "cloudinary_public_id", length = 255, nullable = true)
+    private String cloudinaryPublicId;
     @Column(nullable = false, precision = 12, scale = 0)
     private BigDecimal price;
     @Column(name = "stock_quantity")
@@ -55,7 +58,7 @@ public class Product {
     protected Product() {
     }
 
-    public Product(Category category, String name, String description, String imageUrl,
+    public Product(Category category, String name, String description, String imageUrl, String cloudinaryPublicId,
                    BigDecimal price, Integer stockQuantity, String ingredientsText, Integer caloriesKcal, BigDecimal proteinG,
                    BigDecimal carbohydrateG, BigDecimal fatG, BigDecimal fiberG, BigDecimal sugarG,
                    BigDecimal sodiumMg, String status) {
@@ -63,6 +66,7 @@ public class Product {
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
+        this.cloudinaryPublicId = cloudinaryPublicId;
         this.price = price;
         this.stockQuantity = stockQuantity;
         this.ingredientsText = ingredientsText;
@@ -82,7 +86,7 @@ public class Product {
         return id;
     }
 
-    public void update(Category category, String name, String description, String imageUrl,
+    public void update(Category category, String name, String description, String imageUrl, String cloudinaryPublicId,
                        BigDecimal price, Integer stockQuantity, String ingredientsText, Integer caloriesKcal,
                        BigDecimal proteinG, BigDecimal carbohydrateG, BigDecimal fatG, BigDecimal fiberG,
                        BigDecimal sugarG, BigDecimal sodiumMg, String status) {
@@ -90,6 +94,7 @@ public class Product {
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
+        this.cloudinaryPublicId = cloudinaryPublicId;
         this.price = price;
         this.stockQuantity = stockQuantity;
         this.ingredientsText = ingredientsText;
@@ -118,6 +123,10 @@ public class Product {
 
     public String getImageUrl() {
         return imageUrl;
+    }
+
+    public String getCloudinaryPublicId() {
+        return cloudinaryPublicId;
     }
 
     public BigDecimal getPrice() {

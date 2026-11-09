@@ -54,16 +54,19 @@ public class ProductServiceImpl implements ProductService {
         if (products.existsByNameIgnoreCase(normalized.getName())) {
             throw new ProductInputException("name", "Tên sản phẩm đã tồn tại.");
         }
-        String imageUrl = images.store(normalized.getImageFile());
+        ProductImageService.StoredImage newImage = images.store(normalized.getImageFile());
+        boolean cleanupRegistered = false;
         try {
-            registerImageCleanup(imageUrl, null);
+            cleanupRegistered = registerImageCleanup(newImage);
             Product saved = saveProduct(new Product(category, normalized.getName(), normalized.getDescription(),
-                    imageUrl, normalized.getPrice(), normalized.getStockQuantity(), normalized.getIngredientsText(),
+                    newImage == null ? null : newImage.getUrl(),
+                    newImage == null ? null : newImage.getPublicId(),
+                    normalized.getPrice(), normalized.getStockQuantity(), normalized.getIngredientsText(),
                     normalized.getCaloriesKcal(), normalized.getProteinG(), normalized.getCarbohydrateG(), normalized.getFatG(),
                     normalized.getFiberG(), normalized.getSugarG(), normalized.getSodiumMg(), normalized.getStatus()));
             return toResponse(saved);
         } catch (RuntimeException ex) {
-            images.delete(imageUrl);
+            if (!cleanupRegistered && newImage != null) images.delete(newImage.getPublicId());
             throw ex;
         }
     }
@@ -90,18 +93,21 @@ public class ProductServiceImpl implements ProductService {
         if (products.existsByNameIgnoreCaseAndIdNot(normalized.getName(), id))
             throw new ProductInputException("name", "Tên sản phẩm đã tồn tại.");
 
-        String newImageUrl = images.store(normalized.getImageFile());
-        String imageUrl = newImageUrl == null ? previous.getImageUrl() : newImageUrl;
+        ProductImageService.StoredImage newImage = images.store(normalized.getImageFile());
+        String imageUrl = newImage == null ? previous.getImageUrl() : newImage.getUrl();
+        String publicId = newImage == null ? previous.getCloudinaryPublicId() : newImage.getPublicId();
+        boolean cleanupRegistered = false;
         try {
-            if (newImageUrl != null) registerImageCleanup(newImageUrl, previous.getImageUrl());
-            previous.update(category, normalized.getName(), normalized.getDescription(), imageUrl, normalized.getPrice(),
+            cleanupRegistered = registerImageCleanup(newImage);
+            previous.update(category, normalized.getName(), normalized.getDescription(), imageUrl, publicId,
+                    normalized.getPrice(),
                     normalized.getStockQuantity(), normalized.getIngredientsText(), normalized.getCaloriesKcal(),
                     normalized.getProteinG(), normalized.getCarbohydrateG(), normalized.getFatG(), normalized.getFiberG(),
                     normalized.getSugarG(), normalized.getSodiumMg(), normalized.getStatus());
             Product saved = saveProduct(previous);
             return toResponse(saved);
         } catch (RuntimeException ex) {
-            images.delete(newImageUrl);
+            if (!cleanupRegistered && newImage != null) images.delete(newImage.getPublicId());
             throw ex;
         }
     }
@@ -136,15 +142,15 @@ public class ProductServiceImpl implements ProductService {
         return false;
     }
 
-    private void registerImageCleanup(String newUrl, String oldUrl) {
-        if (newUrl == null || !TransactionSynchronizationManager.isSynchronizationActive()) return;
+    private boolean registerImageCleanup(ProductImageService.StoredImage newImage) {
+        if (newImage == null || !TransactionSynchronizationManager.isSynchronizationActive()) return false;
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCompletion(int status) {
-                if (status == STATUS_COMMITTED) images.delete(oldUrl);
-                else images.delete(newUrl);
+                if (status != STATUS_COMMITTED) images.delete(newImage.getPublicId());
             }
         });
+        return true;
     }
 
     @Override
