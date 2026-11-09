@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Nationalized;
 
 import java.util.List;
 
@@ -38,7 +39,8 @@ public class User {
     @EqualsAndHashCode.Include
     private Integer id;
 
-    @Column(name = "full_name", nullable = false, length = 100)
+    @Nationalized
+    @Column(name = "full_name", nullable = false, length = 100, columnDefinition = "NVARCHAR(100)")
     private String fullName;
 
     @Column(name = "email", nullable = false, unique = true, length = 150)
