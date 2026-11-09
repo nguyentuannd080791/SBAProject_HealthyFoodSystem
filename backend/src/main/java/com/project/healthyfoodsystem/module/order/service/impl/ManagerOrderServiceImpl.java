@@ -45,7 +45,7 @@ public class ManagerOrderServiceImpl implements ManagerOrderService {
         if (page < 0 || size < 1 || size > 100 || search.length() > 150
                 || !(method.isEmpty() || "cash".equals(method) || "sepay".equals(method))
                 || !Set.of("", "pending_payment", "processing", "preparing", "shipping", "delivered", "cancelled").contains(status)
-                || !Set.of("", "pending", "unpaid", "paid", "cancelled").contains(paymentStatus)
+                || !Set.of("", "pending", "unpaid", "paid", "cancelled", "expired").contains(paymentStatus)
                 || (from != null && to != null && from.isAfter(to))) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Bộ lọc đơn hàng không hợp lệ.");
         }

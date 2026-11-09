@@ -8,6 +8,8 @@ import { rememberPendingPayment } from "../utils/paymentNotifications";
 import { canCancelOrder, formatOrderAddress, formatOrderDate, orderStatuses } from "../utils/orderFormatting";
 import "../styles/orders.css";
 
+import { PaymentCountdown } from "../components/PaymentCountdown";
+
 const stages = ["processing", "preparing", "shipping", "delivered"];
 
 export function OrderDetailPage() {
@@ -19,6 +21,8 @@ export function OrderDetailPage() {
   const [payment, setPayment] = useState(null);
   const [failedQrUrl, setFailedQrUrl] = useState(null);
   const [qrAttempt, setQrAttempt] = useState(0);
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer); }, []);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -64,7 +68,8 @@ export function OrderDetailPage() {
 
   if (loading) return <Spinner animation="border" role="status"><span className="visually-hidden">Đang tải đơn...</span></Spinner>;
   if (!order) return <Card body className="orders-page"><p className="mb-3">{loadError || "Không tìm thấy đơn hàng trong tài khoản này."}</p><Button as={Link} to="/orders" variant="outline-primary">Quay lại lịch sử đơn</Button></Card>;
-  const status = orderStatuses[order.status] ?? orderStatuses.processing;
+  const status = order.cancelReason === "PAYMENT_EXPIRED" ? { label: "Hết hạn thanh toán", variant: "secondary" }
+    : orderStatuses[order.status] ?? orderStatuses.processing;
   const currentStage = stages.indexOf(order.status);
 
 
@@ -78,13 +83,15 @@ export function OrderDetailPage() {
           <p className="text-secondary mb-0">Đặt lúc {formatOrderDate(order.createdAt)}</p></div><Badge bg={status.variant} className="fs-6">{status.label}</Badge>
       </div>
 
+      {order.paymentStatus === "pending" && <PaymentCountdown expiresAt={order.paymentExpiresAt} />}
+      {order.paymentStatus === "expired" && <Alert variant="secondary">Đơn đã hết hạn thanh toán và đã hoàn kho. Nếu bạn đã chuyển tiền, hãy liên hệ cửa hàng để đối soát; không chuyển thêm.</Alert>}
       {order.status === "pending_payment" && <Alert variant="warning">Đơn đang chờ chuyển khoản và đã giữ số lượng trong kho. Giữ nguyên số tiền và nội dung khi chuyển khoản. Nếu không tiếp tục mua, hãy hủy đơn để hoàn lại số lượng.</Alert>}
       {order.paymentStatus === "paid" && <Alert variant="success" role="status">
         <strong>Thanh toán thành công!</strong> Cửa hàng đã nhận thanh toán cho đơn hàng của bạn.
       </Alert>}
       {order.paymentMethod === "sepay" && order.paymentStatus === "pending" && !payment &&
         <Alert variant="info">Đang tải thông tin chuyển khoản. Nếu chưa thấy mã QR, hãy tải lại trang.</Alert>}
-      {payment && <Card body className="qr-payment-panel text-center mb-4">
+      {payment && (!order.paymentExpiresAt || now < new Date(order.paymentExpiresAt).getTime()) && <Card body className="qr-payment-panel text-center mb-4">
         <div className="order-eyebrow mb-2">CHUYỂN KHOẢN NGÂN HÀNG</div>
         <h2 className="h4">Quét mã, thanh toán nhanh</h2>
         <p className="small text-secondary">Mở ứng dụng ngân hàng và quét mã QR bên dưới.</p>
@@ -125,7 +132,7 @@ export function OrderDetailPage() {
         </div>
         <div className="col-lg-5"><Card body className="mb-3"><h2 className="h5">Thanh toán</h2>
           <div className="payment-summary"><span>Phương thức</span><strong>{order.paymentMethod === "sepay" ? "Chuyển khoản SePay" : "Tiền mặt khi nhận"}</strong>
-            <span>Trạng thái</span><Badge bg={order.paymentStatus === "paid" ? "success" : "light"} text={order.paymentStatus === "paid" ? "light" : "dark"}>{{ pending: "Chờ thanh toán", paid: "Đã thanh toán", cancelled: "Đã hủy", unpaid: "Thanh toán khi nhận hàng" }[order.paymentStatus]}</Badge></div>
+            <span>Trạng thái</span><Badge bg={order.paymentStatus === "paid" ? "success" : "light"} text={order.paymentStatus === "paid" ? "light" : "dark"}>{{ pending: "Chờ thanh toán", paid: "Đã thanh toán", cancelled: "Đã hủy", expired: "Hết hạn thanh toán", unpaid: "Thanh toán khi nhận hàng" }[order.paymentStatus]}</Badge></div>
         </Card>
           {canCancelOrder(order) && <Button disabled={busy} className="w-100 mt-3" variant="outline-danger" onClick={cancelOrder}>Hủy đơn hàng</Button>}
         </div>

@@ -30,6 +30,7 @@ public class SePayWebhookRequest {
 
     @Size(max = 4000)
     private String content;
+    @Size(max = 100) private String transactionDate;
 
     @NotBlank
     @Size(max = 50)

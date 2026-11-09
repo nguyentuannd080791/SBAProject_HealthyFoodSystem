@@ -42,6 +42,9 @@ public class CustomerOrder {
     @Column(columnDefinition = "bit default 0")
     private Boolean inventoryReserved;
 
+    @Column(length = 40)
+    private String cancelReason;
+
     @Column(name = "customer_id", nullable = false)
     private Integer customerId;
 

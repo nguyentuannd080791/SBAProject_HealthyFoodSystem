@@ -55,4 +55,9 @@ public class Payment {
 
     private Instant createdAt;
     private Instant paidAt;
+    private Instant expiresAt;
+
+    public Instant getExpiresAt() {
+        return expiresAt != null ? expiresAt : createdAt == null ? null : createdAt.plusSeconds(120);
+    }
 }

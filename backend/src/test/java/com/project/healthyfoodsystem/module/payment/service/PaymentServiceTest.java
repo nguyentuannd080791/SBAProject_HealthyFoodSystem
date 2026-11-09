@@ -10,7 +10,7 @@ import com.project.healthyfoodsystem.module.cart.entity.CartItem;
 import com.project.healthyfoodsystem.module.cart.repository.CartItemRepository;
 import com.project.healthyfoodsystem.module.cart.repository.CartRepository;
 import com.project.healthyfoodsystem.module.exception.ApiException;
-import com.project.healthyfoodsystem.module.payment.config.SePaySettings;
+import com.project.healthyfoodsystem.config.SePaySettings;
 import com.project.healthyfoodsystem.module.order.dto.request.CheckoutRequest;
 import com.project.healthyfoodsystem.module.payment.dto.request.SePayWebhookRequest;
 import com.project.healthyfoodsystem.module.order.entity.CustomerOrder;
@@ -42,9 +42,10 @@ class PaymentServiceTest {
     private final PaymentTransactionRepository transactions =
             mock(PaymentTransactionRepository.class);
     private final SePaySettings settings = mock(SePaySettings.class);
+    private final PaymentExpiryService expiry = mock(PaymentExpiryService.class);
     private final PaymentService service =
             new PaymentServiceImpl(
-                    users, orders, payments, transactions, settings);
+                    users, orders, payments, transactions, settings, expiry);
     private final com.project.healthyfoodsystem.module.order.service.CheckoutPromotionService promotionService = mock(com.project.healthyfoodsystem.module.order.service.CheckoutPromotionService.class);
     private final OrderService orderService = new OrderServiceImpl(users, carts, cartItems, products, orders, payments, settings, promotionService);
     private final String email = "customer@example.com";
@@ -304,6 +305,33 @@ class PaymentServiceTest {
         service.webhook("Apikey secret", event("139200"));
         verify(transactions)
                 .saveAndFlush(argThat(t -> "UNMATCHED".equals(t.getReconciliationStatus())));
+    }
+
+    @Test
+    void lateWebhookExpiresOrderAndAuditsMoneyWithoutReopeningOrDoubleRestocking() {
+        configured();
+        var payment = payment();
+        payment.setExpiresAt(java.time.Instant.now().minusSeconds(1));
+        var order = order();
+        order.setInventoryReserved(true);
+        order.setItems(List.of(CustomerOrder.Item.builder().id(3).quantity(2).build()));
+        when(payments.lockByCode("HF123")).thenReturn(Optional.of(payment));
+        when(orders.findById("o1")).thenReturn(Optional.of(order));
+        when(products.restoreStock(3, 2)).thenReturn(1);
+        var realExpiry = new PaymentExpiryService(payments, orders, products);
+        var subject = new PaymentServiceImpl(users, orders, payments, transactions, settings, realExpiry);
+        var event = event("139200");
+        event.setTransactionDate("2026-11-09 10:00:00");
+        subject.webhook("Apikey secret", event);
+        assertEquals("expired", payment.getStatus());
+        assertEquals("cancelled", order.getStatus());
+        assertNull(payment.getPaidAt());
+        verify(transactions).saveAndFlush(argThat(t -> "LATE_PAYMENT".equals(t.getReconciliationStatus())
+                && "2026-11-09 10:00:00".equals(t.getBankTransactionDate())));
+        when(transactions.existsById(event.getId())).thenReturn(true);
+        subject.webhook("Apikey secret", event);
+        verify(products, times(1)).restoreStock(3, 2);
+        verify(transactions, times(1)).saveAndFlush(any());
     }
 
     @Test

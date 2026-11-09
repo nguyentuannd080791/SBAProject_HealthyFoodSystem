@@ -10,6 +10,8 @@ import { ManagerOrderListPage } from '../../../modules/manager/pages/ManagerOrde
 import { ManagerOrderDetailPage } from '../../../modules/manager/pages/ManagerOrderDetailPage';
 import { CategoryManagementPage } from '../../../modules/category/pages/CategoryManagementPage';
 
+import { ReconciliationPage } from '../../../modules/manager/pages/ReconciliationPage';
+
 export const managerRoutes = [{
   path: 'manager',
   element: <RequireRole roles={['manager']}><ManagerLayout /></RequireRole>,
@@ -21,6 +23,7 @@ export const managerRoutes = [{
     { path: 'categories', element: <CategoryManagementPage /> },
     { path: 'promotions', element: <PromotionsPage /> },
     { path: 'promotions/new', element: <CreatePromotionPage /> },
+    { path: 'reconciliation', element: <ReconciliationPage /> },
     { path: 'orders', element: <ManagerOrderListPage /> },
     { path: 'orders/:orderId', element: <ManagerOrderDetailPage /> },
     { path: '*', element: <Navigate to="/manager/products" replace /> },

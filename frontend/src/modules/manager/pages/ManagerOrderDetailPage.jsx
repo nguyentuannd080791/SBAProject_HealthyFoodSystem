@@ -41,7 +41,7 @@ export function ManagerOrderDetailPage() {
             <div className="manager-order-code text-secondary">Đơn #{order.id}</div>
             <Badge bg={orderStatuses[order.status]?.variant ?? "secondary"}>{orderStatuses[order.status]?.label ?? order.status}</Badge></div>
           <div><Badge bg={order.paymentStatus === "paid" ? "success" : "secondary"} className="mb-2">
-            {{pending: "Chờ chuyển khoản", unpaid: "Chưa thu tiền mặt", paid: "Đã thanh toán", cancelled: "Đã hủy"}[order.paymentStatus] ?? order.paymentStatus}
+            {{pending: "Chờ chuyển khoản", unpaid: "Chưa thu tiền mặt", paid: "Đã thanh toán", cancelled: "Đã hủy", expired: "Hết hạn thanh toán"}[order.paymentStatus] ?? order.paymentStatus}
           </Badge>
             <div className="small">Ngày thanh toán: {details.paidAt ? formatOrderDate(details.paidAt) : "Chưa ghi nhận"}</div>
             <div className="small">Phương thức: {order.paymentMethod === "sepay" ? "Chuyển khoản SePay" : "Tiền mặt"}</div>

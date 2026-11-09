@@ -5,7 +5,7 @@ import com.project.healthyfoodsystem.module.auth.repository.UserRepository;
 import com.project.healthyfoodsystem.module.cart.repository.CartItemRepository;
 import com.project.healthyfoodsystem.module.cart.repository.CartRepository;
 import com.project.healthyfoodsystem.module.exception.ApiException;
-import com.project.healthyfoodsystem.module.payment.config.SePaySettings;
+import com.project.healthyfoodsystem.config.SePaySettings;
 import com.project.healthyfoodsystem.module.order.dto.request.CheckoutRequest;
 import com.project.healthyfoodsystem.module.order.dto.response.OrderResponse;
 import com.project.healthyfoodsystem.module.order.entity.CustomerOrder;
@@ -204,6 +204,7 @@ public class OrderServiceImpl implements OrderService {
                         .accountNumber(settings.getAccountNumber())
                         .accountName(settings.getAccountName())
                         .createdAt(now)
+                        .expiresAt(now.plusSeconds(120))
                         .build();
         payments.save(payment);
         cartItems.deleteAll(rows);
@@ -245,6 +246,7 @@ public class OrderServiceImpl implements OrderService {
             order.setInventoryReserved(false);
         }
         order.setStatus("cancelled");
+        order.setCancelReason("CUSTOMER_CANCELLED");
         order.setUpdatedAt(Instant.now());
         payment.setStatus("cancelled");
         return OrderMapper.toResponse(order, payment);
