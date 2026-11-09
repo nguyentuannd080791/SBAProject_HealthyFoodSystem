@@ -83,7 +83,7 @@ export function ManagerOrderListPage() {
             <Form.Select id="order-payment-status" name="paymentStatus" defaultValue={paymentStatus}>
               <option value="">Tất cả trạng thái thanh toán</option>
               <option value="pending">Chờ chuyển khoản</option><option value="unpaid">Chưa thu tiền mặt</option>
-              <option value="paid">Đã thanh toán</option><option value="cancelled">Đã hủy</option>
+              <option value="expired">Hết hạn thanh toán</option><option value="paid">Đã thanh toán</option><option value="cancelled">Đã hủy</option>
             </Form.Select></Col>
         </Row>
         <div className="d-flex flex-wrap gap-3 align-items-center mt-3">
@@ -108,7 +108,7 @@ export function ManagerOrderListPage() {
               <td><Badge bg={orderStatuses[order.status]?.variant ?? "secondary"}>{orderStatuses[order.status]?.label ?? order.status}</Badge></td>
               <td><div>{order.paymentMethod === "sepay" ? "SePay" : "Tiền mặt"}</div>
                 <Badge bg={order.paymentStatus === "paid" ? "success" : "secondary"}>
-                  {{pending: "Chờ chuyển khoản", unpaid: "Chưa thu tiền", paid: "Đã thanh toán", cancelled: "Đã hủy"}[order.paymentStatus] ?? order.paymentStatus}
+                  {{pending: "Chờ chuyển khoản", unpaid: "Chưa thu tiền", paid: "Đã thanh toán", cancelled: "Đã hủy", expired: "Hết hạn thanh toán"}[order.paymentStatus] ?? order.paymentStatus}
                 </Badge></td>
               <td className="text-end text-nowrap fw-semibold">{formatCurrency(order.total)}</td>
               <td><Button as={Link} to={`/manager/orders/${order.orderId}`} size="sm" variant="outline-primary">Xem đơn</Button></td>

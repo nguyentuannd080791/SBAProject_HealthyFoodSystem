@@ -54,7 +54,8 @@ export function OrderHistoryPage() {
         <p className="text-secondary">Đơn đã đặt sẽ xuất hiện tại đây.</p><Button as={Link} to="/menu">Xem thực đơn</Button></Card>}
       {orders?.length > 0 && visibleOrders.length === 0 && <Card body className="text-center text-secondary">Không có đơn hàng ở trạng thái này.</Card>}
       {visibleOrders.length > 0 && <div className="d-grid gap-3">{visibleOrders.map((order) => {
-        const status = orderStatuses[order.status] ?? orderStatuses.processing;
+        const status = order.cancelReason === "PAYMENT_EXPIRED" ? { label: "Hết hạn thanh toán", variant: "secondary" }
+          : orderStatuses[order.status] ?? orderStatuses.processing;
         return <Card className="history-card" key={order.id}><Card.Body>
           <div className="d-flex flex-wrap justify-content-between gap-3"><div>
             <div className="d-flex align-items-center flex-wrap gap-2"><h2 className="h6 mb-0">Đơn #{String(order.id).slice(-8)}</h2><Badge bg={status.variant}>{status.label}</Badge></div>

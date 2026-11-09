@@ -3,7 +3,7 @@ package com.project.healthyfoodsystem.module.payment.service.impl;
 import com.project.healthyfoodsystem.module.auth.entity.User;
 import com.project.healthyfoodsystem.module.auth.repository.UserRepository;
 import com.project.healthyfoodsystem.module.exception.ApiException;
-import com.project.healthyfoodsystem.module.payment.config.SePaySettings;
+import com.project.healthyfoodsystem.config.SePaySettings;
 import com.project.healthyfoodsystem.module.payment.dto.request.SePayWebhookRequest;
 import com.project.healthyfoodsystem.module.payment.dto.response.PaymentInstructionsResponse;
 import com.project.healthyfoodsystem.module.order.entity.CustomerOrder;
@@ -42,6 +42,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository payments;
     private final PaymentTransactionRepository transactions;
     private final SePaySettings settings;
+    private final com.project.healthyfoodsystem.module.payment.service.PaymentExpiryService expiry;
 
     private User customer(String email, boolean lock) {
         var found = lock ? users.findByEmailForCartUpdate(email) : users.findByEmail(email);
@@ -76,7 +77,8 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentInstructionsResponse instructions(String email, String id) {
         owned(customer(email, false), id);
         Payment payment = payment(id);
-        if (!"sepay".equals(payment.getMethod()) || !"pending".equals(payment.getStatus()))
+        if (!"sepay".equals(payment.getMethod()) || !"pending".equals(payment.getStatus())
+                || (payment.getExpiresAt() != null && !Instant.now().isBefore(payment.getExpiresAt())))
             throw error(HttpStatus.CONFLICT, "Đơn không còn chờ chuyển khoản.");
         String qr =
                 UriComponentsBuilder.fromUriString("https://vietqr.app/img")
@@ -121,7 +123,9 @@ public class PaymentServiceImpl implements PaymentService {
             throw error(HttpStatus.BAD_REQUEST, "Sai tài khoản nhận tiền.");
         String result = "UNMATCHED";
         if (payment != null) {
-            if (!"sepay".equals(payment.getMethod()) || !"pending".equals(payment.getStatus()))
+            expiry.expireLocked(payment, Instant.now());
+            if ("expired".equals(payment.getStatus())) result = "LATE_PAYMENT";
+            else if (!"sepay".equals(payment.getMethod()) || !"pending".equals(payment.getStatus()))
                 result = "REQUIRES_REVIEW";
             else if (webhook.getTransferAmount().compareTo(payment.getExpectedAmount()) != 0)
                 result = "AMOUNT_MISMATCH";
@@ -149,6 +153,8 @@ public class PaymentServiceImpl implements PaymentService {
                         .amount(webhook.getTransferAmount())
                         .reconciliationStatus(result)
                         .receivedAt(Instant.now())
+                        .bankTransactionDate(webhook.getTransactionDate())
+                        .content(webhook.getContent())
                         .build());
     }
 
