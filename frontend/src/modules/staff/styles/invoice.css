@@ -1,0 +1,10 @@
+.staff-invoice-page { max-width: 940px; margin: auto; }
+.staff-invoice-sheet { border-radius: 16px; }
+.staff-invoice-totals { display: grid; grid-template-columns: 1fr auto; gap: .8rem 2rem; max-width: 400px; margin: 2rem 0 2rem auto; }
+.staff-invoice-totals dd { margin: 0; text-align: right; }
+@media print {
+  body:has(.staff-invoice-page) .navbar, .staff-invoice-actions { display: none !important; }
+  .staff-invoice-sheet { border: 0; box-shadow: none; padding: 0 !important; }
+  .staff-invoice-sheet .table-responsive { overflow: visible; }
+  .staff-invoice-sheet tr { break-inside: avoid; }
+}

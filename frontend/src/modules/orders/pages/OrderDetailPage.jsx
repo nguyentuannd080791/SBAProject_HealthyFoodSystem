@@ -41,7 +41,12 @@ export function OrderDetailPage() {
         setPayment(info.data ?? null);
         if (info.error) setLoadError(info.error);
         timer = setTimeout(reload, 10000);
-      } else setPayment(null);
+      } else {
+        setPayment(null);
+        if (["processing", "preparing", "shipping"].includes(result.data?.status)) {
+          timer = setTimeout(reload, 10000);
+        }
+      }
     }
     reload();
     return () => { active = false; clearTimeout(timer); };
@@ -61,15 +66,11 @@ export function OrderDetailPage() {
   if (!order) return <Card body className="orders-page"><p className="mb-3">{loadError || "Không tìm thấy đơn hàng trong tài khoản này."}</p><Button as={Link} to="/orders" variant="outline-primary">Quay lại lịch sử đơn</Button></Card>;
   const status = orderStatuses[order.status] ?? orderStatuses.processing;
   const currentStage = stages.indexOf(order.status);
-  const canPrintInvoice = order.paymentStatus === "paid";
 
-  function printInvoice() {
-    if (canPrintInvoice) window.print();
-  }
 
   return (
-    <div className={`orders-page${canPrintInvoice ? "" : " order-payment-required"}`}>
-      {!canPrintInvoice && <p className="unpaid-print-notice">Chỉ có thể in hóa đơn sau khi đơn hàng đã thanh toán.</p>}
+    <div className="orders-page order-payment-required">
+      <p className="unpaid-print-notice">Hóa đơn chỉ được in bởi nhân viên cửa hàng.</p>
       <Link to="/orders" className="order-back">← Lịch sử đơn hàng</Link>
       {loadError && <Alert className="mt-3" variant="danger">{loadError}</Alert>}
       <div className="order-detail-header d-flex flex-wrap justify-content-between align-items-start gap-3 mt-3 mb-4">
@@ -77,7 +78,7 @@ export function OrderDetailPage() {
           <p className="text-secondary mb-0">Đặt lúc {formatOrderDate(order.createdAt)}</p></div><Badge bg={status.variant} className="fs-6">{status.label}</Badge>
       </div>
 
-      {order.status === "pending_payment" && <Alert variant="warning">Đơn đang chờ chuyển khoản. Giữ nguyên số tiền và nội dung để hệ thống xác nhận.</Alert>}
+      {order.status === "pending_payment" && <Alert variant="warning">Đơn đang chờ chuyển khoản và đã giữ số lượng trong kho. Giữ nguyên số tiền và nội dung khi chuyển khoản. Nếu không tiếp tục mua, hãy hủy đơn để hoàn lại số lượng.</Alert>}
       {order.paymentStatus === "paid" && <Alert variant="success" role="status">
         <strong>Thanh toán thành công!</strong> Cửa hàng đã nhận thanh toán cho đơn hàng của bạn.
       </Alert>}
@@ -110,7 +111,7 @@ export function OrderDetailPage() {
 
       <div className="row g-3 align-items-start">
         <div className="col-lg-7"><Card body className="mb-3"><div className="d-flex justify-content-between align-items-center mb-3">
-          <h2 className="h5 mb-0">Món đã đặt</h2>{canPrintInvoice && <Button variant="outline-primary" size="sm" onClick={printInvoice}>In hóa đơn</Button>}</div>
+          <h2 className="h5 mb-0">Món đã đặt</h2></div>
           {order.items.map((item) => <div className="detail-line" key={item.id}><img src={item.image} alt="" />
             <div className="flex-grow-1"><strong>{item.name}</strong><small className="d-block text-secondary">{item.quantity} × {formatCurrency(item.price)}</small></div>
             <strong>{formatCurrency(item.price * item.quantity)}</strong></div>)}
@@ -126,11 +127,6 @@ export function OrderDetailPage() {
           <div className="payment-summary"><span>Phương thức</span><strong>{order.paymentMethod === "sepay" ? "Chuyển khoản SePay" : "Tiền mặt khi nhận"}</strong>
             <span>Trạng thái</span><Badge bg={order.paymentStatus === "paid" ? "success" : "light"} text={order.paymentStatus === "paid" ? "light" : "dark"}>{{ pending: "Chờ thanh toán", paid: "Đã thanh toán", cancelled: "Đã hủy", unpaid: "Thanh toán khi nhận hàng" }[order.paymentStatus]}</Badge></div>
         </Card>
-          {canPrintInvoice ? <Card body><h2 className="h5">Hóa đơn</h2><div className="invoice-mini"><span>Mã hóa đơn</span><strong>HF-{String(order.id).slice(-8)}</strong>
-            <span>Thời gian</span><strong>{formatOrderDate(order.createdAt)}</strong><span>Số lượng</span><strong>{order.totalItems} món</strong>
-            <span>Tổng cộng</span><strong className="text-success">{formatCurrency(order.total)}</strong></div>
-            <Button className="w-100 mt-3" variant="outline-primary" onClick={printInvoice}>Xem / in hóa đơn</Button></Card>
-            : <Alert variant="secondary">Hóa đơn sẽ có sau khi đơn hàng đã thanh toán.</Alert>}
           {canCancelOrder(order) && <Button disabled={busy} className="w-100 mt-3" variant="outline-danger" onClick={cancelOrder}>Hủy đơn hàng</Button>}
         </div>
       </div>

@@ -31,11 +31,13 @@ public class CheckoutRequest {
     @NotNull @Valid private Delivery delivery;
 
     @NotNull
-    @Pattern(regexp = "cash|sepay")
+    @Pattern(regexp = "sepay", message = "Chỉ hỗ trợ thanh toán chuyển khoản SePay.")
     private String paymentMethod;
 
     @Size(max = 30)
     private String promoCode;
+
+    @NotNull @DecimalMin("0") private BigDecimal expectedDiscount;
 
     @NotNull
     @DecimalMin("0")

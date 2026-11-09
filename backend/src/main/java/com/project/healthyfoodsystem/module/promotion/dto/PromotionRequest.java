@@ -12,12 +12,14 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-public record PromotionRequest(
-        @NotBlank @Size(max = 120) String name,
-        @NotBlank String type,
-        @NotNull @DecimalMin(value = "0", inclusive = false) @Digits(integer = 12, fraction = 2) BigDecimal value,
-        @NotEmpty List<@NotNull @Positive Integer> productIds,
-        @NotNull Instant startsAt,
-        @NotNull Instant endsAt,
-        @NotNull Boolean enabled
-) { }
+@lombok.Getter @lombok.Setter @lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor
+public class PromotionRequest {
+    @NotBlank @jakarta.validation.constraints.Pattern(regexp = "[A-Za-z0-9_-]{3,30}") private String code;
+    @NotBlank @Size(max = 120) private String name;
+    @NotBlank private String type;
+    @NotNull @DecimalMin(value = "0", inclusive = false) @Digits(integer = 12, fraction = 2) private BigDecimal value;
+    @NotEmpty private List<@NotNull @Positive Integer> productIds;
+    @NotNull private Instant startsAt;
+    @NotNull private Instant endsAt;
+    @NotNull private Boolean enabled;
+}
