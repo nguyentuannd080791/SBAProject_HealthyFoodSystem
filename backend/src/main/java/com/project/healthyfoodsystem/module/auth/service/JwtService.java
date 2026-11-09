@@ -38,6 +38,14 @@ public class JwtService {
         return generateToken(new HashMap<>(), username);
     }
 
+    public String generateToken(String username, String role) {
+        Map<String, Object> extraClaims = new HashMap<>();
+        if (role != null && !role.isBlank()) {
+            extraClaims.put("role", role);
+        }
+        return generateToken(extraClaims, username);
+    }
+
     public String generateToken(Map<String, Object> extraClaims, String username) {
         Instant now = Instant.now();
         return Jwts.builder()
@@ -51,6 +59,10 @@ public class JwtService {
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
     public Date extractExpiration(String token) {
@@ -71,10 +83,6 @@ public class JwtService {
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
-        return isTokenValid(token, userDetails);
-    }
-
-    private boolean isTokenValid(String token, UserDetails userDetails) {
         Claims claims = extractAllClaims(token);
         return claims.getSubject().equalsIgnoreCase(userDetails.getUsername())
                 && claims.getExpiration().after(new Date());

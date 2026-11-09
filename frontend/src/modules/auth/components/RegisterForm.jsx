@@ -1,9 +1,10 @@
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, Button, Form } from "react-bootstrap";
 import { FormField } from "../../../shared/components/FormField";
-import { useForm } from "../../../shared/hooks/useForm";
-import { validateRegisterValues } from "../utils/validators";
+import { registerSchema } from "../validations/registerSchema";
 
-const initialValues = {
+const defaultValues = {
   fullName: "",
   email: "",
   phone: "",
@@ -12,65 +13,76 @@ const initialValues = {
 };
 
 export function RegisterForm({ onSubmit, submitError, isSubmitting }) {
-  const form = useForm(initialValues, validateRegisterValues);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues,
+    mode: "onBlur",
+  });
 
   return (
-    <Form noValidate onSubmit={form.handleSubmit(onSubmit)}>
-      {submitError && <Alert variant="danger">{submitError}</Alert>}
+    <Form noValidate onSubmit={handleSubmit(onSubmit)}>
+      {submitError && (
+        <Alert variant="danger" className="py-2 small">
+          {submitError}
+        </Alert>
+      )}
 
       <FormField
         label="Họ và tên"
-        name="fullName"
+        placeholder="Nguyễn Văn A"
         autoComplete="name"
-        value={form.values.fullName}
-        error={form.errors.fullName}
-        onChange={form.handleChange}
-        onBlur={form.handleBlur}
+        error={errors.fullName?.message}
+        {...register("fullName")}
       />
       <FormField
         label="Email"
-        name="email"
         type="email"
+        placeholder="name@example.com"
         autoComplete="email"
-        value={form.values.email}
-        error={form.errors.email}
-        onChange={form.handleChange}
-        onBlur={form.handleBlur}
+        error={errors.email?.message}
+        {...register("email")}
       />
       <FormField
         label="Số điện thoại"
-        name="phone"
         type="tel"
+        placeholder="0912345678"
         autoComplete="tel"
-        value={form.values.phone}
-        error={form.errors.phone}
-        onChange={form.handleChange}
-        onBlur={form.handleBlur}
+        error={errors.phone?.message}
+        {...register("phone")}
       />
       <FormField
         label="Mật khẩu"
-        name="password"
         type="password"
+        placeholder="••••••••"
         autoComplete="new-password"
-        hint="Ít nhất 8 ký tự, gồm cả chữ và số."
-        value={form.values.password}
-        error={form.errors.password}
-        onChange={form.handleChange}
-        onBlur={form.handleBlur}
+        hint="Tối thiểu 8 ký tự, bao gồm cả chữ và số."
+        error={errors.password?.message}
+        {...register("password")}
       />
       <FormField
         label="Nhập lại mật khẩu"
-        name="confirmPassword"
         type="password"
+        placeholder="••••••••"
         autoComplete="new-password"
-        value={form.values.confirmPassword}
-        error={form.errors.confirmPassword}
-        onChange={form.handleChange}
-        onBlur={form.handleBlur}
+        error={errors.confirmPassword?.message}
+        {...register("confirmPassword")}
       />
 
-      <Button type="submit" className="w-100 mt-2" disabled={isSubmitting}>
-        {isSubmitting ? "Đang đăng ký..." : "Đăng ký"}
+      <Button
+        variant="primary"
+        type="submit"
+        className="w-100 mt-3 py-2 fw-semibold"
+        disabled={isSubmitting}
+        style={{
+          backgroundColor: "var(--hf-primary)",
+          borderColor: "var(--hf-primary)",
+        }}
+      >
+        {isSubmitting ? "Đang tạo tài khoản..." : "Đăng ký tài khoản"}
       </Button>
     </Form>
   );

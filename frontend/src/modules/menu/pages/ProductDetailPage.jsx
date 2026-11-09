@@ -8,17 +8,25 @@ import { NutritionFacts } from "../components/NutritionFacts";
 import { useProductDetail } from "../hooks/useProductDetail";
 
 export function ProductDetailPage() {
-  const { product } = useProductDetail();
+  const { product, loading, error } = useProductDetail();
   const { addToCart } = useCart();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [addedQuantity, setAddedQuantity] = useState(null);
+  const [addError, setAddError] = useState("");
+  const [pending, setPending] = useState(false);
 
-  function confirmAddToCart(selectedProduct, quantity) {
-    addToCart(selectedProduct, quantity);
+  async function confirmAddToCart(selectedProduct, quantity) {
+    setPending(true);
+    setAddError("");
+    const result = await addToCart(selectedProduct, quantity);
+    setPending(false);
+    if (result.error) return setAddError(result.error);
     setAddedQuantity(quantity);
     setShowAddDialog(false);
   }
 
+  if (loading) return <p role="status">Đang tải món ăn…</p>;
+  if (error) return <Alert variant="danger">{error}</Alert>;
   if (!product) return (
     <Alert variant="warning">
       <h1 className="h4">Không tìm thấy món ăn</h1>
@@ -27,18 +35,23 @@ export function ProductDetailPage() {
     </Alert>
   );
 
+  const soldOut = product.status !== "AVAILABLE" || product.stockQuantity === 0;
+
   return (
-    <>
+    <div className="pb-5">
       <Button as={Link} to="/menu" variant="link" className="px-0 mb-3">← Quay lại thực đơn</Button>
       <Row className="g-4 g-lg-5">
         <Col md={6}>
-          <Image src={product.image} alt={product.name} fluid rounded className="w-100 shadow-sm"
-            style={{ aspectRatio: "8 / 5", objectFit: "cover" }} />
+          {product.image ? <Image src={product.image} alt={product.name} fluid rounded className="w-100 shadow-sm"
+            style={{ aspectRatio: "8 / 5", objectFit: "cover" }} /> : <div className="bg-light text-muted p-5 text-center">Chưa có ảnh</div>}
         </Col>
         <Col md={6}>
           <Badge bg="success" className="mb-2">{product.categoryName}</Badge>
           <h1 className="h2">{product.name}</h1>
           <p className="fs-3 fw-bold text-success">{formatCurrency(product.price)}</p>
+          <p className={soldOut || product.stockQuantity == null ? "text-secondary" : product.stockQuantity <= 5 ? "text-warning" : "text-success"}>
+            {soldOut ? "Tạm hết hàng" : product.stockQuantity == null ? "Chưa cập nhật tồn kho" : `Còn ${product.stockQuantity} sản phẩm`}
+          </p>
           <p>{product.description}</p>
           <div className="d-flex flex-wrap gap-2 mb-3">{product.tags.map((tag) => (
             <Badge key={tag} bg="light" text="dark" className="border">{tag}</Badge>
@@ -46,7 +59,9 @@ export function ProductDetailPage() {
           <h2 className="h5">Thành phần nguyên liệu</h2>
           <ul className="mb-4">{product.ingredients.map((ingredient) => <li key={ingredient}>{ingredient}</li>)}</ul>
           <NutritionFacts nutrition={product.nutrition} />
-          <Button onClick={() => setShowAddDialog(true)}>Thêm vào giỏ hàng</Button>
+          <Button onClick={() => setShowAddDialog(true)} disabled={soldOut}>
+            {soldOut ? "Hết hàng" : "Thêm vào giỏ hàng"}
+          </Button>
           {addedQuantity !== null && <Alert variant="success" className="mt-3" dismissible
             onClose={() => setAddedQuantity(null)}>
             Đã thêm {addedQuantity} phần {product.name} vào giỏ hàng.{" "}<Link to="/cart">Xem giỏ hàng</Link>
@@ -54,7 +69,8 @@ export function ProductDetailPage() {
         </Col>
       </Row>
       <AddToCartDialog product={product} show={showAddDialog}
-        onHide={() => setShowAddDialog(false)} onConfirm={confirmAddToCart} />
-    </>
+        onHide={() => setShowAddDialog(false)} onConfirm={confirmAddToCart}
+        pending={pending} error={addError} />
+    </div>
   );
 }

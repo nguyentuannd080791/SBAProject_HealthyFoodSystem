@@ -6,7 +6,10 @@ import com.project.healthyfoodsystem.module.admin.dto.response.AdminStatsRespons
 import com.project.healthyfoodsystem.module.admin.dto.response.RoleDto;
 import com.project.healthyfoodsystem.module.admin.dto.response.UserAdminResponse;
 import com.project.healthyfoodsystem.module.admin.service.AdminService;
+import com.project.healthyfoodsystem.module.auth.constant.RoleConstants;
+import com.project.healthyfoodsystem.module.auth.entity.Role;
 import com.project.healthyfoodsystem.module.auth.entity.User;
+import com.project.healthyfoodsystem.module.auth.repository.RoleRepository;
 import com.project.healthyfoodsystem.module.auth.repository.UserRepository;
 import com.project.healthyfoodsystem.module.exception.AppException;
 import org.springframework.context.annotation.Lazy;
@@ -21,10 +24,12 @@ import java.util.*;
 public class AdminServiceImpl implements AdminService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AdminServiceImpl(UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder) {
+    public AdminServiceImpl(UserRepository userRepository, RoleRepository roleRepository, @Lazy PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -33,11 +38,11 @@ public class AdminServiceImpl implements AdminService {
     // =========================================================================
 
     /**
-     * Chuyển đổi tên quyền từ Database (ví dụ ROLE_ADMIN) sang định dạng Frontend (administrator)
+     * Chuyển đổi tên quyền từ Database (ví dụ ROLE_ADMIN / ADMINISTRATOR) sang định dạng Frontend (administrator)
      */
-    private String toFrontendRole(String dbRole) {
-        if (dbRole == null) return "customer";
-        String normalized = dbRole.toUpperCase().trim();
+    private String toFrontendRole(Role role) {
+        if (role == null || role.getName() == null) return "customer";
+        String normalized = role.getName().toUpperCase().trim();
         if (normalized.contains("ADMIN")) return "administrator";
         if (normalized.contains("MANAGER")) return "manager";
         if (normalized.contains("STAFF")) return "staff";
@@ -46,29 +51,29 @@ public class AdminServiceImpl implements AdminService {
     }
 
     /**
-     * Chuyển đổi vai trò từ Frontend (administrator, staff...) sang quyền chuẩn Database (ROLE_ADMIN, ROLE_STAFF...)
+     * Chuyển đổi vai trò từ Frontend (administrator, staff...) sang quyền chuẩn Database (ADMINISTRATOR, STAFF...)
      */
-    private String toDbRole(String frontendRole) {
-        if (frontendRole == null) return "ROLE_USER";
+    private String toRoleName(String frontendRole) {
+        if (frontendRole == null) return RoleConstants.CUSTOMER;
         String clean = frontendRole.toLowerCase().trim();
         switch (clean) {
             case "administrator":
             case "admin":
             case "role_admin":
             case "role_administrator":
-                return "ROLE_ADMIN";
+                return RoleConstants.ADMINISTRATOR;
             case "manager":
             case "role_manager":
-                return "ROLE_MANAGER";
+                return RoleConstants.MANAGER;
             case "staff":
             case "role_staff":
-                return "ROLE_STAFF";
+                return RoleConstants.STAFF;
             case "delivery_partner":
             case "delivery":
             case "role_delivery_partner":
-                return "ROLE_DELIVERY_PARTNER";
+                return RoleConstants.DELIVERY_PARTNER;
             default:
-                return "ROLE_USER";
+                return RoleConstants.CUSTOMER;
         }
     }
 
@@ -81,7 +86,7 @@ public class AdminServiceImpl implements AdminService {
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .phone(user.getPhone() != null ? user.getPhone() : "")
-                .role(toFrontendRole(user.getRoles()))
+                .role(toFrontendRole(user.getRole()))
                 .status(user.getStatus() != null ? user.getStatus() : "active")
                 .emailVerified(true)
                 .build();
@@ -114,11 +119,12 @@ public class AdminServiceImpl implements AdminService {
 
         // Đếm trực tiếp qua vòng lặp cơ bản
         for (User u : allUsers) {
-            String roleKey = toFrontendRole(u.getRoles());
-            byRole.put(roleKey, byRole.getOrDefault(roleKey, 0L) + 1L);
+            String roleKey = toFrontendRole(u.getRole());
+            byRole.put(roleKey, byRole.getOrDefault(roleKey, 0L) + 1);
 
-            String statusKey = (u.getStatus() != null && u.getStatus().equalsIgnoreCase("inactive")) ? "inactive" : "active";
-            byStatus.put(statusKey, byStatus.getOrDefault(statusKey, 0L) + 1L);
+            String statusKey = (u.getStatus() != null && u.getStatus().equalsIgnoreCase("inactive"))
+                    ? "inactive" : "active";
+            byStatus.put(statusKey, byStatus.getOrDefault(statusKey, 0L) + 1);
         }
 
         return AdminStatsResponse.builder()
@@ -129,15 +135,26 @@ public class AdminServiceImpl implements AdminService {
     }
 
     /**
-     * Lấy danh sách người dùng kèm bộ lọc (role, status, search)
+     * Tìm kiếm và lọc danh sách người dùng theo vai trò, trạng thái và từ khóa
      */
     @Override
     public List<UserAdminResponse> listUsers(String role, String status, String search) {
-        String dbRoleFilter = (role != null && !role.isBlank()) ? toDbRole(role) : null;
+        // Chuẩn hóa bộ lọc vai trò (role)
+        String dbRoleFilter = null;
+        if (role != null && !role.isBlank()) {
+            dbRoleFilter = toRoleName(role);
+        }
+
+        // Chuẩn hóa bộ lọc trạng thái (status)
         String statusFilter = (status != null && !status.isBlank()) ? status.trim().toLowerCase() : null;
+
+        // Chuẩn hóa từ khóa tìm kiếm (search)
         String cleanSearch = (search != null && !search.isBlank()) ? search.trim() : null;
 
+        // Gọi truy vấn cơ sở dữ liệu
         List<User> usersFromDb = userRepository.searchUsers(dbRoleFilter, statusFilter, cleanSearch);
+
+        // Chuyển kết quả sang định dạng Response
         List<UserAdminResponse> result = new ArrayList<>();
         for (User u : usersFromDb) {
             result.add(toResponse(u));
@@ -160,13 +177,13 @@ public class AdminServiceImpl implements AdminService {
     // =========================================================================
 
     /**
-     * Tạo tài khoản nội bộ (Nhân viên, Quản lý, Quản trị viên, Tài xế)
+     * Tạo tài khoản nội bộ mới (Admin, Manager, Staff, Delivery Partner)
      */
     @Override
     @Transactional
     public UserAdminResponse createInternalAccount(CreateInternalAccountRequest request) {
-        // 1. Kiểm tra vai trò nội bộ hợp lệ
-        String inputRole = request.getRole().toLowerCase().trim();
+        // 1. Kiểm tra tính hợp lệ của vai trò: Chỉ chấp nhận các vai trò nội bộ
+        String inputRole = request.getRole().trim().toLowerCase();
         List<String> validInternalRoles = List.of(
                 "staff", "manager", "administrator", "delivery_partner",
                 "role_staff", "role_manager", "role_admin", "role_delivery_partner"
@@ -182,13 +199,18 @@ public class AdminServiceImpl implements AdminService {
         }
 
         // 3. Khởi tạo đối tượng User mới và lưu vào cơ sở dữ liệu
-        User user = new User();
-        user.setFullName(request.getFullName().trim());
-        user.setEmail(email);
-        user.setPhone(request.getPhone() != null ? request.getPhone().trim() : "");
-        user.setHashPassword(passwordEncoder.encode(request.getPassword())); // Mã hóa mật khẩu bằng BCrypt
-        user.setRoles(toDbRole(request.getRole()));
-        user.setStatus("active"); // Mặc định kích hoạt tài khoản
+        String targetRoleName = toRoleName(request.getRole());
+        Role role = roleRepository.findByNameIgnoreCase(targetRoleName)
+                .orElseGet(() -> roleRepository.save(Role.builder().name(targetRoleName).build()));
+
+        User user = User.builder()
+                .fullName(request.getFullName().trim())
+                .email(email)
+                .phone(request.getPhone() != null ? request.getPhone().trim() : "")
+                .hashPassword(passwordEncoder.encode(request.getPassword()))
+                .role(role)
+                .status("active")
+                .build();
 
         User savedUser = userRepository.save(user);
         return toResponse(savedUser);
@@ -221,11 +243,13 @@ public class AdminServiceImpl implements AdminService {
 
         // 3. Cập nhật vai trò (Quy tắc an toàn: Chặn tự hạ quyền admin của chính mình)
         if (request.getRole() != null && !request.getRole().isBlank()) {
-            String targetDbRole = toDbRole(request.getRole());
-            if (isSelf && !targetDbRole.equals("ROLE_ADMIN")) {
+            String targetRoleName = toRoleName(request.getRole());
+            if (isSelf && !targetRoleName.equals(RoleConstants.ADMINISTRATOR)) {
                 throw new AppException(HttpStatus.BAD_REQUEST, "Không thể tự thay đổi vai trò quản trị viên của chính bạn.");
             }
-            user.setRoles(targetDbRole);
+            Role role = roleRepository.findByNameIgnoreCase(targetRoleName)
+                    .orElseGet(() -> roleRepository.save(Role.builder().name(targetRoleName).build()));
+            user.setRole(role);
         }
 
         // 4. Cập nhật trạng thái (Quy tắc an toàn: Chặn tự khóa chính mình)

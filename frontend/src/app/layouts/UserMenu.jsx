@@ -1,117 +1,73 @@
 import { Link, useNavigate } from "react-router";
 import { Button, Dropdown, Nav } from "react-bootstrap";
 import { authApi } from "../../modules/auth/api/authApi";
-import {
-  ChevronDownIcon,
-  LogInIcon,
-  LogOutIcon,
-  LockIcon,
-  UserIcon,
-} from "../../shared/components/Icons";
-import { getRoleLabel, getUserInitials } from "../../shared/utils/roleUtils";
-import { useAuth } from "../provider/useAuth";
 import { CartBadge } from "../../modules/cart/components/CartBadge";
+import { useCart } from "../../modules/cart/hooks/useCart";
+import { CartIcon, ChevronDownIcon, LockIcon, LogOutIcon, UserIcon } from "../../shared/components/Icons";
+import { useAuth } from "../provider/useAuth";
 
-export function UserMenu() {
+export function UserMenu({ menuStyle = false }) {
   const { user, logout } = useAuth();
+  const { totalItems } = useCart();
   const navigate = useNavigate();
 
   async function handleLogout() {
     await authApi.logout();
     logout();
-    navigate("/login");
+    navigate("/");
+  }
+
+  if (menuStyle) {
+    const role = (user?.role || "").toLowerCase();
+    const displayName = user?.fullName || user?.email || "Tài khoản";
+    const initials = displayName.split(/\s+/).filter(Boolean).slice(-2).map((part) => part[0]).join("").toUpperCase();
+
+    return (
+      <div className="menu-header-actions">
+        <Link to="/cart" className="menu-header-cart" aria-label={`Giỏ hàng (${totalItems})`}>
+          <CartIcon size={22} />
+          <span>Giỏ hàng ({totalItems})</span>
+        </Link>
+        {user ? (
+          <Dropdown align="end" className="menu-account-dropdown">
+            <Dropdown.Toggle variant="link" id="menu-account-toggle" className="menu-account-toggle">
+              <span className="menu-account-avatar">{initials}</span>
+              <span className="menu-account-name">{displayName}</span>
+              <ChevronDownIcon size={17} />
+            </Dropdown.Toggle>
+            <Dropdown.Menu className="menu-account-list">
+              <Dropdown.Item as={Link} to="/profile"><UserIcon size={19} /> Hồ sơ cá nhân</Dropdown.Item>
+              <Dropdown.Item as={Link} to="/change-password"><LockIcon size={19} /> Đổi mật khẩu</Dropdown.Item>
+              {role === "manager" && <Dropdown.Item as={Link} to="/manager">Quản lý cửa hàng</Dropdown.Item>}
+              {role === "administrator" && <Dropdown.Item as={Link} to="/admin">Quản trị</Dropdown.Item>}
+              <Dropdown.Divider />
+              <Dropdown.Item as="button" onClick={handleLogout}><LogOutIcon size={19} /> Đăng xuất</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        ) : <Link to="/login" className="menu-login-link">Đăng nhập</Link>}
+      </div>
+    );
   }
 
   if (!user) {
     return (
       <Nav className="d-flex align-items-center gap-3 py-2 py-lg-0">
         <CartBadge />
-        <Nav.Link as={Link} to="/login">
-          Đăng nhập
-        </Nav.Link>
+        <Nav.Link as={Link} to="/login">Đăng nhập</Nav.Link>
       </Nav>
     );
   }
 
+  const role = (user.role || "").toLowerCase();
   return (
     <div className="d-flex flex-wrap align-items-center gap-3 py-2 py-lg-0">
       <CartBadge />
       <span>{user.fullName}</span>
-      {user.role === "manager" && <Link to="/manager">Quản lý cửa hàng</Link>}
-      {user.role === "customer" && (
-        <>
-          <Link to="/orders">Đơn hàng</Link>
-          <Link to="/profile">Hồ sơ</Link>
-        </>
-      )}
-      {user.role === "administrator" && <Link to="/admin">Quản trị</Link>}
+      {role === "manager" && <Link to="/manager">Quản lý cửa hàng</Link>}
+      {role === "customer" && <><Link to="/orders">Đơn hàng</Link><Link to="/profile">Hồ sơ</Link></>}
+      {role === "administrator" && <Link to="/admin">Quản trị</Link>}
       <Link to="/change-password">Đổi mật khẩu</Link>
-      <Button variant="outline-primary" size="sm" onClick={handleLogout}>
-        Đăng xuất
-      </Button>
+      <Button variant="outline-primary" size="sm" onClick={handleLogout}>Đăng xuất</Button>
     </div>
-  );
-
-  return (
-    <Dropdown align="end" className="d-inline-block">
-      <Dropdown.Toggle
-        as="div"
-        role="button"
-        tabIndex={0}
-        className="user-dropdown-toggle"
-        id="user-dropdown-menu"
-      >
-        <span className="user-avatar-circle">{initials}</span>
-        <span
-          className="d-none d-sm-inline-block text-truncate"
-          style={{ maxWidth: 140 }}
-        >
-          {user.fullName}
-        </span>
-        <ChevronDownIcon size={14} className="text-muted ms-1" />
-      </Dropdown.Toggle>
-
-      <Dropdown.Menu className="user-dropdown-menu">
-        <div className="px-3 py-2">
-          <div className="fw-semibold text-dark text-truncate">
-            {user.fullName}
-          </div>
-          <div className="text-muted small text-truncate mb-2">
-            {user.email}
-          </div>
-          <span className="badge bg-success-subtle text-success border border-success-subtle">
-            {getRoleLabel(user.role)}
-          </span>
-        </div>
-
-        <Dropdown.Divider className="my-1" />
-
-        {user.role === "customer" && (
-          <Dropdown.Item as={Link} to="/profile">
-            <UserIcon size={16} className="text-secondary" />
-            <span>Hồ sơ</span>
-          </Dropdown.Item>
-        )}
-
-        <Dropdown.Item
-          as={Link}
-          to={
-            user.role === "customer"
-              ? "/profile?tab=password"
-              : "/change-password"
-          }
-        >
-          <LockIcon size={16} className="text-secondary" />
-          <span>Đổi mật khẩu</span>
-        </Dropdown.Item>
-
-        <Dropdown.Divider className="my-1" />
-
-        <Dropdown.Item onClick={handleLogout} className="text-danger">
-          <LogOutIcon size={16} />
-          <span>Đăng xuất</span>
-        </Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown>
   );
 }

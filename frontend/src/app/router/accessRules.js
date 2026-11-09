@@ -1,8 +1,16 @@
 import { getHomePath } from "./roleHomePaths";
+import { loadToken } from "../../shared/api/tokenStorage";
 
 export function getAccessRedirect(user, allowedRoles) {
-  if (!user) return "/login";
-  if (allowedRoles && !allowedRoles.includes(user.role))
-    return getHomePath(user.role);
+  const token = loadToken();
+  if (!user || !token) return "/login";
+
+  const userRole = (user.role || "").toLowerCase();
+  if (
+    allowedRoles &&
+    !allowedRoles.map((r) => r.toLowerCase()).includes(userRole)
+  )
+    return getHomePath(userRole);
+
   return "";
 }

@@ -1,8 +1,24 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   application:
     name: healthyfoodsystem
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
   config:
-    import: optional:file:.env
+    import: optional:file:.env[.properties]
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -19,4 +35,11 @@ spring:
         dialect: org.hibernate.dialect.SQLServerDialect
         format_sql: true
       show-sql: true
+
+payment:
+  sepay:
+    bank: ${SEPAY_BANK:}
+    account-number: ${SEPAY_ACCOUNT_NUMBER:}
+    account-name: ${SEPAY_ACCOUNT_NAME:}
+    webhook-key: ${SEPAY_WEBHOOK_KEY:}
 

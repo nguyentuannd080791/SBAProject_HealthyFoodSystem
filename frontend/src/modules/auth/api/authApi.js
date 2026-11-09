@@ -3,44 +3,32 @@ import { httpClient } from "../../../shared/api/httpClient";
 
 export const authApi = {
   login(email, password) {
-    return callApi(() => httpClient.post("/auth/login", { email, password }));
+    return callApi(() => httpClient.post("/api/auth/login", { email, password }));
   },
 
   logout() {
-    return callApi(() => httpClient.post("/auth/logout"));
+    return callApi(() => httpClient.post("/api/auth/logout"));
   },
 
   register({ fullName, email, phone, password }) {
     return callApi(() =>
-      httpClient.post("/auth/register", { fullName, email, phone, password }),
-    );
-  },
-
-  verifyEmail(email, code) {
-    return callApi(() =>
-      httpClient.post("/auth/verify-email", { email, code }),
-    );
-  },
-
-  resendVerification(email) {
-    return callApi(() =>
-      httpClient.post("/auth/resend-verification", { email }),
+      httpClient.post("/api/auth/register", { fullName, email, phone, password }),
     );
   },
 
   forgotPassword(email) {
-    return callApi(() => httpClient.post("/auth/forgot-password", { email }));
+    return callApi(() => httpClient.post("/api/auth/forgot-password", { email }));
   },
 
   resetPassword(email, code, password) {
     return callApi(() =>
-      httpClient.post("/auth/reset-password", { email, code, password }),
+      httpClient.post("/api/auth/reset-password", { email, code, password }),
     );
   },
 
   changePassword(currentPassword, newPassword) {
     return callApi(() =>
-      httpClient.post("/auth/change-password", {
+      httpClient.post("/api/auth/change-password", {
         currentPassword,
         newPassword,
       }),

@@ -17,7 +17,7 @@ export function DeliveryForm({ initialValues, onSubmit, isSubmitting }) {
 
   return (
     <Form noValidate onSubmit={form.handleSubmit(onSubmit)}>
-      <div className="row g-2">
+      <div className="row g-3">
         {fieldList.map(([name, label, type]) => (
           <div className={name === "street" ? "col-12" : "col-md-6"} key={name}>
             <FormField label={label} name={name} type={type}
@@ -26,7 +26,7 @@ export function DeliveryForm({ initialValues, onSubmit, isSubmitting }) {
           </div>
         ))}
       </div>
-      <Button type="submit" className="w-100 mt-2" disabled={isSubmitting}>
+      <Button type="submit" className="w-100 mt-3" disabled={isSubmitting}>
         {isSubmitting ? "Đang tạo đơn..." : "Xác nhận đặt hàng"}
       </Button>
     </Form>
