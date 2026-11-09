@@ -59,39 +59,49 @@ public class PromotionService {
     }
 
     private void apply(Promotion promotion, PromotionRequest request) {
-        String name = request.name().trim();
+        String code = request.getCode().trim().toUpperCase(java.util.Locale.ROOT);
+        if (!code.matches("[A-Z0-9_-]{3,30}"))
+            throw new ProductInputException("code", "Mã gồm 3–30 chữ, số, dấu gạch ngang hoặc gạch dưới.");
+        promotions.findByCodeIgnoreCase(code).ifPresent(existing -> {
+            if (!java.util.Objects.equals(existing.getId(), promotion.getId()))
+                throw new ProductInputException("code", "Mã khuyến mãi đã tồn tại.");
+        });
+        promotion.setCode(code);
+        String name = request.getName().trim();
         if (name.isEmpty() || name.length() > 120)
             throw new ProductInputException("name", "Tên chương trình cần từ 1 đến 120 ký tự.");
-        if (!"percentage".equals(request.type()) && !"fixed".equals(request.type()))
+        if (!"percentage".equals(request.getType()) && !"fixed".equals(request.getType()))
             throw new ProductInputException("type", "Loại giảm giá không hợp lệ.");
-        BigDecimal value = request.value();
-        if (value.signum() <= 0 || ("percentage".equals(request.type())
+        BigDecimal value = request.getValue();
+        if (value.signum() <= 0 || ("percentage".equals(request.getType())
                 && (value.compareTo(BigDecimal.valueOf(100)) > 0 || value.scale() > 2))
-                || ("fixed".equals(request.type()) && (value.scale() > 0 && value.stripTrailingZeros().scale() > 0)))
+                || ("fixed".equals(request.getType()) && (value.scale() > 0 && value.stripTrailingZeros().scale() > 0)))
             throw new ProductInputException("value", "Mức giảm không hợp lệ.");
-        if (request.endsAt().compareTo(request.startsAt()) <= 0)
+        if (request.getEndsAt().compareTo(request.getStartsAt()) <= 0)
             throw new ProductInputException("endsAt", "Thời gian kết thúc phải sau thời gian bắt đầu.");
-        Set<Integer> ids = new LinkedHashSet<>(request.productIds());
-        if (ids.size() != request.productIds().size())
+        Set<Integer> ids = new LinkedHashSet<>(request.getProductIds());
+        if (ids.size() != request.getProductIds().size())
             throw new ProductInputException("productIds", "Sản phẩm không được chọn trùng.");
         List<Product> selected = products.findAllById(ids);
         if (selected.size() != ids.size())
             throw new ProductInputException("productIds", "Có sản phẩm không tồn tại.");
-        if ("fixed".equals(request.type()) && selected.stream()
+        if ("fixed".equals(request.getType()) && selected.stream()
                 .anyMatch(product -> value.compareTo(product.getPrice()) > 0))
             throw new ProductInputException("value", "Số tiền giảm không được vượt giá sản phẩm.");
         promotion.setName(name);
-        promotion.setType(request.type());
+        promotion.setType(request.getType());
         promotion.setValue(value);
-        promotion.setStartsAt(request.startsAt());
-        promotion.setEndsAt(request.endsAt());
-        promotion.setEnabled(request.enabled());
+        promotion.setStartsAt(request.getStartsAt());
+        promotion.setEndsAt(request.getEndsAt());
+        promotion.setEnabled(request.getEnabled());
         promotion.setProducts(new LinkedHashSet<>(selected));
     }
 
     private PromotionResponse response(Promotion promotion) {
-        return new PromotionResponse(promotion.getId(), promotion.getName(), promotion.getType(),
-                promotion.getValue(), promotion.getProducts().stream().map(Product::getId).sorted().toList(),
-                promotion.getStartsAt(), promotion.getEndsAt(), promotion.isEnabled(), promotion.getUpdatedAt());
+        return PromotionResponse.builder().id(promotion.getId()).code(promotion.getCode())
+                .name(promotion.getName()).type(promotion.getType()).value(promotion.getValue())
+                .productIds(promotion.getProducts().stream().map(Product::getId).sorted().toList())
+                .startsAt(promotion.getStartsAt()).endsAt(promotion.getEndsAt())
+                .enabled(promotion.isEnabled()).updatedAt(promotion.getUpdatedAt()).build();
     }
 }

@@ -8,6 +8,7 @@ function mapOrder(order) {
 }
 
 export const orderStore = {
+  previewPromotion(code) { return callApi(() => httpClient.post("/api/orders/promotion-preview", { code })); },
   async list() {
     const result = await callApi(() => httpClient.get("/api/orders"));
     return result.error ? result : { data: result.data.map(mapOrder) };

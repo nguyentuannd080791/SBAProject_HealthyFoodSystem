@@ -15,15 +15,18 @@ export function CheckoutPage() {
   const { user } = useAuth();
   const { items, totalItems, totalPrice, refreshCart, isCartLoading,
     pendingGuestItems, cartError } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [promoCode, setPromoCode] = useState("");
-  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoQuote, setPromoQuote] = useState(null);
+  const [applyingPromo, setApplyingPromo] = useState(false);
+  const promoVersion = useRef(0);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const requestId = useRef(null);
   const submitting = useRef(false);
 
-  const discount = promoApplied ? Math.round(totalPrice * 0.1) : 0;
+  const cartKey = JSON.stringify(items.map((item) => [item.cartItemId, item.quantity, item.price]));
+  const promoApplied = promoQuote?.cartKey === cartKey && promoQuote?.code === promoCode.trim().toUpperCase();
+  const discount = promoApplied ? Number(promoQuote.discount) : 0;
   const deliveryFee = totalPrice >= 200000 ? 0 : 1000;
   const grandTotal = totalPrice - discount + deliveryFee;
   const initialDelivery = useMemo(() => ({
@@ -35,14 +38,25 @@ export function CheckoutPage() {
     city: "",
   }), [user]);
 
-  function applyPromo() {
-    const valid = promoCode.trim().toUpperCase() === "HEALTHY10";
-    setPromoApplied(valid);
-    setError(valid ? "" : "Mã ưu đãi không hợp lệ. Bạn có thể thử HEALTHY10.");
+  async function applyPromo() {
+    const version = ++promoVersion.current;
+    const code = promoCode.trim().toUpperCase();
+    setPromoQuote(null);
+    setApplyingPromo(true);
+    const result = await orderStore.previewPromotion(code);
+    if (version !== promoVersion.current) return;
+    setApplyingPromo(false);
+    if (result.error) return setError(result.error);
+    if (Number(result.data.subtotal) !== totalPrice) {
+      await refreshCart();
+      return setError("Giỏ hàng đã thay đổi. Vui lòng kiểm tra và áp dụng lại mã.");
+    }
+    setPromoQuote({ ...result.data, cartKey });
+    setError("");
   }
 
   async function placeOrder(delivery) {
-    if (submitting.current) return;
+    if (submitting.current || applyingPromo) return;
     submitting.current = true;
     setError("");
     setIsSubmitting(true);
@@ -52,8 +66,9 @@ export function CheckoutPage() {
       expectedSubtotal: totalPrice,
       expectedCart: Object.fromEntries(items.map((item) => [item.cartItemId, item.quantity])),
       delivery,
-      paymentMethod,
-      promoCode: promoApplied ? "HEALTHY10" : "",
+      paymentMethod: "sepay",
+      promoCode: promoApplied ? promoQuote.code : "",
+      expectedDiscount: discount,
     };
     const result = await orderStore.create(order);
     submitting.current = false;
@@ -99,17 +114,13 @@ export function CheckoutPage() {
           <Card body className="order-panel mb-3">
             <h2 className="h5 mb-1">Địa chỉ nhận hàng</h2>
             <p className="small text-secondary mb-4">Cho chúng mình biết bữa ăn sẽ được giao đến đâu.</p>
-            <DeliveryForm initialValues={initialDelivery} onSubmit={placeOrder} isSubmitting={isSubmitting} />
+            <DeliveryForm initialValues={initialDelivery} onSubmit={placeOrder} isSubmitting={isSubmitting || applyingPromo} />
           </Card>
           <Card body className="order-panel">
             <h2 className="h5 mb-3">Phương thức thanh toán</h2>
-            <Form.Check className={`payment-choice${paymentMethod === "cash" ? " is-selected" : ""}`} type="radio" name="paymentMethod" id="pay-cash"
-              label={<><strong>Tiền mặt khi nhận hàng</strong><small className="d-block text-secondary">Thanh toán trực tiếp cho nhân viên giao hàng.</small></>}
-              checked={paymentMethod === "cash"} onChange={() => setPaymentMethod("cash")} />
-            <Form.Check className={`payment-choice mt-3${paymentMethod === "sepay" ? " is-selected" : ""}`} type="radio" name="paymentMethod" id="pay-sepay"
-              label={<><strong>Chuyển khoản qua SePay</strong><small className="d-block text-secondary">Đơn sẽ ở trạng thái chờ thanh toán.</small></>}
-              checked={paymentMethod === "sepay"} onChange={() => setPaymentMethod("sepay")} />
-            {paymentMethod === "sepay" && <Alert variant="info" className="mt-3 mb-0 small">Sau khi đặt đơn, quét QR ở trang chi tiết. Trạng thái tự cập nhật khi ngân hàng xác nhận.</Alert>}
+            <div className="payment-choice is-selected"><strong>Chuyển khoản qua SePay</strong>
+              <small className="d-block text-secondary">Thanh toán trước bằng QR ngân hàng. Đơn được chuẩn bị sau khi thanh toán thành công.</small></div>
+            <Alert variant="info" className="mt-3 mb-0 small">Sau khi đặt đơn, quét QR ở trang chi tiết. Hệ thống tự xác nhận khi nhận được giao dịch.</Alert>
           </Card>
         </div>
 
@@ -121,9 +132,10 @@ export function CheckoutPage() {
               <strong>{formatCurrency(item.price * item.quantity)}</strong>
             </div>)}</div>
             <Form.Group className="mt-3"><Form.Label className="small fw-semibold">Mã giảm giá</Form.Label>
-              <div className="d-flex gap-2"><Form.Control value={promoCode} onChange={(event) => { setPromoCode(event.target.value); setPromoApplied(false); }} placeholder="Nhập HEALTHY10" />
-                <Button variant="outline-primary" onClick={applyPromo}>Áp dụng</Button></div>
+              <div className="d-flex gap-2"><Form.Control maxLength={30} value={promoCode} onChange={(event) => { setPromoCode(event.target.value); setPromoQuote(null); promoVersion.current += 1; setApplyingPromo(false); }} placeholder="Nhập mã ưu đãi" disabled={isSubmitting} />
+                <Button variant="outline-primary" disabled={applyingPromo || isSubmitting || !promoCode.trim()} onClick={applyPromo}>{applyingPromo ? "Đang kiểm tra..." : "Áp dụng"}</Button></div>
             </Form.Group>
+            {promoApplied && <Alert variant="success" className="small mt-3 mb-0">Đã áp dụng {promoQuote.code} · {promoQuote.name}. Giảm cho {promoQuote.eligibleItems} món thuộc chương trình.</Alert>}
             <div className="cart-totals mt-3"><div><span>Tạm tính</span><span>{formatCurrency(totalPrice)}</span></div>
               {discount > 0 && <div className="text-success"><span>Giảm giá</span><span>−{formatCurrency(discount)}</span></div>}
               <div><span>Phí giao hàng</span><span>{deliveryFee ? formatCurrency(deliveryFee) : "Miễn phí"}</span></div>

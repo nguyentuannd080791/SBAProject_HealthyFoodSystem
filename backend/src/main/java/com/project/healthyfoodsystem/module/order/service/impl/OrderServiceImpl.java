@@ -23,12 +23,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -44,6 +44,7 @@ public class OrderServiceImpl implements OrderService {
     private final PaymentRepository payments;
 
     private final SePaySettings settings;
+    private final com.project.healthyfoodsystem.module.order.service.CheckoutPromotionService promotionService;
 
     private User customer(String email, boolean lock) {
         var found = lock ? users.findByEmailForCartUpdate(email) : users.findByEmail(email);
@@ -83,11 +84,13 @@ public class OrderServiceImpl implements OrderService {
         User user = customer(email, true);
         var previous = orders.findByCustomerIdAndRequestId(user.getId(), request.getRequestId());
         if (previous.isPresent()) return response(previous.get());
-        boolean online = "sepay".equals(request.getPaymentMethod());
-        if (online && !settings.enabled())
+        if (!"sepay".equals(request.getPaymentMethod()))
+            throw error(HttpStatus.BAD_REQUEST, "Chỉ hỗ trợ thanh toán chuyển khoản SePay.");
+
+        if (!settings.enabled())
             throw error(
                     HttpStatus.SERVICE_UNAVAILABLE,
-                    "SePay chưa được cấu hình. Vui lòng chọn tiền mặt.");
+                    "SePay chưa được cấu hình. Vui lòng thử lại sau.");
         var cart =
                 carts.findByUserId(user.getId())
                         .orElseThrow(() -> error(HttpStatus.CONFLICT, "Giỏ hàng đang trống."));
@@ -119,8 +122,8 @@ public class OrderServiceImpl implements OrderService {
                     || row.getQuantity() < 1
                     || !"AVAILABLE".equals(product.getStatus()))
                 throw error(HttpStatus.CONFLICT, "Món không còn phục vụ: " + product.getName());
-            if (product.getStockQuantity() != null
-                    && product.getStockQuantity() < row.getQuantity())
+            if (product.getStockQuantity() == null
+                    || product.getStockQuantity() < row.getQuantity())
                 throw error(HttpStatus.CONFLICT, "Món không đủ số lượng: " + product.getName());
             if (product.getPrice() == null || product.getPrice().signum() <= 0)
                 throw error(HttpStatus.CONFLICT, "Giá món không hợp lệ.");
@@ -140,26 +143,26 @@ public class OrderServiceImpl implements OrderService {
         }
         if (subtotal.compareTo(request.getExpectedSubtotal()) != 0)
             throw error(HttpStatus.CONFLICT, "Giá món đã thay đổi. Hãy tải lại giỏ trước khi đặt.");
-        String promo =
-                request.getPromoCode() == null
-                        ? ""
-                        : request.getPromoCode().trim().toUpperCase(Locale.ROOT);
-        if (!promo.isEmpty() && !"HEALTHY10".equals(promo))
-            throw error(HttpStatus.BAD_REQUEST, "Mã ưu đãi không hợp lệ.");
-        BigDecimal discount =
-                promo.isEmpty()
-                        ? BigDecimal.ZERO
-                        : subtotal.multiply(new BigDecimal("0.1"))
-                                .setScale(0, RoundingMode.HALF_UP);
+        var quote = promotionService.evaluate(request.getPromoCode(), lines);
+        String promo = quote.getCode();
+        BigDecimal discount = quote.getDiscount();
+        if (request.getExpectedDiscount() == null || discount.compareTo(request.getExpectedDiscount()) != 0)
+            throw error(HttpStatus.CONFLICT, "Ưu đãi đã thay đổi. Vui lòng áp dụng lại mã trước khi đặt đơn.");
         BigDecimal deliveryFee =
                 subtotal.compareTo(new BigDecimal("200000")) >= 0
                         ? BigDecimal.ZERO
                         : new BigDecimal("1000");
         Instant now = Instant.now();
+        // Conditional updates are atomic across customers; consistent order avoids deadlocks.
+        for (var row : rows.stream().sorted(java.util.Comparator.comparing(item -> item.getProductId())).toList()) {
+            if (products.reserveStock(row.getProductId(), row.getQuantity()) != 1)
+                throw error(HttpStatus.CONFLICT, "Món vừa hết hàng hoặc không đủ số lượng. Hãy tải lại giỏ hàng.");
+        }
         var address = request.getDelivery();
         CustomerOrder order =
                 CustomerOrder.builder()
                         .id(UUID.randomUUID().toString())
+                        .inventoryReserved(true)
                         .requestId(request.getRequestId())
                         .customerId(user.getId())
                         .customerName(user.getFullName())
@@ -170,7 +173,7 @@ public class OrderServiceImpl implements OrderService {
                         .promoCode(promo)
                         .deliveryFee(deliveryFee)
                         .total(subtotal.subtract(discount).add(deliveryFee))
-                        .status(online ? "pending_payment" : "processing")
+                        .status("pending_payment")
                         .createdAt(now)
                         .updatedAt(now)
                         .delivery(
@@ -195,11 +198,11 @@ public class OrderServiceImpl implements OrderService {
                                                         100_000_000_000_000L,
                                                         1_000_000_000_000_000L))
                         .method(request.getPaymentMethod())
-                        .status(online ? "pending" : "unpaid")
+                        .status("pending")
                         .expectedAmount(order.getTotal())
-                        .bank(online ? settings.getBank() : null)
-                        .accountNumber(online ? settings.getAccountNumber() : null)
-                        .accountName(online ? settings.getAccountName() : null)
+                        .bank(settings.getBank())
+                        .accountNumber(settings.getAccountNumber())
+                        .accountName(settings.getAccountName())
                         .createdAt(now)
                         .build();
         payments.save(payment);
@@ -230,11 +233,17 @@ public class OrderServiceImpl implements OrderService {
                 payments.lockByOrderId(id)
                         .orElseThrow(
                                 () -> error(HttpStatus.NOT_FOUND, "Không tìm thấy thanh toán."));
-        if (!"cash".equals(payment.getMethod()) || !"processing".equals(order.getStatus()))
+        if (!"pending".equals(payment.getStatus()) || !"pending_payment".equals(order.getStatus()))
             throw error(
                     HttpStatus.CONFLICT,
-                    "Chỉ có thể tự hủy đơn tiền mặt chưa chuẩn bị. Đơn chuyển khoản cần liên hệ hỗ"
-                        + " trợ.");
+                    "Chỉ có thể hủy đơn chưa thanh toán. Đơn đã thanh toán cần liên hệ hỗ trợ.");
+        if (Boolean.TRUE.equals(order.getInventoryReserved())) {
+            for (var item : order.getItems().stream().sorted(java.util.Comparator.comparing(item -> item.getId())).toList()) {
+                if (products.restoreStock(item.getId(), item.getQuantity()) != 1)
+                    throw error(HttpStatus.CONFLICT, "Không thể hoàn kho cho đơn. Vui lòng liên hệ cửa hàng.");
+            }
+            order.setInventoryReserved(false);
+        }
         order.setStatus("cancelled");
         order.setUpdatedAt(Instant.now());
         payment.setStatus("cancelled");

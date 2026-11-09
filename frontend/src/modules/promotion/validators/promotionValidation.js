@@ -1,5 +1,6 @@
 export function validatePromotion(values, products) {
   const errors = {};
+  if (!/^[A-Za-z0-9_-]{3,30}$/.test(values.code?.trim() ?? '')) errors.code = 'Mã gồm 3–30 chữ, số, dấu gạch ngang hoặc gạch dưới.';
   if (!values.name.trim() || values.name.trim().length > 120) errors.name = 'Tên chương trình cần từ 1 đến 120 ký tự.';
   const value = Number(values.value);
   if (!['percentage', 'fixed'].includes(values.type)) errors.type = 'Vui lòng chọn loại giảm giá.';

@@ -3,10 +3,19 @@ package com.project.healthyfoodsystem.module.product.repository;
 import com.project.healthyfoodsystem.module.product.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
+    @Modifying
+    @Query("update Product p set p.stockQuantity = p.stockQuantity - :quantity where p.id = :id and p.status = 'AVAILABLE' and p.stockQuantity >= :quantity")
+    int reserveStock(@Param("id") Integer id, @Param("quantity") int quantity);
+
+    @Modifying
+    @Query("update Product p set p.stockQuantity = p.stockQuantity + :quantity where p.id = :id and p.stockQuantity is not null")
+    int restoreStock(@Param("id") Integer id, @Param("quantity") int quantity);
     interface CategoryProductCount {
         Integer getCategoryId();
         long getProductCount();
