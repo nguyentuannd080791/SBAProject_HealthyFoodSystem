@@ -20,5 +20,5 @@ export function formatOrderAddress(delivery) {
 }
 
 export function canCancelOrder(order) {
-  return order.paymentMethod === "cash" && order.status === "processing";
+  return order.paymentStatus === "pending" && order.status === "pending_payment";
 }

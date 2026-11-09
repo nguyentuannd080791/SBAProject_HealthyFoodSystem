@@ -1,9 +1,12 @@
 import { RequireRole } from "../RequireRole";
 import { AdminPage } from "../../../modules/admin/pages/AdminPage";
 import { managerRoutes } from './managerRoutes';
+import { StaffOrdersPage } from '../../../modules/staff/pages/StaffOrdersPage';
+import { StaffInvoicePage } from '../../../modules/staff/pages/StaffInvoicePage';
 
 export const roleRoutes = [
-  { path: "staff", element: <h1 className="h3">Khu vực nhân viên</h1> },
+  { path: "staff", element: <RequireRole roles={["staff"]}><StaffOrdersPage /></RequireRole> },
+  { path: "staff/orders/:orderId/invoice", element: <RequireRole roles={["staff"]}><StaffInvoicePage /></RequireRole> },
   ...managerRoutes,
   {
     path: "admin",
@@ -13,6 +16,5 @@ export const roleRoutes = [
       </RequireRole>
     ),
   },
-  { path: "delivery", element: <h1 className="h3">Khu vực giao hàng</h1> },
 ];
 

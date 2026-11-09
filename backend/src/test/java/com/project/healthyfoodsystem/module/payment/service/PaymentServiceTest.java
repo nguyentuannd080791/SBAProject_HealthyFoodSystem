@@ -45,12 +45,17 @@ class PaymentServiceTest {
     private final PaymentService service =
             new PaymentServiceImpl(
                     users, orders, payments, transactions, settings);
-    private final OrderService orderService = new OrderServiceImpl(users, carts, cartItems, products, orders, payments, settings);
+    private final com.project.healthyfoodsystem.module.order.service.CheckoutPromotionService promotionService = mock(com.project.healthyfoodsystem.module.order.service.CheckoutPromotionService.class);
+    private final OrderService orderService = new OrderServiceImpl(users, carts, cartItems, products, orders, payments, settings, promotionService);
     private final String email = "customer@example.com";
     private List<CartItem> rows;
 
     @BeforeEach
     void setup() {
+        configured();
+        when(promotionService.evaluate(any(), any())).thenReturn(
+                com.project.healthyfoodsystem.module.order.dto.response.PromotionQuoteResponse.builder()
+                        .code("TEST10").discount(new BigDecimal("13800")).build());
         User user = mock(User.class);
         when(user.getId()).thenReturn(1);
         when(user.getStatus()).thenReturn("active");
@@ -64,7 +69,8 @@ class PaymentServiceTest {
         return CheckoutRequest.builder()
                 .requestId("retry-1")
                 .paymentMethod(method)
-                .promoCode("HEALTHY10")
+                .promoCode("TEST10")
+                .expectedDiscount(new BigDecimal("13800"))
                 .expectedSubtotal(new BigDecimal("138000"))
                 .expectedCart(Map.of(10, 2))
                 .delivery(
@@ -98,6 +104,7 @@ class PaymentServiceTest {
         when(product.getStockQuantity()).thenReturn(5);
         when(product.getPrice()).thenReturn(new BigDecimal("69000"));
         when(products.findById(3)).thenReturn(Optional.of(product));
+        when(products.reserveStock(3, 2)).thenReturn(1);
     }
 
     private Payment payment() {
@@ -135,9 +142,11 @@ class PaymentServiceTest {
     @Test
     void checkoutReadsRealCartAndClearsOnlyAfterCreatingOrder() {
         cart();
-        var result = orderService.checkout(email, request("cash"));
+        var result = orderService.checkout(email, request("sepay"));
         assertEquals(new BigDecimal("125200"), result.getTotal());
-        assertEquals("unpaid", result.getPaymentStatus());
+        assertEquals("pending", result.getPaymentStatus());
+        assertEquals("pending_payment", result.getStatus());
+        verify(products, times(1)).reserveStock(3, 2);
         var sequence = inOrder(orders, payments, cartItems);
         sequence.verify(orders).save(any());
         sequence.verify(payments).save(any());
@@ -146,7 +155,7 @@ class PaymentServiceTest {
 
     @Test
     void emptyCartCannotCheckout() {
-        assertThrows(ApiException.class, () -> orderService.checkout(email, request("cash")));
+        assertThrows(ApiException.class, () -> orderService.checkout(email, request("sepay")));
         verifyNoInteractions(transactions);
         verify(orders, never()).save(any());
         verify(cartItems, never()).deleteAll(any());
@@ -155,7 +164,7 @@ class PaymentServiceTest {
     @Test
     void staleCartCannotCheckout() {
         cart();
-        var request = request("cash");
+        var request = request("sepay");
         request.setExpectedCart(Map.of(10, 1));
         assertThrows(ApiException.class, () -> orderService.checkout(email, request));
         verify(orders, never()).save(any());
@@ -165,7 +174,7 @@ class PaymentServiceTest {
     @Test
     void changedPriceCannotCheckout() {
         cart();
-        var request = request("cash");
+        var request = request("sepay");
         request.setExpectedSubtotal(BigDecimal.ONE);
         assertThrows(ApiException.class, () -> orderService.checkout(email, request));
         verify(orders, never()).save(any());
@@ -177,6 +186,7 @@ class PaymentServiceTest {
         when(orders.findByCustomerIdAndRequestId(1, "retry-1")).thenReturn(Optional.of(order()));
         when(payments.findByOrderId("o1")).thenReturn(Optional.of(payment()));
         assertEquals("o1", orderService.checkout(email, request("sepay")).getId());
+        verifyNoInteractions(products);
         verifyNoInteractions(carts);
         verify(orders, never()).save(any());
     }
@@ -191,9 +201,68 @@ class PaymentServiceTest {
 
     @Test
     void missingSePayConfigDoesNotConsumeCart() {
+        when(settings.enabled()).thenReturn(false);
         assertThrows(ApiException.class, () -> orderService.checkout(email, request("sepay")));
         verifyNoInteractions(carts);
         verify(orders, never()).save(any());
+    }
+
+    @Test
+    void cashCheckoutIsRejectedWithoutConsumingCart() {
+        assertThrows(ApiException.class, () -> orderService.checkout(email, request("cash")));
+        verifyNoInteractions(carts);
+        verify(orders, never()).save(any());
+        verify(payments, never()).save(any());
+    }
+
+    @Test
+    void concurrentStockChangeRejectsCheckoutBeforeSavingOrder() {
+        cart();
+        when(products.reserveStock(3, 2)).thenReturn(0);
+        assertThrows(ApiException.class, () -> orderService.checkout(email, request("sepay")));
+        verify(orders, never()).save(any());
+        verify(payments, never()).save(any());
+        verify(cartItems, never()).deleteAll(any());
+    }
+
+    @Test
+    void changedPromotionQuoteRejectsCheckoutBeforeReservingStock() {
+        cart();
+        when(promotionService.evaluate(any(), any())).thenReturn(
+                com.project.healthyfoodsystem.module.order.dto.response.PromotionQuoteResponse.builder()
+                        .code("TEST10").discount(BigDecimal.valueOf(5000)).build());
+        assertThrows(ApiException.class, () -> orderService.checkout(email, request("sepay")));
+        verify(products, never()).reserveStock(any(), anyInt());
+        verify(orders, never()).save(any());
+    }
+
+    @Test
+    void cancellingPendingReservedOrderReturnsStockOnlyOnce() {
+        var order = order();
+        order.setInventoryReserved(true);
+        order.setItems(List.of(CustomerOrder.Item.builder().id(3).quantity(2).build()));
+        var payment = payment();
+        payment.setStatus("pending");
+        when(orders.findById("o1")).thenReturn(Optional.of(order));
+        when(payments.lockByOrderId("o1")).thenReturn(Optional.of(payment));
+        when(products.restoreStock(3, 2)).thenReturn(1);
+        orderService.cancel(email, "o1");
+        assertEquals("cancelled", order.getStatus());
+        assertFalse(order.getInventoryReserved());
+        assertThrows(ApiException.class, () -> orderService.cancel(email, "o1"));
+        verify(products, times(1)).restoreStock(3, 2);
+    }
+
+    @Test
+    void paidOrderCannotCancelOrRestoreStock() {
+        var order = order();
+        order.setInventoryReserved(true);
+        var payment = payment();
+        payment.setStatus("paid");
+        when(orders.findById("o1")).thenReturn(Optional.of(order));
+        when(payments.lockByOrderId("o1")).thenReturn(Optional.of(payment));
+        assertThrows(ApiException.class, () -> orderService.cancel(email, "o1"));
+        verify(products, never()).restoreStock(any(), anyInt());
     }
 
     @Test
