@@ -3,79 +3,259 @@ import { Alert, Button, Card, Col, Form, Row } from 'react-bootstrap';
 import { FormField } from '../../../shared/components/FormField';
 import { ProductImage } from './ProductImage';
 import { httpClient } from '../../../shared/api/httpClient';
+import { ingredientApi } from '../../ingredient/api/ingredientApi';
+import { productApi } from '../api/productApi';
+import { inputUnit, toIngredientUnit, weightUnitOptions } from '../../ingredient/utils/unitConversion';
 import { validateProduct } from '../validators/productValidation';
 
-const initial = { name: '', categoryId: '', description: '', price: '', stockQuantity: '', status: 'AVAILABLE', ingredientsText: '',
-  caloriesKcal: '', proteinG: '', carbohydrateG: '', fatG: '', fiberG: '', sugarG: '', sodiumMg: '', imageFile: null };
+const empty = {
+  name: '', categoryId: '', description: '', price: '',
+  status: 'AVAILABLE', ingredientLines: [],
+  caloriesKcal: '', proteinG: '', carbohydrateG: '', fatG: '',
+  fiberG: '', sugarG: '', sodiumMg: '', potassiumMg: '', imageFile: null,
+};
 
 function initialValues(product) {
-  if (!product) return initial;
-  return Object.fromEntries(Object.keys(initial).map(key => [key,
-    key === 'imageFile' ? null : product[key] == null ? '' : String(product[key])]));
+  if (!product) return { ...empty };
+  return {
+    ...Object.fromEntries(
+      Object.keys(empty).filter(key => !['ingredientLines', 'imageFile'].includes(key))
+        .map(key => [key, product[key] == null ? '' : String(product[key])]),
+    ),
+    imageFile: null,
+    ingredientLines: (product.ingredientLines || []).map(line => ({
+      ingredientId: String(line.ingredientId),
+      requiredQuantity: line.requiredQuantity == null ? '' : String(line.requiredQuantity),
+      unit: inputUnit(line.unit),
+    })),
+  };
 }
 
 export function AddProductForm({ categories, onSave, busy, submitError, serverErrors, product }) {
   const [values, setValues] = useState(() => initialValues(product));
-  const [errors, setErrors] = useState({});
-  const [changedAfterSubmit, setChangedAfterSubmit] = useState({});
+  const [ingredients, setIngredients] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loadError, setLoadError] = useState('');
+  const [touched, setTouched] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [editedAfterServerError, setEditedAfterServerError] = useState({});
   const [preview, setPreview] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([ingredientApi.list(), productApi.list()]).then(([ingredientResult, productResult]) => {
+      if (!active) return;
+      setIngredients(ingredientResult.data || []);
+      setProducts(productResult.data || []);
+      setLoadError(ingredientResult.error || productResult.error || '');
+    });
+    return () => { active = false; };
+  }, []);
+
   useEffect(() => {
     if (!values.imageFile) { setPreview(''); return; }
     const url = URL.createObjectURL(values.imageFile);
     setPreview(url);
     return () => URL.revokeObjectURL(url);
   }, [values.imageFile]);
-  useEffect(() => { setChangedAfterSubmit({}); }, [serverErrors]);
+
+  useEffect(() => { setEditedAfterServerError({}); }, [serverErrors]);
+
   function change(event) {
     const { name, value } = event.target;
     setValues(current => ({ ...current, [name]: value }));
-    setErrors(current => ({ ...current, [name]: '' }));
-    setChangedAfterSubmit(current => ({ ...current, [name]: true }));
+    setTouched(current => ({ ...current, [name]: true }));
+    setEditedAfterServerError(current => ({ ...current, [name]: true }));
   }
+
+  function changeLine(index, field, value) {
+    setValues(current => ({
+      ...current,
+      ingredientLines: current.ingredientLines.map((line, i) =>
+        i === index ? { ...line, [field]: value } : line),
+    }));
+    setTouched(current => ({ ...current, ingredientLines: true }));
+    setEditedAfterServerError(current => ({ ...current, ingredientLines: true }));
+  }
+
   function submit(event) {
     event.preventDefault();
-    if (busy) return;
-    const found = validateProduct(values);
-    setErrors(found);
-    if (Object.keys(found).length) return;
-    onSave({ ...values, name: values.name.trim(), categoryId: values.categoryId });
+    const found = validateProduct(values, ingredients, products, product?.id);
+    setSubmitted(true);
+    if (Object.keys(found).length || busy) return;
+    onSave({ ...values, name: values.name.trim() });
   }
-  const errorFor = name => errors[name] || (!changedAfterSubmit[name] && serverErrors[name]);
-  const currentImage = product?.imageUrl ? new URL(product.imageUrl, httpClient.defaults.baseURL).href : '';
-  return <Form noValidate onSubmit={submit}>
-    {submitError && <Alert variant="danger">{submitError}</Alert>}
+
+  const liveErrors = validateProduct(values, ingredients, products, product?.id);
+  const errorFor = name => ((submitted || touched[name]) && liveErrors[name]) ||
+    (!editedAfterServerError[name] && serverErrors?.[name]) || '';
+  const currentImage = product?.imageUrl
+    ? new URL(product.imageUrl, httpClient.defaults.baseURL).href : '';
+  const selectedIds = new Set(values.ingredientLines.map(line => String(line.ingredientId)));
+  const available = values.ingredientLines.length > 0
+    ? Math.min(...values.ingredientLines.map(line => {
+      const item = ingredients.find(ingredient => String(ingredient.id) === String(line.ingredientId));
+      const required = Math.round(toIngredientUnit(
+        line.requiredQuantity, line.unit, item?.unit) * 1000);
+      return item && required > 0
+        ? Math.floor(Math.round(Number(item.stockQuantity) * 1000) / required) : 0;
+    })) : 0;
+
+  return <Form noValidate onSubmit={submit} onBlurCapture={event => {
+    if (event.target.name) setTouched(current => ({ ...current, [event.target.name]: true }));
+  }}>
+    {(submitError || loadError) && <Alert variant="danger">{submitError || loadError}</Alert>}
     <fieldset disabled={busy}>
-      <Row className="g-4"><Col lg={8}><Card body><h2 className="h5 mb-4">Thông tin sản phẩm</h2>
-        <FormField label="Tên sản phẩm *" name="name" value={values.name} onChange={change} error={errorFor('name')} maxLength={150} />
-        <Row><Col md={6}><Form.Group className="mb-3" controlId="add-category"><Form.Label>Danh mục *</Form.Label>
-          <Form.Select name="categoryId" value={values.categoryId} onChange={change} isInvalid={!!errorFor('categoryId')}>
-            <option value="">Chọn danh mục</option>{categories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
-          </Form.Select><Form.Control.Feedback type="invalid">{errorFor('categoryId')}</Form.Control.Feedback>
-        </Form.Group></Col><Col md={6}><FormField label="Giá bán (VNĐ) *" name="price" type="number" min="1" step="1" value={values.price} onChange={change} error={errorFor('price')} /></Col></Row>
-        <FormField label={product ? 'Tồn kho hiện tại *' : 'Tồn kho ban đầu *'} name="stockQuantity" type="number" min="0" max="2147483647" step="1" required value={values.stockQuantity} onChange={change} error={errorFor('stockQuantity')} />
-        <Form.Group className="mb-3" controlId="product-status"><Form.Label>Trạng thái bán *</Form.Label>
-          <Form.Select name="status" value={values.status} onChange={change} isInvalid={!!errorFor('status')}>
-            <option value="AVAILABLE">Đang bán</option><option value="UNAVAILABLE">Ngừng bán</option>
-          </Form.Select><Form.Control.Feedback type="invalid">{errorFor('status')}</Form.Control.Feedback>
-        </Form.Group>
-        <FormField label="Mô tả" name="description" as="textarea" rows={3} value={values.description} onChange={change} error={errorFor('description')} />
-        <FormField label="Thành phần" name="ingredientsText" as="textarea" rows={2} value={values.ingredientsText} onChange={change} error={errorFor('ingredientsText')} />
-        <h3 className="h6 mt-3">Dinh dưỡng trên một phần</h3><Row>
-          {[
-            ['caloriesKcal', 'Calories (kcal) *', '1'], ['proteinG', 'Protein (g) *', '0.1'],
-            ['carbohydrateG', 'Carbohydrate (g) *', '0.1'], ['fatG', 'Chất béo (g) *', '0.1'],
-            ['fiberG', 'Chất xơ (g)', '0.1'], ['sugarG', 'Đường (g)', '0.1'], ['sodiumMg', 'Natri (mg)', '0.1'],
-          ].map(([name, label, step]) => <Col md={6} key={name}><FormField label={label} name={name} type="number" min="0" step={step} value={values[name]} onChange={change} error={errorFor(name)} /></Col>)}
-        </Row>
-      </Card></Col><Col lg={4}><Card body><h2 className="h5 mb-3">Hình ảnh</h2>
-        <ProductImage src={preview || currentImage} name={values.name || 'Sản phẩm'} large />
-        <Form.Group className="mt-3" controlId="add-image"><Form.Label>Chọn ảnh từ máy</Form.Label>
-          <Form.Control type="file" accept="image/jpeg,image/png" onChange={event => { setValues(current => ({ ...current, imageFile: event.target.files?.[0] || null })); setErrors(current => ({ ...current, imageFile: '' })); setChangedAfterSubmit(current => ({ ...current, imageFile: true })); }} isInvalid={!!errorFor('imageFile')} />
-          <Form.Control.Feedback type="invalid">{errorFor('imageFile')}</Form.Control.Feedback>
-          <Form.Text muted>JPEG hoặc PNG, tối đa 5 MB. Có thể không chọn ảnh.</Form.Text>
-        </Form.Group>{values.imageFile && <div className="small mt-2">{values.imageFile.name}</div>}
-      </Card></Col></Row>
-      <div className="d-flex justify-content-end mt-4"><Button type="submit" disabled={busy}>{busy ? 'Đang lưu...' : product ? 'Lưu thay đổi' : 'Thêm sản phẩm'}</Button></div>
+      <Row className="g-3 align-items-start">
+        <Col lg={7} xl={8}>
+          <Card body>
+            <h2 className="h5 mb-4">Thông tin sản phẩm</h2>
+            <FormField label="Tên sản phẩm *" name="name" value={values.name}
+              onChange={change} error={errorFor('name')} maxLength={150} />
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Danh mục *</Form.Label>
+                  <Form.Select name="categoryId" value={values.categoryId} onChange={change}
+                    isInvalid={Boolean(errorFor('categoryId'))}>
+                    <option value="">Chọn danh mục</option>
+                    {categories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
+                  </Form.Select>
+                  <Form.Control.Feedback type="invalid">{errorFor('categoryId')}</Form.Control.Feedback>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <FormField label="Giá bán (VNĐ) *" name="price" type="number"
+                  min="1" step="1" value={values.price} onChange={change} error={errorFor('price')} />
+              </Col>
+            </Row>
+            <Form.Group className="mb-3">
+              <Form.Label>Trạng thái bán *</Form.Label>
+              <Form.Select name="status" value={values.status} onChange={change}
+                isInvalid={Boolean(errorFor('status'))}>
+                <option value="AVAILABLE">Đang bán</option>
+                <option value="UNAVAILABLE">Ngừng bán</option>
+              </Form.Select>
+              <Form.Control.Feedback type="invalid">{errorFor('status')}</Form.Control.Feedback>
+            </Form.Group>
+            <FormField label="Mô tả" name="description" as="textarea" rows={3}
+              value={values.description} onChange={change} />
+            <h3 className="h6 mt-3">Dinh dưỡng trên một phần</h3>
+            <Row>{[
+              ['caloriesKcal', 'Calories (kcal) *', '1'],
+              ['proteinG', 'Protein (g) *', '0.1'],
+              ['carbohydrateG', 'Carbohydrate (g) *', '0.1'],
+              ['fatG', 'Chất béo (g) *', '0.1'],
+              ['fiberG', 'Chất xơ (g)', '0.1'],
+              ['sugarG', 'Đường (g)', '0.1'],
+              ['sodiumMg', 'Natri (mg)', '0.1'],
+              ['potassiumMg', 'Kali (mg)', '0.1'],
+            ].map(([name, label, step]) =>
+              <Col md={6} key={name}>
+                <FormField label={label} name={name} type="number" min="0" step={step}
+                  value={values[name]} onChange={change} error={errorFor(name)} />
+              </Col>)}</Row>
+          </Card>
+        </Col>
+        <Col lg={5} xl={4}>
+          <Card body>
+            <h2 className="h5 mb-3">Hình ảnh sản phẩm</h2>
+            <ProductImage src={preview || currentImage} name={values.name || 'Sản phẩm'} large />
+            <Form.Group className="mt-3">
+              <Form.Label>Chọn ảnh từ máy</Form.Label>
+              <Form.Control name="imageFile" type="file" accept="image/jpeg,image/png"
+                onChange={event => {
+                  setValues(current => ({ ...current, imageFile: event.target.files?.[0] || null }));
+                  setTouched(current => ({ ...current, imageFile: true }));
+                  setEditedAfterServerError(current => ({ ...current, imageFile: true }));
+                }} isInvalid={Boolean(errorFor('imageFile'))} />
+              <Form.Control.Feedback type="invalid">{errorFor('imageFile')}</Form.Control.Feedback>
+              <Form.Text muted>JPEG hoặc PNG, tối đa 5 MB.</Form.Text>
+            </Form.Group>
+          </Card>
+          <Card body className="mt-3">
+            <div className="d-flex justify-content-between align-items-start gap-2 mb-3">
+              <div>
+                <h2 className="h5 mb-1">Công thức cho 1 combo</h2>
+                <div className="small text-secondary">Định lượng được tính theo đơn vị của nguyên liệu.</div>
+              </div>
+              <Button size="sm" variant="outline-success" type="button"
+                onClick={() => {
+                  setValues(current => ({
+                    ...current,
+                    ingredientLines: [...current.ingredientLines, {
+                      ingredientId: '', requiredQuantity: '', unit: '',
+                    }],
+                  }));
+                  setTouched(current => ({ ...current, ingredientLines: true }));
+                }}>+ Thêm</Button>
+            </div>
+            {errorFor('ingredientLines') && <Alert variant="danger" className="py-2">
+              {errorFor('ingredientLines')}
+            </Alert>}
+            {!values.ingredientLines.length && <p className="small text-secondary mb-3">
+              Thêm ít nhất một nguyên liệu cho combo.
+            </p>}
+            {values.ingredientLines.map((line, index) => {
+              const item = ingredients.find(ingredient =>
+                String(ingredient.id) === String(line.ingredientId));
+              return <div className="border rounded p-3 mb-2" key={index}>
+                <div className="d-flex gap-2">
+                  <Form.Select name="ingredientLines" aria-label={`Nguyên liệu ${index + 1}`}
+                    value={line.ingredientId}
+                    onChange={event => {
+                      const selected = ingredients.find(ingredient => String(ingredient.id) === event.target.value);
+                      setValues(current => ({ ...current, ingredientLines: current.ingredientLines.map((entry, i) =>
+                        i === index ? { ingredientId: event.target.value, requiredQuantity: '', unit: inputUnit(selected?.unit) || '' } : entry) }));
+                      setTouched(current => ({ ...current, ingredientLines: true }));
+                      setEditedAfterServerError(current => ({ ...current, ingredientLines: true }));
+                    }}>
+                    <option value="">Chọn nguyên liệu</option>
+                    {ingredients.filter(ingredient =>
+                      ingredient.active &&
+                      (!selectedIds.has(String(ingredient.id)) ||
+                        String(ingredient.id) === String(line.ingredientId)))
+                      .map(ingredient =>
+                        <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>)}
+                  </Form.Select>
+                  <Button variant="outline-danger" size="sm" type="button"
+                    onClick={() => {
+                      setValues(current => ({
+                        ...current,
+                        ingredientLines: current.ingredientLines.filter((_, i) => i !== index),
+                      }));
+                      setTouched(current => ({ ...current, ingredientLines: true }));
+                    }}>Xóa</Button>
+                </div>
+                <div className="d-flex align-items-center gap-2 mt-2">
+                  <Form.Control name="ingredientLines" aria-label={`Định lượng ${index + 1}`}
+                    type="number" min="0.001" step="0.001"
+                    placeholder="Lượng cần cho 1 combo" value={line.requiredQuantity}
+                    onChange={event => changeLine(index, 'requiredQuantity', event.target.value)} />
+                  {item && weightUnitOptions(item.unit).length > 1
+                    ? <Form.Select name="ingredientLines" aria-label={`Đơn vị định lượng ${index + 1}`}
+                        style={{ maxWidth: 90 }} value={line.unit || inputUnit(item.unit)}
+                        onChange={event => changeLine(index, 'unit', event.target.value)}>
+                        {weightUnitOptions(item.unit).map(unit => <option key={unit} value={unit}>{unit}</option>)}
+                      </Form.Select>
+                    : <span className="text-nowrap">{item?.unit || '—'}</span>}
+                </div>
+                {item && <div className="small text-secondary mt-2">
+                  Tồn kho hiện tại: {item.stockQuantity} {item.unit}
+                </div>}
+              </div>;
+            })}
+            <Alert variant={available > 0 ? 'success' : 'warning'} className="mb-0 mt-3">
+              Số lượng có thể bán (ước tính): <strong>{Number.isFinite(available) ? available : 0} combo</strong>
+            </Alert>
+          </Card>
+        </Col>
+      </Row>
+      <div className="d-flex justify-content-end mt-4">
+        <Button type="submit" disabled={busy}>
+          {busy ? 'Đang lưu...' : product ? 'Lưu thay đổi' : 'Thêm sản phẩm'}
+        </Button>
+      </div>
     </fieldset>
   </Form>;
 }

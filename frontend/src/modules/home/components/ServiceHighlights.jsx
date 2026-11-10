@@ -5,17 +5,17 @@ const HIGHLIGHTS = [
   {
     id: "fresh",
     title: "Nguyên liệu tươi mỗi ngày",
-    description: "Rau củ hữu cơ và thịt tươi sạch được chế biến trong ngày.",
+    description: "Combo gồm nguyên liệu tươi sống được chia theo định lượng cho từng món.",
   },
   {
     id: "macro",
     title: "Minh bạch Calo & Dinh dưỡng",
-    description: "Mỗi phần ăn đều được tính toán kỹ lưỡng chỉ số Kcal.",
+    description: "Thông tin dinh dưỡng được công bố cho từng combo nguyên liệu.",
   },
   {
     id: "delivery",
     title: "Giao hàng đúng giờ",
-    description: "Đóng gói giữ nhiệt an toàn, giao tận tay đúng khung giờ ăn.",
+    description: "Nguyên liệu được đóng gói và giao tận tay theo khung giờ đã chọn.",
   },
 ];
 

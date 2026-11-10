@@ -10,6 +10,7 @@ export function CreatePromotionPage() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [promotions, setPromotions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -17,11 +18,12 @@ export function CreatePromotionPage() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([productApi.list(), categoryApi.listForManager()]).then(([productList, categoryList]) => {
+    Promise.all([productApi.list(), categoryApi.listForManager(), promotionApi.list()]).then(([productList, categoryList, promotionList]) => {
       if (!active) return;
       setProducts(productList.data || []);
       setCategories(categoryList.data || []);
-      setLoadError(productList.error || categoryList.error || '');
+      setPromotions(promotionList.data || []);
+      setLoadError(productList.error || categoryList.error || promotionList.error || '');
       setLoading(false);
     });
     return () => { active = false; };
@@ -47,7 +49,8 @@ export function CreatePromotionPage() {
     <Link to="/manager/promotions" className="d-inline-block mb-3">← Danh sách khuyến mãi</Link>
     <h2 className="h4 mb-4">Tạo chương trình khuyến mãi</h2>
     <Card body>
-      <PromotionForm products={products} categories={categories} onSave={save} onCancel={() => navigate('/manager/promotions')}
+      <PromotionForm products={products} categories={categories} promotions={promotions}
+        onSave={save} onCancel={() => navigate('/manager/promotions')}
         busy={busy} submitError={submitError} />
     </Card>
   </>;

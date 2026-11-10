@@ -107,7 +107,7 @@ export function PromotionsPage() {
     </Card>
     <Modal show={!!editor} onHide={() => { if (!busy) setEditor(null); }} centered size="lg" backdrop={busy ? 'static' : true} keyboard={!busy}>
       <Modal.Header closeButton={!busy}><Modal.Title as="h2" className="h5">Chỉnh sửa khuyến mãi</Modal.Title></Modal.Header>
-      <Modal.Body>{editor && <PromotionForm promotion={editor.promotion} products={products} categories={categories} onSave={save} onCancel={() => setEditor(null)} busy={busy} submitError={error} />}</Modal.Body>
+      <Modal.Body>{editor && <PromotionForm promotion={editor.promotion} products={products} categories={categories} promotions={promotions} onSave={save} onCancel={() => setEditor(null)} busy={busy} submitError={error} />}</Modal.Body>
     </Modal>
   </>;
 }

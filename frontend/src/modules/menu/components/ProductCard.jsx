@@ -10,9 +10,9 @@ export function ProductCard({ product, cartItem, onAdded }) {
   const [pending, setPending] = useState(false);
   const [addError, setAddError] = useState("");
   const inCart = Boolean(cartItem);
-  const stockQuantity = product.stockQuantity;
-  const soldOut = product.status !== "AVAILABLE" || stockQuantity === 0;
-  const lowStock = !soldOut && stockQuantity != null && stockQuantity <= 5;
+  const availableQuantity = product.availableQuantity ?? 0;
+  const soldOut = product.status !== "AVAILABLE" || availableQuantity === 0;
+  const lowStock = !soldOut && availableQuantity <= 5;
 
   async function handleAddToCart() {
     if (pending || soldOut) return;
@@ -40,15 +40,15 @@ export function ProductCard({ product, cartItem, onAdded }) {
         </div>
         <h3 className="menu-product-title"><Link to={`/products/${product.id}`}>{product.name}</Link></h3>
         <p className="menu-product-description">{product.description}</p>
-        <p className={`menu-product-stock${soldOut ? " is-unavailable" : stockQuantity == null ? " is-unknown" : lowStock ? " is-low" : " is-available"}`}>
+        <p className={`menu-product-stock${soldOut ? " is-unavailable" : lowStock ? " is-low" : " is-available"}`}>
           <span className="menu-product-stock-dot" aria-hidden="true" />
-          {soldOut ? "Tạm hết hàng" : stockQuantity == null ? "Chưa cập nhật tồn kho" : lowStock
-            ? `Chỉ còn ${stockQuantity} sản phẩm` : `Còn ${stockQuantity} sản phẩm`}
+          {product.status !== 'AVAILABLE' ? 'Ngừng bán' : soldOut ? "Tạm hết hàng" : lowStock
+            ? `Chỉ còn ${availableQuantity} combo` : `Còn ${availableQuantity} combo`}
         </p>
         <div className="menu-product-footer">
           <strong className="menu-product-price">{formatCurrency(product.price)}</strong>
           {soldOut ? (
-            <button type="button" className="menu-product-add is-sold-out" disabled>Hết hàng</button>
+            <button type="button" className="menu-product-add is-sold-out" disabled>{product.status !== 'AVAILABLE' ? 'Ngừng bán' : 'Hết hàng'}</button>
           ) : inCart ? (
             <Link to="/cart" className="menu-product-add is-added" aria-label={`${product.name} đã có trong giỏ. Xem giỏ hàng`}>
               <CheckIcon size={23} />

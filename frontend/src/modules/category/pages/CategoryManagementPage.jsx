@@ -129,7 +129,13 @@ export function CategoryManagementPage() {
           <Form.Group controlId="categoryName">
             <Form.Label>Tên danh mục *</Form.Label>
             <Form.Control value={name} maxLength={100} required placeholder="Ví dụ: Đồ ăn nhẹ" isInvalid={!!fieldError} autoFocus disabled={busy}
-              onChange={event => { setName(event.target.value); setFieldError(''); setError(''); }} />
+              onChange={event => {
+                const nextName = event.target.value;
+                setName(nextName);
+                setFieldError(validateCategoryName(nextName, categories, editingCategory?.id).error);
+                setError('');
+              }}
+              onBlur={() => setFieldError(validateCategoryName(name, categories, editingCategory?.id).error)} />
             <Form.Control.Feedback type="invalid">{fieldError}</Form.Control.Feedback>
           </Form.Group>
         </Modal.Body>

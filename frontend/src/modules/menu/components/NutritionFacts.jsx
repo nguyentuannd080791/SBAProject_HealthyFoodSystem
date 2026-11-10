@@ -13,6 +13,8 @@ export function NutritionFacts({ nutrition }) {
           <tr><th scope="row" className="ps-3">Protein (đạm)</th><td className="text-end pe-3">{nutrition.protein} g</td></tr>
           <tr><th scope="row" className="ps-3">Carbs (tinh bột)</th><td className="text-end pe-3">{nutrition.carbs} g</td></tr>
           <tr><th scope="row" className="ps-3">Fat (chất béo)</th><td className="text-end pe-3">{nutrition.fat} g</td></tr>
+          {nutrition.sodiumMg != null && <tr><th scope="row" className="ps-3">Natri</th><td className="text-end pe-3">{nutrition.sodiumMg} mg</td></tr>}
+          {nutrition.potassiumMg != null && <tr><th scope="row" className="ps-3">Kali</th><td className="text-end pe-3">{nutrition.potassiumMg} mg</td></tr>}
         </tbody>
       </Table>
     </Card>

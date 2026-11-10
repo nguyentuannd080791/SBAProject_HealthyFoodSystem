@@ -21,8 +21,9 @@ function guestCartItem(item) {
 
 function stockError(product, quantity) {
   if (product.status !== "AVAILABLE") return `Sản phẩm ${product.name} hiện không có bán.`;
-  if (product.stockQuantity != null && quantity > product.stockQuantity) {
-    return `Sản phẩm ${product.name} chỉ còn ${product.stockQuantity} trong kho.`;
+  const availableQuantity = product.availableQuantity ?? 0;
+  if (availableQuantity != null && quantity > availableQuantity) {
+    return `Sản phẩm ${product.name} chỉ còn ${availableQuantity} trong kho.`;
   }
   return "";
 }

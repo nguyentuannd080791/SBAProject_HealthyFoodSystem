@@ -15,6 +15,8 @@ import com.project.healthyfoodsystem.module.order.repository.OrderRepository;
 import com.project.healthyfoodsystem.module.payment.repository.PaymentRepository;
 import com.project.healthyfoodsystem.module.order.service.OrderService;
 import com.project.healthyfoodsystem.module.product.repository.ProductRepository;
+import com.project.healthyfoodsystem.module.product.entity.Product;
+import com.project.healthyfoodsystem.module.ingredient.service.InventoryService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,6 +42,7 @@ public class OrderServiceImpl implements OrderService {
     private final CartRepository carts;
     private final CartItemRepository cartItems;
     private final ProductRepository products;
+    private final InventoryService inventory;
     private final OrderRepository orders;
     private final PaymentRepository payments;
 
@@ -107,29 +110,28 @@ public class OrderServiceImpl implements OrderService {
             throw error(
                     HttpStatus.CONFLICT,
                     "Chưa hỗ trợ khuyến mãi gắn trực tiếp vào giỏ. Vui lòng kiểm tra lại.");
+        Map<Integer, Product> lockedProducts = new java.util.HashMap<>();
+        for (Integer productId : rows.stream().map(item -> item.getProductId()).distinct().sorted().toList()) {
+            lockedProducts.put(productId, products.lockById(productId)
+                    .orElseThrow(() -> error(HttpStatus.CONFLICT, "Giỏ chứa sản phẩm không tồn tại.")));
+        }
         List<CustomerOrder.Item> lines = new ArrayList<>();
         BigDecimal subtotal = BigDecimal.ZERO;
         long count = 0;
         for (var row : rows) {
-            var product =
-                    products.findById(row.getProductId())
-                            .orElseThrow(
-                                    () ->
-                                            error(
-                                                    HttpStatus.CONFLICT,
-                                                    "Giỏ chứa sản phẩm không tồn tại."));
+            var product = lockedProducts.get(row.getProductId());
             if (row.getQuantity() == null
                     || row.getQuantity() < 1
                     || !"AVAILABLE".equals(product.getStatus()))
                 throw error(HttpStatus.CONFLICT, "Món không còn phục vụ: " + product.getName());
-            if (product.getStockQuantity() == null
-                    || product.getStockQuantity() < row.getQuantity())
+            if (inventory.availableQuantity(product) < row.getQuantity())
                 throw error(HttpStatus.CONFLICT, "Món không đủ số lượng: " + product.getName());
             if (product.getPrice() == null || product.getPrice().signum() <= 0)
                 throw error(HttpStatus.CONFLICT, "Giá món không hợp lệ.");
             lines.add(
                     CustomerOrder.Item.builder()
                             .id(product.getId())
+                            .inventorySource("INGREDIENT")
                             .name(product.getName())
                             .image(product.getImageUrl())
                             .price(product.getPrice())
@@ -153,16 +155,11 @@ public class OrderServiceImpl implements OrderService {
                         ? BigDecimal.ZERO
                         : new BigDecimal("1000");
         Instant now = Instant.now();
-        // Conditional updates are atomic across customers; consistent order avoids deadlocks.
-        for (var row : rows.stream().sorted(java.util.Comparator.comparing(item -> item.getProductId())).toList()) {
-            if (products.reserveStock(row.getProductId(), row.getQuantity()) != 1)
-                throw error(HttpStatus.CONFLICT, "Món vừa hết hàng hoặc không đủ số lượng. Hãy tải lại giỏ hàng.");
-        }
         var address = request.getDelivery();
         CustomerOrder order =
                 CustomerOrder.builder()
                         .id(UUID.randomUUID().toString())
-                        .inventoryReserved(true)
+                        .inventoryReserved(false)
                         .requestId(request.getRequestId())
                         .customerId(user.getId())
                         .customerName(user.getFullName())
@@ -186,7 +183,8 @@ public class OrderServiceImpl implements OrderService {
                                         .city(address.getCity().trim())
                                         .build())
                         .build();
-        orders.save(order);
+        orders.saveAndFlush(order);
+        inventory.reserve(order, lockedProducts);
         Payment payment =
                 Payment.builder()
                         .id(UUID.randomUUID().toString())
@@ -239,11 +237,7 @@ public class OrderServiceImpl implements OrderService {
                     HttpStatus.CONFLICT,
                     "Chỉ có thể hủy đơn chưa thanh toán. Đơn đã thanh toán cần liên hệ hỗ trợ.");
         if (Boolean.TRUE.equals(order.getInventoryReserved())) {
-            for (var item : order.getItems().stream().sorted(java.util.Comparator.comparing(item -> item.getId())).toList()) {
-                if (products.restoreStock(item.getId(), item.getQuantity()) != 1)
-                    throw error(HttpStatus.CONFLICT, "Không thể hoàn kho cho đơn. Vui lòng liên hệ cửa hàng.");
-            }
-            order.setInventoryReserved(false);
+            inventory.restore(order);
         }
         order.setStatus("cancelled");
         order.setCancelReason("CUSTOMER_CANCELLED");

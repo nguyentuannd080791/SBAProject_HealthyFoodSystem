@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -15,8 +16,6 @@ public class ProductResponse {
     private final String description;
     private final String imageUrl;
     private final BigDecimal price;
-    private final Integer stockQuantity;
-    private final String ingredientsText;
     private final Integer caloriesKcal;
     private final BigDecimal proteinG;
     private final BigDecimal carbohydrateG;
@@ -24,5 +23,12 @@ public class ProductResponse {
     private final BigDecimal fiberG;
     private final BigDecimal sugarG;
     private final BigDecimal sodiumMg;
+    private final BigDecimal potassiumMg;
     private final String status;
+    private final Integer availableQuantity;
+    private final String inventoryStatus;
+    private final boolean recipeConfigured;
+    private final List<IngredientLine> ingredientLines;
+
+    public record IngredientLine(Integer ingredientId, String name, String unit, BigDecimal requiredQuantity) { }
 }

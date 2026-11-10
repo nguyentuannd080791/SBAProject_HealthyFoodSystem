@@ -35,7 +35,8 @@ export function ProductDetailPage() {
     </Alert>
   );
 
-  const soldOut = product.status !== "AVAILABLE" || product.stockQuantity === 0;
+  const availableQuantity = product.availableQuantity ?? 0;
+  const soldOut = product.status !== "AVAILABLE" || availableQuantity === 0;
 
   return (
     <div className="pb-5">
@@ -49,8 +50,8 @@ export function ProductDetailPage() {
           <Badge bg="success" className="mb-2">{product.categoryName}</Badge>
           <h1 className="h2">{product.name}</h1>
           <p className="fs-3 fw-bold text-success">{formatCurrency(product.price)}</p>
-          <p className={soldOut || product.stockQuantity == null ? "text-secondary" : product.stockQuantity <= 5 ? "text-warning" : "text-success"}>
-            {soldOut ? "Tạm hết hàng" : product.stockQuantity == null ? "Chưa cập nhật tồn kho" : `Còn ${product.stockQuantity} sản phẩm`}
+          <p className={soldOut ? "text-secondary" : availableQuantity <= 5 ? "text-warning" : "text-success"}>
+            {product.status !== 'AVAILABLE' ? 'Ngừng bán' : soldOut ? "Tạm hết hàng" : `Còn ${availableQuantity} combo`}
           </p>
           <p>{product.description}</p>
           <div className="d-flex flex-wrap gap-2 mb-3">{product.tags.map((tag) => (
@@ -60,7 +61,7 @@ export function ProductDetailPage() {
           <ul className="mb-4">{product.ingredients.map((ingredient) => <li key={ingredient}>{ingredient}</li>)}</ul>
           <NutritionFacts nutrition={product.nutrition} />
           <Button onClick={() => setShowAddDialog(true)} disabled={soldOut}>
-            {soldOut ? "Hết hàng" : "Thêm vào giỏ hàng"}
+            {product.status !== 'AVAILABLE' ? 'Ngừng bán' : soldOut ? "Hết hàng" : "Thêm vào giỏ hàng"}
           </Button>
           {addedQuantity !== null && <Alert variant="success" className="mt-3" dismissible
             onClose={() => setAddedQuantity(null)}>

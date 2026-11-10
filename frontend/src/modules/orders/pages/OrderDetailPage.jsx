@@ -112,7 +112,7 @@ export function OrderDetailPage() {
       {order.status === "cancelled" ? <Alert variant="secondary">Đơn hàng đã được hủy.</Alert> : <Card body className="tracking-card mb-3">
         <h2 className="h5">Theo dõi đơn hàng</h2><div className="tracking-steps">{stages.map((stage, index) => <div className={`tracking-step ${currentStage >= index && order.status !== "pending_payment" ? "is-complete" : ""}`} key={stage}>
           <span className="tracking-dot">{currentStage >= index && order.status !== "pending_payment" ? "✓" : index + 1}</span>
-          <div><strong>{orderStatuses[stage].label}</strong><p>{["Cửa hàng đã nhận đơn.", "Đầu bếp đang chuẩn bị món.", "Đơn hàng đang trên đường giao.", "Đơn hàng đã được giao."][index]}</p></div>
+          <div><strong>{orderStatuses[stage].label}</strong><p>{["Cửa hàng đã nhận đơn.", "Đang chuẩn bị combo nguyên liệu.", "Đơn hàng đang trên đường giao.", "Đơn hàng đã được giao."][index]}</p></div>
         </div>)}</div>
       </Card>}
 

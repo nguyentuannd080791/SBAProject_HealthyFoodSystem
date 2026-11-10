@@ -4,19 +4,19 @@ import { Row, Col, Card, Badge } from "react-bootstrap";
 const STEPS = [
   {
     step: "01",
-    title: "Chọn Món hoặc Gói Ăn",
-    detail: "Lựa chọn khẩu phần phù hợp với chỉ số Calo và mục tiêu của bạn.",
+    title: "Chọn Combo Nguyên Liệu",
+    detail: "Lựa chọn combo phù hợp với món ăn và khẩu phần của bạn.",
   },
   {
     step: "02",
-    title: "Chế Biến Tươi Mỗi Sáng",
-    detail: "Đầu bếp chế biến từ nguyên liệu tươi trong ngày, hạn chế dầu mỡ.",
+    title: "Chuẩn Bị Nguyên Liệu",
+    detail: "Nguyên liệu tươi sống được chia theo công thức của từng combo.",
   },
   {
     step: "03",
-    title: "Đóng Gói Khay Sinh Học",
+    title: "Đóng Gói Combo",
     detail:
-      "Hộp bã mía an toàn sức khỏe, dán nhãn đầy đủ thông tin Kcal & Macro.",
+      "Các nguyên liệu được đóng gói để khách tự chế biến sau khi nhận.",
   },
   {
     step: "04",
@@ -31,10 +31,10 @@ export function DeliveryProcessSection() {
     <section className="mb-5 p-4 p-md-5 bg-light rounded-4 border">
       <div className="text-center mb-4">
         <h2 className="h4 fw-bold">
-          Quy Trình Giao Đồ Ăn tại Healthy Food System
+          Quy Trình Giao Combo Nguyên Liệu tại Healthy Food System
         </h2>
         <p className="text-muted mb-0">
-          Đảm bảo độ tươi ngon và nhiệt độ món ăn khi đến tay bạn
+          Giao nguyên liệu tươi sống theo đúng combo bạn đã chọn
         </p>
       </div>
       <Row className="g-4">

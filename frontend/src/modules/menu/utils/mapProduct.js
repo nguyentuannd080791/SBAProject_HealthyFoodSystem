@@ -13,15 +13,19 @@ export function mapProduct(product, categoryNames = new Map()) {
     description: product.description ?? "",
     image: imageUrl(product.imageUrl),
     price: Number(product.price),
-    stockQuantity: product.stockQuantity == null ? null : Number(product.stockQuantity),
+    availableQuantity: Number(product.availableQuantity ?? 0),
+    inventoryStatus: product.inventoryStatus,
     status: product.status,
-    ingredients: product.ingredientsText?.split(",").map((item) => item.trim()).filter(Boolean) ?? [],
+    ingredients: (product.ingredientLines ?? []).map(line =>
+      line.requiredQuantity == null ? line.name : `${line.name} (${line.requiredQuantity} ${line.unit})`),
     tags: [],
     nutrition: {
       calories: product.caloriesKcal ?? 0,
       protein: Number(product.proteinG ?? 0),
       carbs: Number(product.carbohydrateG ?? 0),
       fat: Number(product.fatG ?? 0),
+      sodiumMg: product.sodiumMg == null ? null : Number(product.sodiumMg),
+      potassiumMg: product.potassiumMg == null ? null : Number(product.potassiumMg),
     },
   };
 }
