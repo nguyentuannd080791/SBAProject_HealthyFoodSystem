@@ -45,7 +45,7 @@ export function PromotionsPage() {
   }, []);
 
   const filtered = promotions.filter(item =>
-    item.name.toLocaleLowerCase('vi').includes(search.trim().toLocaleLowerCase('vi'))
+    `${item.name} ${item.code ?? ''}`.toLocaleLowerCase('vi').includes(search.trim().toLocaleLowerCase('vi'))
     && (!status || promotionStatus(item, now).key === status));
 
   function open(promotion) { setError(''); setEditor({ promotion }); }
@@ -96,7 +96,7 @@ export function PromotionsPage() {
             <tbody>{filtered.map(promotion => {
               const current = promotionStatus(promotion, now);
               return <tr key={promotion.id}>
-                <td><strong className="text-break">{promotion.name}</strong></td>
+                <td><strong className="text-break">{promotion.name}</strong><code className="d-block mt-1">{promotion.code}</code></td>
                 <td className="text-nowrap fw-semibold text-success">{promotion.type === 'percentage' ? `${promotion.value}%` : money(promotion.value)}</td>
                 <td className="small text-nowrap"><div>Từ ngày {dateOnly(promotion.startsAt)}</div><div className="text-muted">Đến ngày {dateOnly(promotion.endsAt)}</div></td>
                 <td><Badge bg={current.color}>{current.label}</Badge></td>

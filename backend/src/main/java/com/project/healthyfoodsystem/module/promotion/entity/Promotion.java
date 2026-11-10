@@ -27,6 +27,12 @@ public class Promotion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(length = 30, unique = true)
+    private String code;
+
+    public String getCode() { return code; }
+    public void setCode(String code) { this.code = code; }
+
     @Nationalized
     @Column(nullable = false, length = 120)
     private String name;

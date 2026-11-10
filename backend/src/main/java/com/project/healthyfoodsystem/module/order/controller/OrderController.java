@@ -24,6 +24,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
+    private final com.project.healthyfoodsystem.module.order.service.CheckoutPromotionService promotionService;
+
+    @PostMapping("/orders/promotion-preview")
+    public com.project.healthyfoodsystem.module.order.dto.response.PromotionQuoteResponse preview(Principal principal,
+            @Valid @RequestBody com.project.healthyfoodsystem.module.order.dto.request.PromotionPreviewRequest request) {
+        return promotionService.preview(principal.getName(), request.getCode());
+    }
 
     @PostMapping("/orders")
     public ResponseEntity<OrderResponse> checkout(

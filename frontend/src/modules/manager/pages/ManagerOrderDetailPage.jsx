@@ -10,7 +10,7 @@ export function ManagerOrderDetailPage() {
   const [details, setDetails] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [printing, setPrinting] = useState(false);
+
 
   useEffect(() => {
     let active = true;
@@ -25,36 +25,23 @@ export function ManagerOrderDetailPage() {
     return () => { active = false; };
   }, [orderId]);
 
-  async function printInvoice() {
-    if (printing || details?.order.paymentStatus !== "paid") return;
-    setPrinting(true);
-    const result = await managerOrderApi.get(orderId);
-    setPrinting(false);
-    if (result.error || result.data?.order.paymentStatus !== "paid") {
-      setError(result.error || "Chỉ có thể in hóa đơn đã thanh toán.");
-      return;
-    }
-    setError("");
-    window.print();
-  }
 
   const order = details?.order;
   return <div className="manager-orders-page">
     <div className="manager-order-actions d-flex flex-wrap justify-content-between gap-2 mb-3">
       <Button as={Link} to="/manager/orders" variant="outline-secondary">← Danh sách đơn hàng</Button>
-      {order?.paymentStatus === "paid" && <Button disabled={printing || loading} onClick={printInvoice}>
-        {printing ? "Đang kiểm tra..." : "In hóa đơn / lưu PDF"}</Button>}
+
     </div>
     {error && <Alert variant="danger">{error}</Alert>}
     {loading ? <Spinner animation="border" role="status"><span className="visually-hidden">Đang tải đơn hàng...</span></Spinner>
-      : order && <Card body className={`manager-order-sheet p-4 p-md-5${order.paymentStatus === "paid" ? "" : " manager-unpaid-order"}`}>
-        {order.paymentStatus !== "paid" && <p className="manager-unpaid-print-notice">Chỉ có thể in hóa đơn sau khi đơn hàng đã thanh toán.</p>}
+      : order && <Card body className="manager-order-sheet p-4 p-md-5 manager-unpaid-order">
+        <p className="manager-unpaid-print-notice">Hóa đơn chỉ được in bởi nhân viên cửa hàng.</p>
         <div className="d-flex flex-wrap justify-content-between gap-3 border-bottom pb-3 mb-4">
           <div><div className="text-success fw-bold mb-2">HEALTHY FOOD</div><h2 className="h3">Chi tiết đơn hàng</h2>
             <div className="manager-order-code text-secondary">Đơn #{order.id}</div>
             <Badge bg={orderStatuses[order.status]?.variant ?? "secondary"}>{orderStatuses[order.status]?.label ?? order.status}</Badge></div>
           <div><Badge bg={order.paymentStatus === "paid" ? "success" : "secondary"} className="mb-2">
-            {{pending: "Chờ chuyển khoản", unpaid: "Chưa thu tiền mặt", paid: "Đã thanh toán", cancelled: "Đã hủy"}[order.paymentStatus] ?? order.paymentStatus}
+            {{pending: "Chờ chuyển khoản", unpaid: "Chưa thu tiền mặt", paid: "Đã thanh toán", cancelled: "Đã hủy", expired: "Hết hạn thanh toán"}[order.paymentStatus] ?? order.paymentStatus}
           </Badge>
             <div className="small">Ngày thanh toán: {details.paidAt ? formatOrderDate(details.paidAt) : "Chưa ghi nhận"}</div>
             <div className="small">Phương thức: {order.paymentMethod === "sepay" ? "Chuyển khoản SePay" : "Tiền mặt"}</div>

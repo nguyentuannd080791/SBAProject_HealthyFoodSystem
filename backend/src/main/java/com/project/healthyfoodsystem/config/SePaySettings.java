@@ -1,4 +1,4 @@
-package com.project.healthyfoodsystem.module.payment.config;
+package com.project.healthyfoodsystem.config;
 
 import lombok.Getter;
 

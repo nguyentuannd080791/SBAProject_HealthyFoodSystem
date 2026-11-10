@@ -40,4 +40,7 @@ public class PaymentTransaction {
     private String reconciliationStatus;
 
     private Instant receivedAt;
+    @Column(length = 100) private String bankTransactionDate;
+    @org.hibernate.annotations.Nationalized
+    @Column(length = 4000) private String content;
 }

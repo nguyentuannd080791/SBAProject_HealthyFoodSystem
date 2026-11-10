@@ -24,6 +24,8 @@ public class OrderResponse {
     private String paymentStatus;
     private String paymentCode;
     private String status;
+    private String cancelReason;
+    private Instant paymentExpiresAt;
     private BigDecimal subtotal;
     private BigDecimal discount;
     private BigDecimal deliveryFee;

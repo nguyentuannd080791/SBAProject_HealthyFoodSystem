@@ -40,6 +40,8 @@ public final class OrderMapper {
                 .paymentStatus(payment.getStatus())
                 .paymentCode(payment.getPaymentCode())
                 .status(order.getStatus())
+                .cancelReason(order.getCancelReason())
+                .paymentExpiresAt(payment.getExpiresAt())
                 .subtotal(order.getSubtotal())
                 .discount(order.getDiscount())
                 .deliveryFee(order.getDeliveryFee())

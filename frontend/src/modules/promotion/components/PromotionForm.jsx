@@ -8,7 +8,7 @@ import { formatCurrency as money } from '../../../shared/utils/formatCurrency';
 export function PromotionForm({ promotion, products, categories, onSave, onCancel, busy, submitError }) {
   const [values, setValues] = useState(promotion
     ? { ...promotion, startsAt: toLocalInput(promotion.startsAt), endsAt: toLocalInput(promotion.endsAt) }
-    : { name: '', type: 'percentage', value: '', productIds: [], startsAt: '', endsAt: '', enabled: true });
+    : { code: '', name: '', type: 'percentage', value: '', productIds: [], startsAt: '', endsAt: '', enabled: true });
   const [selectedCategoryIds, setSelectedCategoryIds] = useState(() => [...new Set(
     products.filter(product => promotion?.productIds.includes(product.id)).map(product => product.categoryId),
   )]);
@@ -56,13 +56,14 @@ export function PromotionForm({ promotion, products, categories, onSave, onCance
     const found = validatePromotion(values, availableProducts);
     setErrors(found);
     if (Object.keys(found).length) return;
-    onSave({ name: values.name.trim(), type: values.type, value: Number(values.value), productIds: values.productIds,
+    onSave({ code: values.code.trim().toUpperCase(), name: values.name.trim(), type: values.type, value: Number(values.value), productIds: values.productIds,
       startsAt: new Date(values.startsAt).toISOString(), endsAt: new Date(values.endsAt).toISOString(), enabled: values.enabled });
   }
 
   return <Form noValidate onSubmit={submit}>
     {submitError && <Alert variant="danger">{submitError}</Alert>}
     <fieldset disabled={busy}>
+      <FormField label="Mã giảm giá *" name="code" value={values.code ?? ''} maxLength={30} onChange={change} error={errors.code} placeholder="Ví dụ: ANXANH20" />
       <FormField label="Tên chương trình *" name="name" value={values.name} maxLength={120} onChange={change} error={errors.name} placeholder="Ví dụ: Tuần lễ ăn xanh" />
       <Row><Col md={6}><Form.Group className="mb-3" controlId="promotion-type"><Form.Label>Hình thức giảm *</Form.Label><Form.Select name="type" value={values.type} onChange={change}><option value="percentage">Giảm theo phần trăm</option><option value="fixed">Giảm theo số tiền</option></Form.Select></Form.Group></Col><Col md={6}><FormField label={values.type === 'percentage' ? 'Mức giảm (%) *' : 'Mức giảm (VNĐ) *'} name="value" type="number" min="0" step={values.type === 'percentage' ? '0.01' : '1'} max={values.type === 'percentage' ? '100' : undefined} value={values.value} onChange={change} error={errors.value} /></Col></Row>
       <Row><Col md={6}><FormField label="Bắt đầu *" name="startsAt" type="datetime-local" value={values.startsAt} onChange={change} error={errors.startsAt} /></Col><Col md={6}><FormField label="Kết thúc *" name="endsAt" type="datetime-local" value={values.endsAt} onChange={change} error={errors.endsAt} /></Col></Row>
