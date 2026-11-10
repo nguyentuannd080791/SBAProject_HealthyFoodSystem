@@ -11,6 +11,11 @@ import java.util.Optional;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
+    // V4 retains this column only for orders created before ingredient inventory.
+    @org.springframework.data.jpa.repository.Modifying
+    @Query(value = "update dbo.products set stock_quantity = stock_quantity + :quantity where id = :id and stock_quantity is not null", nativeQuery = true)
+    int restoreLegacyStock(@Param("id") Integer id, @Param("quantity") int quantity);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from Product p where p.id = :id")
     Optional<Product> lockById(@Param("id") Integer id);
