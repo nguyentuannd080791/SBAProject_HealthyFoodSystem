@@ -26,7 +26,6 @@ export function OrderHistoryPage() {
 
   const visibleOrders = (orders ?? []).filter((order) => {
     if (filter === "all") return true;
-    if (filter === "active") return !["delivered", "cancelled"].includes(order.status);
     return order.status === filter;
   });
 
@@ -38,14 +37,16 @@ export function OrderHistoryPage() {
       </OrderPageHeader>
       {orders && <div className="order-stats">
         <div><span>Tất cả đơn hàng</span><strong>{orders.length}</strong></div>
-        <div><span>Đang xử lý</span><strong>{orders.filter((item) => !["delivered", "cancelled"].includes(item.status)).length}</strong></div>
-        <div><span>Đã giao đến bạn</span><strong>{orders.filter((item) => item.status === "delivered").length}</strong></div>
+        <div><span>Đã tiếp nhận</span><strong>{orders.filter((item) => item.status === "processing").length}</strong></div>
+        <div><span>Đang giao đến bạn</span><strong>{orders.filter((item) => item.status === "shipping").length}</strong></div>
       </div>}
       <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
         <span className="text-secondary small">{orders?.length ?? 0} đơn hàng</span>
         <Form.Select aria-label="Lọc đơn hàng" value={filter} onChange={(event) => setFilter(event.target.value)} className="history-filter">
-          <option value="all">Tất cả đơn</option><option value="active">Đang xử lý</option>
-          <option value="delivered">Đã giao</option><option value="cancelled">Đã hủy</option>
+          <option value="all">Tất cả đơn</option><option value="pending_payment">Chờ thanh toán</option>
+          <option value="processing">Đã tiếp nhận</option><option value="shipping">Đang giao đến bạn</option>
+          {orders?.some((item) => item.status === "delivered") && <option value="delivered">Đã giao (đơn cũ)</option>}
+          <option value="cancelled">Đã hủy / hết hạn</option>
         </Form.Select>
       </div>
       {error && <Alert variant="danger">{error}</Alert>}

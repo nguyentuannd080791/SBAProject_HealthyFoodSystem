@@ -1,9 +1,8 @@
 export const orderStatuses = {
   pending_payment: { label: "Chờ thanh toán", variant: "warning" },
   processing: { label: "Đã tiếp nhận", variant: "primary" },
-  preparing: { label: "Đang chuẩn bị", variant: "info" },
-  shipping: { label: "Đang giao", variant: "success" },
-  delivered: { label: "Đã giao", variant: "success" },
+  shipping: { label: "Đơn hàng đang được giao đến cho bạn", variant: "success" },
+  delivered: { label: "Đã giao (đơn cũ)", variant: "success" },
   cancelled: { label: "Đã hủy", variant: "secondary" },
 };
 

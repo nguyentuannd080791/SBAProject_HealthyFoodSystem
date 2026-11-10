@@ -10,7 +10,7 @@ import "../styles/orders.css";
 
 import { PaymentCountdown } from "../components/PaymentCountdown";
 
-const stages = ["processing", "preparing", "shipping", "delivered"];
+const stages = ["processing", "shipping"];
 
 export function OrderDetailPage() {
   const { orderId } = useParams();
@@ -47,7 +47,7 @@ export function OrderDetailPage() {
         timer = setTimeout(reload, 10000);
       } else {
         setPayment(null);
-        if (result.data?.paymentStatus === "expired" || ["processing", "preparing", "shipping"].includes(result.data?.status)) {
+        if (result.data?.paymentStatus === "expired" || result.data?.status === "processing") {
           timer = setTimeout(reload, 10000);
         }
       }
@@ -109,10 +109,10 @@ export function OrderDetailPage() {
         <p className="qr-payment-reference mb-0">Nội dung: <strong>{payment.content}</strong></p>
         <small className="d-block text-secondary mt-3">Trạng thái tự cập nhật sau khi hệ thống nhận được thanh toán.</small>
       </Card>}
-      {order.status === "cancelled" ? <Alert variant="secondary">Đơn hàng đã được hủy.</Alert> : <Card body className="tracking-card mb-3">
+      {order.status === "cancelled" ? <Alert variant="secondary">Đơn hàng đã được hủy.</Alert> : order.status === "delivered" ? <Alert variant="success">Đơn hàng cũ đã được giao thành công.</Alert> : <Card body className="tracking-card mb-3">
         <h2 className="h5">Theo dõi đơn hàng</h2><div className="tracking-steps">{stages.map((stage, index) => <div className={`tracking-step ${currentStage >= index && order.status !== "pending_payment" ? "is-complete" : ""}`} key={stage}>
           <span className="tracking-dot">{currentStage >= index && order.status !== "pending_payment" ? "✓" : index + 1}</span>
-          <div><strong>{orderStatuses[stage].label}</strong><p>{["Cửa hàng đã nhận đơn.", "Đầu bếp đang chuẩn bị món.", "Đơn hàng đang trên đường giao.", "Đơn hàng đã được giao."][index]}</p></div>
+          <div><strong>{orderStatuses[stage].label}</strong><p>{["Cửa hàng đã nhận đơn của bạn.", "Đơn hàng đang trên đường đến địa chỉ nhận hàng của bạn."][index]}</p></div>
         </div>)}</div>
       </Card>}
 
