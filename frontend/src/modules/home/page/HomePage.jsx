@@ -8,7 +8,6 @@ import { HeroBanner } from "../components/HeroBanner";
 import { FeaturedMealList } from "../components/FeaturedMealList";
 import { MealPlanSection } from "../components/MealPlanSection";
 import { DeliveryProcessSection } from "../components/DeliveryProcessSection";
-import { HomeFooter } from "../components/HomeFooter";
 
 export function HomePage({ onSelectPlan }) {
   const catalog = useProducts();
@@ -52,6 +51,5 @@ export function HomePage({ onSelectPlan }) {
 
     <MealPlanSection onSelectPlan={handlePlanSelection} />
     <DeliveryProcessSection />
-    <HomeFooter />
   </>;
 }

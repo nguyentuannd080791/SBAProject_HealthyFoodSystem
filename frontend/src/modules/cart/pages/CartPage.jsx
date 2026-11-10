@@ -3,6 +3,7 @@ import { Alert, Button, Card, Col, Image, Row, Table } from "react-bootstrap";
 import { Link } from "react-router";
 import { useAuth } from "../../../app/provider/useAuth";
 import { ConfirmDialog } from "../../../shared/components/ConfirmDialog";
+import { CartIcon } from "../../../shared/components/Icons";
 import { QuantityControl } from "../../../shared/components/QuantityControl";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { useCart } from "../hooks/useCart";
@@ -59,7 +60,9 @@ export function CartPage() {
       )}
       {items.length === 0 ? (
         <Card body className="text-center py-5 border-0 shadow-sm">
-          <div className="display-4 mb-3" aria-hidden="true">🛒</div>
+          <div className="mb-3 text-secondary" aria-hidden="true">
+            <CartIcon size={56} />
+          </div>
           <h2 className="h4">Giỏ hàng đang trống</h2>
           <p className="text-muted">Chọn món ăn yêu thích để bắt đầu bữa ăn của bạn.</p>
         </Card>

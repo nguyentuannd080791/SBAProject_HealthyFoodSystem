@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Alert } from "react-bootstrap";
 import { Link } from "react-router";
-import { CheckIcon, PlusIcon, TagIcon } from "../../../shared/components/Icons";
+import { CheckIcon, FlameIcon, PlusIcon, TagIcon } from "../../../shared/components/Icons";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { useCart } from "../../cart/hooks/useCart";
 import { HealthWarningBadge } from "../../screening/components/HealthWarningBadge";
@@ -49,7 +49,10 @@ export function ProductCard({ product, promotion, cartItem, screeningResult, onA
         <div className="menu-product-meta d-flex align-items-center justify-content-between flex-wrap gap-1">
           <div className="d-flex align-items-center gap-2">
             <span className="menu-product-category">{product.categoryName}</span>
-            <span className="menu-product-calories">🔥 {product.nutrition.calories} kcal</span>
+            <span className="menu-product-calories d-inline-flex align-items-center gap-1">
+              <FlameIcon size={14} className="text-danger" />
+              <span>{product.nutrition.calories} kcal</span>
+            </span>
           </div>
           <HealthWarningBadge screeningResult={screeningResult} />
         </div>

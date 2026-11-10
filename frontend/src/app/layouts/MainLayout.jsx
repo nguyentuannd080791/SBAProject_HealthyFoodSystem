@@ -1,6 +1,7 @@
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { FloatingCartLink } from "../../modules/cart/components/FloatingCartLink";
+import { HomeFooter } from "../../modules/home/components/HomeFooter";
 import { PaymentNotificationWatcher } from "../../modules/orders/components/PaymentNotificationWatcher";
 import { LeafIcon } from "../../shared/components/Icons";
 import { NotificationProvider } from "../../shared/notifications/NotificationProvider";
@@ -53,13 +54,18 @@ export function MainLayout() {
               onClick={() => document.getElementById("menu-search")?.focus()}>
               <svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7" /><path d="m16 16 5 5" /></svg>
             </button>}
-            <UserMenu menuStyle={isCustomerPage} hideCart={isMenuPage} />
+            <UserMenu showCart={!isMenuPage} />
           </Navbar.Collapse>
         </Container>
       </Navbar>
       <Container as="main" fluid={isMenuPage} className={isMenuPage ? "menu-shell menu-main" : "py-4"}>
         <Outlet />
       </Container>
+      {isCustomerPage && (
+        <Container fluid={isMenuPage} className={isMenuPage ? "menu-shell" : "pb-4"}>
+          <HomeFooter />
+        </Container>
+      )}
       {showFloatingCart && <FloatingCartLink />}
     </div>
     </NotificationProvider>

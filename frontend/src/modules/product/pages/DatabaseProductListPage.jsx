@@ -43,7 +43,7 @@ export function DatabaseProductListPage() {
       setPromotions(promotionList.data || []);
       setLoading(false);
     });
-    const timer = setInterval(() => setNow(Date.now()), 1000);
+    const timer = setInterval(() => setNow(Date.now()), 60_000);
     return () => { active = false; clearInterval(timer); };
   }, []);
   const filtered = products

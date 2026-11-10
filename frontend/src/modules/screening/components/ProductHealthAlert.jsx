@@ -4,7 +4,8 @@ import { Link } from "react-router";
 export function ProductHealthAlert({ screeningResult }) {
   if (!screeningResult) return null;
 
-  if (screeningResult.safe) {
+  const isSafe = Boolean(screeningResult.safe ?? screeningResult.isSafe);
+  if (isSafe) {
     return (
       <Alert variant="success" className="mb-3 py-2 px-3 border-success-subtle">
         <div className="small">

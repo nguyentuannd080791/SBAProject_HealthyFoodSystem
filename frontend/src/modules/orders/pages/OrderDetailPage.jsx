@@ -3,6 +3,7 @@ import { Alert, Badge, Button, Card, Spinner } from "react-bootstrap";
 import { Link, useParams } from "react-router";
 import { useAuth } from "../../../app/provider/useAuth";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
+import { ConfirmDialog } from "../../../shared/components/ConfirmDialog";
 import { orderStore } from "../api/orderStore";
 import "../styles/orders.css";
 import { canCancelOrder, formatOrderAddress, formatOrderDate, orderStatuses } from "../utils/orderFormatting";
@@ -22,8 +23,9 @@ export function OrderDetailPage() {
   const [failedQrUrl, setFailedQrUrl] = useState(null);
   const [qrAttempt, setQrAttempt] = useState(0);
   const [now, setNow] = useState(Date.now);
-  useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer); }, []);
+  useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 10_000); return () => clearInterval(timer); }, []);
   const [busy, setBusy] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -56,12 +58,12 @@ export function OrderDetailPage() {
     return () => { active = false; clearTimeout(timer); };
   }, [user?.id, orderId]);
 
-  async function cancelOrder() {
-    if (busy) return;
-    if (!window.confirm("Bạn có chắc muốn hủy đơn này?")) return;
+  async function handleConfirmCancel() {
+    if (busy || !order) return;
     setBusy(true);
     const result = await orderStore.cancel(order.id);
     setBusy(false);
+    setShowCancelConfirm(false);
     if (result.error) setLoadError(result.error);
     else setOrder(result.data);
   }
@@ -134,9 +136,18 @@ export function OrderDetailPage() {
           <div className="payment-summary"><span>Phương thức</span><strong>{order.paymentMethod === "sepay" ? "Chuyển khoản SePay" : "Tiền mặt khi nhận"}</strong>
             <span>Trạng thái</span><Badge bg={order.paymentStatus === "paid" ? "success" : "light"} text={order.paymentStatus === "paid" ? "light" : "dark"}>{{ pending: "Chờ thanh toán", paid: "Đã thanh toán", cancelled: "Đã hủy", expired: "Hết hạn thanh toán", unpaid: "Thanh toán khi nhận hàng" }[order.paymentStatus]}</Badge></div>
         </Card>
-          {canCancelOrder(order) && <Button disabled={busy} className="w-100 mt-3" variant="outline-danger" onClick={cancelOrder}>Hủy đơn hàng</Button>}
+          {canCancelOrder(order) && <Button disabled={busy} className="w-100 mt-3" variant="outline-danger" onClick={() => setShowCancelConfirm(true)}>Hủy đơn hàng</Button>}
         </div>
       </div>
+      <ConfirmDialog
+        show={showCancelConfirm}
+        title="Hủy đơn hàng"
+        message={order ? `Bạn có chắc chắn muốn hủy đơn hàng #${String(order.id).slice(-8)} không?` : ""}
+        confirmLabel="Hủy đơn hàng"
+        isBusy={busy}
+        onConfirm={handleConfirmCancel}
+        onCancel={() => setShowCancelConfirm(false)}
+      />
     </div>
   );
 }

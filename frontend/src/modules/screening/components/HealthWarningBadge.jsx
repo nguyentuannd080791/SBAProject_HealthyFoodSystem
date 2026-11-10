@@ -3,7 +3,8 @@ import { Badge } from "react-bootstrap";
 export function HealthWarningBadge({ screeningResult }) {
   if (!screeningResult) return null;
 
-  if (screeningResult.isSafe) {
+  const isSafe = Boolean(screeningResult.safe ?? screeningResult.isSafe);
+  if (isSafe) {
     return (
       <Badge
         bg="success-subtle"

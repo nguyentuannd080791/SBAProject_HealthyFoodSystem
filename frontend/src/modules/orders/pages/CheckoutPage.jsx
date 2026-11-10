@@ -3,6 +3,7 @@ import { Alert, Badge, Button, Card, Form } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../../../app/provider/useAuth";
 import { useCart } from "../../cart/hooks/useCart";
+import { CartIcon } from "../../../shared/components/Icons";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { DeliveryForm } from "../components/DeliveryForm";
 import { OrderPageHeader } from "../components/OrderPageHeader";
@@ -111,7 +112,7 @@ export function CheckoutPage() {
 
   if (!items.length) {
     return <Card body className="order-empty text-center">
-      <span>🛒</span><h1 className="h4 mt-3">Giỏ hàng đang trống</h1>
+      <div className="mb-2 text-secondary"><CartIcon size={48} /></div><h1 className="h4 mt-2">Giỏ hàng đang trống</h1>
       <p className="text-muted">{cartError || "Thêm món trước khi thanh toán nhé."}</p>
       <Button as={Link} to="/menu" className="align-self-center">Khám phá thực đơn</Button>
     </Card>;

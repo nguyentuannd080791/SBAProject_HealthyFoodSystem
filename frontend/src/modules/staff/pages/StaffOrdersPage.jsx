@@ -4,6 +4,7 @@ import { Alert, Badge, Button, Card, Modal, Spinner, Table } from "react-bootstr
 import { staffOrderApi } from "../api/staffOrderApi";
 import { orderStatuses, formatOrderAddress, formatOrderDate } from "../../orders/utils/orderFormatting";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
+import { ConfirmDialog } from "../../../shared/components/ConfirmDialog";
 import { OrderPageHeader } from "../../orders/components/OrderPageHeader";
 import "../../orders/styles/orders.css";
 
@@ -23,6 +24,7 @@ export function StaffOrdersPage() {
   const [refresh, setRefresh] = useState(0);
   const [order, setOrder] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [confirmAdvance, setConfirmAdvance] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -49,13 +51,13 @@ export function StaffOrdersPage() {
     else { setError(""); setOrder(result.data); }
   }
 
-  async function advance() {
+  async function handleConfirmAdvance() {
     const step = steps[order?.status];
     if (!step || busy) return;
-    if (!window.confirm(`${step.action} cho đơn #${order.id.slice(-8)}?`)) return;
     setBusy(true);
     const result = await staffOrderApi.update(order.id, order.status, step.next);
     setBusy(false);
+    setConfirmAdvance(false);
     setRefresh((value) => value + 1);
     if (result.error) {
       setOrder(null);
@@ -112,8 +114,17 @@ export function StaffOrdersPage() {
       </>}</Modal.Body>
       <Modal.Footer><Button disabled={busy} variant="outline-secondary" onClick={() => setOrder(null)}>Đóng</Button>
         {order && <Button as={Link} to={`/staff/orders/${encodeURIComponent(order.id)}/invoice`} variant="outline-primary" disabled={busy}>Xem / in hóa đơn</Button>}
-        {steps[order?.status] && <Button disabled={busy} onClick={advance}>{busy ? "Đang cập nhật..." : steps[order.status].action}</Button>}
+        {steps[order?.status] && <Button disabled={busy} onClick={() => setConfirmAdvance(true)}>{busy ? "Đang cập nhật..." : steps[order.status].action}</Button>}
       </Modal.Footer>
     </Modal>
+    <ConfirmDialog
+      show={confirmAdvance}
+      title="Xác nhận giao hàng"
+      message={order ? `${steps[order.status]?.action} cho đơn #${order.id.slice(-8)}?` : ""}
+      confirmLabel="Xác nhận"
+      isBusy={busy}
+      onConfirm={handleConfirmAdvance}
+      onCancel={() => setConfirmAdvance(false)}
+    />
   </div>;
 }

@@ -23,5 +23,5 @@ export function useForm(initialValues, validate) {
     }
   }
 
-  return { values, errors, handleChange, handleBlur, handleSubmit }
+  return { values, setValues, errors, handleChange, handleBlur, handleSubmit }
 }
