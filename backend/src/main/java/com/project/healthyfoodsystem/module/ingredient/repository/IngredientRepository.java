@@ -13,6 +13,7 @@ import java.util.Optional;
 
 public interface IngredientRepository extends JpaRepository<Ingredient, Integer> {
     List<Ingredient> findAllByOrderByNameAsc();
+    Optional<Ingredient> findByNameIgnoreCase(String name);
     boolean existsByNameIgnoreCase(String name);
     boolean existsByNameIgnoreCaseAndIdNot(String name, Integer id);
 

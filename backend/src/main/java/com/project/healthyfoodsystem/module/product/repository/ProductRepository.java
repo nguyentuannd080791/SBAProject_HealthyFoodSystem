@@ -20,6 +20,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     }
 
     boolean existsByNameIgnoreCase(String name);
+    Optional<Product> findByNameIgnoreCase(String name);
     boolean existsByNameIgnoreCaseAndIdNot(String name, Integer id);
     boolean existsByCategory_IdAndStatus(Integer categoryId, String status);
     long countByCategory_Id(Integer categoryId);
