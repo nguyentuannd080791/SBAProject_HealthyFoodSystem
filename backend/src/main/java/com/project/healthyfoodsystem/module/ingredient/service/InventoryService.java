@@ -158,12 +158,27 @@ public class InventoryService {
     @Transactional(propagation = Propagation.MANDATORY)
     public void restore(CustomerOrder order) {
         if (!Boolean.TRUE.equals(order.getInventoryReserved())) return;
-        // Historical orders may have reserved Product stock before this feature was deployed.
-        // Reject them for manual reconciliation instead of silently losing that stock.
-        if (order.getItems().stream().anyMatch(item -> !"INGREDIENT".equals(item.getInventorySource())))
-            throw new IllegalStateException("Đơn cũ " + order.getId() + " cần đối soát tồn kho thủ công trước khi hủy.");
-        List<OrderIngredientReservation> saved = reservations.findByOrder_IdOrderByIngredient_IdAsc(order.getId());
-        if (saved.isEmpty()) throw new IllegalStateException("Đơn " + order.getId() + " thiếu dữ liệu giữ kho nguyên liệu.");
+        if (order.getItems() == null || order.getItems().isEmpty())
+            throw new IllegalStateException("Đơn thiếu chi tiết giữ kho: " + order.getId());
+        boolean legacy = order.getItems().stream().allMatch(item ->
+                item.getInventorySource() == null || "PRODUCT".equals(item.getInventorySource()));
+        if (legacy) {
+            if (!reservations.findByOrder_IdOrderByIngredient_IdAsc(order.getId()).isEmpty())
+                throw new IllegalStateException("Đơn cũ có dữ liệu giữ kho không nhất quán: " + order.getId());
+            TreeMap<Integer, Integer> quantities = new TreeMap<>();
+            for (var item : order.getItems()) {
+                if (item.getId() == null || item.getQuantity() == null || item.getQuantity() <= 0)
+                    throw new IllegalStateException("Chi tiết kho sản phẩm cũ không hợp lệ.");
+                quantities.merge(item.getId(), item.getQuantity(), Math::addExact);
+            }
+            for (var entry : quantities.entrySet()) {
+                if (products.restoreLegacyStock(entry.getKey(), entry.getValue()) != 1)
+                    throw new IllegalStateException("Không thể hoàn kho sản phẩm cũ: " + entry.getKey());
+            }
+            order.setInventoryReserved(false);
+            return;
+        }
+        List<OrderIngredientReservation> saved = restoredReservations(order);
         for (OrderIngredientReservation reservation : saved) {
             if (ingredients.restore(reservation.getIngredient().getId(), reservation.getReservedQuantity()) != 1)
                 throw new IllegalStateException("Không thể hoàn kho nguyên liệu cho đơn " + order.getId());

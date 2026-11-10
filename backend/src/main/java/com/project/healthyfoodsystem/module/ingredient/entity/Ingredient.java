@@ -16,7 +16,7 @@ public class Ingredient {
     private Integer id;
     @Nationalized @Column(nullable = false, length = 150)
     private String name;
-    @Column(nullable = false, length = 20)
+    @Nationalized @Column(nullable = false, length = 20)
     private String unit;
     @Column(name = "stock_quantity", nullable = false, precision = 18, scale = 3)
     private BigDecimal stockQuantity = BigDecimal.ZERO;

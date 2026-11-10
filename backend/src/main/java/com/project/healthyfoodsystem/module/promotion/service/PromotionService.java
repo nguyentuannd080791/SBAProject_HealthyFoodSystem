@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,16 @@ public class PromotionService {
     @Transactional(readOnly = true)
     public List<PromotionResponse> list() {
         return promotions.findAllByOrderByIdDesc().stream().map(this::response).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PromotionResponse> listActive() {
+        Instant now = Instant.now();
+        return promotions.findAllByOrderByIdDesc().stream()
+                .filter(promotion -> promotion.isEnabled()
+                        && !promotion.getStartsAt().isAfter(now)
+                        && promotion.getEndsAt().isAfter(now))
+                .map(this::response).toList();
     }
 
     @Transactional

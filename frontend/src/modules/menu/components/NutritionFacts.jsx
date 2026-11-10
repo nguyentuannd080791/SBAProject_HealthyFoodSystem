@@ -1,22 +1,33 @@
-import { Card, Table } from "react-bootstrap";
+const number = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 1 });
+
+function AppleIcon() {
+  return <svg viewBox="0 0 40 40" width="36" height="36" fill="none"
+    stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M20 15c-4-5-12-4-14 3-2 8 3 17 9 17 2 0 3-1 5-1s3 1 5 1c6 0 11-9 9-17-2-7-10-8-14-3Z" />
+    <path d="M20 16c-1-7 1-10 5-12M20 13c-2-4-5-5-8-5" />
+  </svg>;
+}
 
 export function NutritionFacts({ nutrition }) {
-  return (
-    <Card className="border-success-subtle mb-4">
-      <Card.Header className="bg-success-subtle">
-        <h2 className="h5 mb-1">Thông tin dinh dưỡng</h2>
-        <span className="small text-muted">Giá trị ước tính trên 1 khẩu phần</span>
-      </Card.Header>
-      <Table className="mb-0">
-        <tbody>
-          <tr><th scope="row" className="ps-3">Calories</th><td className="text-end pe-3 fw-bold text-success">{nutrition.calories} kcal</td></tr>
-          <tr><th scope="row" className="ps-3">Protein (đạm)</th><td className="text-end pe-3">{nutrition.protein} g</td></tr>
-          <tr><th scope="row" className="ps-3">Carbs (tinh bột)</th><td className="text-end pe-3">{nutrition.carbs} g</td></tr>
-          <tr><th scope="row" className="ps-3">Fat (chất béo)</th><td className="text-end pe-3">{nutrition.fat} g</td></tr>
-          {nutrition.sodiumMg != null && <tr><th scope="row" className="ps-3">Natri</th><td className="text-end pe-3">{nutrition.sodiumMg} mg</td></tr>}
-          {nutrition.potassiumMg != null && <tr><th scope="row" className="ps-3">Kali</th><td className="text-end pe-3">{nutrition.potassiumMg} mg</td></tr>}
-        </tbody>
-      </Table>
-    </Card>
-  );
+  const facts = [
+    { label: "Calories", value: `${number.format(nutrition.calories)} kcal` },
+    { label: "Protein", value: `${number.format(nutrition.protein)} g` },
+    { label: "Carbs", value: `${number.format(nutrition.carbs)} g` },
+    { label: "Fat", value: `${number.format(nutrition.fat)} g` },
+  ];
+
+  return <section className="product-detail-nutrition" aria-labelledby="product-nutrition-title">
+    <div className="product-detail-nutrition-heading">
+      <AppleIcon />
+      <div>
+        <h2 id="product-nutrition-title">Thông tin dinh dưỡng</h2>
+        <span>(trên 1 khẩu phần)</span>
+      </div>
+    </div>
+    <dl className="product-detail-nutrition-facts">
+      {facts.map(({ label, value }) => <div key={label}>
+        <dt>{label}</dt><dd>{value}</dd>
+      </div>)}
+    </dl>
+  </section>;
 }

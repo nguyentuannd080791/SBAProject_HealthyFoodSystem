@@ -6,7 +6,7 @@ import { useCart } from "../../modules/cart/hooks/useCart";
 import { CartIcon, ChevronDownIcon, LockIcon, LogOutIcon, UserIcon } from "../../shared/components/Icons";
 import { useAuth } from "../provider/useAuth";
 
-export function UserMenu({ menuStyle = false }) {
+export function UserMenu({ menuStyle = false, showCart = true }) {
   const { user, logout } = useAuth();
   const { totalItems } = useCart();
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ export function UserMenu({ menuStyle = false }) {
       // ignore server logout error
     } finally {
       logout();
-      navigate("/");
+      navigate("/login", { replace: true });
     }
   }
 
@@ -29,10 +29,10 @@ export function UserMenu({ menuStyle = false }) {
 
     return (
       <div className="menu-header-actions">
-        <Link to="/cart" className="menu-header-cart" aria-label={`Giỏ hàng (${totalItems})`}>
+        {showCart && <Link to="/cart" className="menu-header-cart" aria-label={`Giỏ hàng (${totalItems})`}>
           <CartIcon size={22} />
           <span>Giỏ hàng ({totalItems})</span>
-        </Link>
+        </Link>}
         {user ? (
           <Dropdown align="end" className="menu-account-dropdown">
             <Dropdown.Toggle variant="link" id="menu-account-toggle" className="menu-account-toggle">

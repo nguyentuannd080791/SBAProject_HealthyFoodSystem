@@ -54,6 +54,15 @@
   line-height: 0.7;
 }
 
+.floating-cart-divider {
+  width: 1px;
+  height: 25px;
+  margin-inline: 4px;
+  background: #c5d0c5;
+}
+
+.floating-cart-link strong { white-space: nowrap; }
+
 @media (max-width: 575.98px) {
   .floating-cart-link {
     right: 16px;
@@ -62,4 +71,6 @@
     padding: 8px 16px;
     font-size: 15px;
   }
+  .floating-cart-divider,
+  .floating-cart-link strong { display: none; }
 }
