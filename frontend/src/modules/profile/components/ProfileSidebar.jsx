@@ -15,8 +15,8 @@ export function ProfileSidebar({ activeTab, onSelectTab }) {
 
   async function handleLogout() {
     await authApi.logout();
+    await navigate("/menu", { replace: true, flushSync: true });
     logout();
-    navigate("/login");
   }
 
   const initials = getUserInitials(user?.fullName);

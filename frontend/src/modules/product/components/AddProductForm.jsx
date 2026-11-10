@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Link } from 'react-router';
 import { Alert, Button, Card, Col, Form, Row } from 'react-bootstrap';
 import { FormField } from '../../../shared/components/FormField';
+import { CheckIcon, ImageIcon, LeafIcon, PlusIcon, ShoppingBagIcon, TrashIcon } from '../../../shared/components/Icons';
 import { ProductImage } from './ProductImage';
 import { httpClient } from '../../../shared/api/httpClient';
 import { ingredientApi } from '../../ingredient/api/ingredientApi';
@@ -14,6 +16,10 @@ const empty = {
   caloriesKcal: '', proteinG: '', carbohydrateG: '', fatG: '',
   fiberG: '', sugarG: '', sodiumMg: '', potassiumMg: '', imageFile: null,
 };
+
+function RequiredLabel({ children }) {
+  return <>{children} <span className="manager-required">*</span></>;
+}
 
 function initialValues(product) {
   if (!product) return { ...empty };
@@ -40,6 +46,18 @@ export function AddProductForm({ categories, onSave, busy, submitError, serverEr
   const [submitted, setSubmitted] = useState(false);
   const [editedAfterServerError, setEditedAfterServerError] = useState({});
   const [preview, setPreview] = useState('');
+  const recipeLinesRef = useRef(null);
+  const focusNewLineRef = useRef(false);
+
+  useLayoutEffect(() => {
+    if (!focusNewLineRef.current) return;
+    focusNewLineRef.current = false;
+    const list = recipeLinesRef.current;
+    if (list) {
+      list.scrollTop = list.scrollHeight;
+      list.lastElementChild?.querySelector('select')?.focus();
+    }
+  }, [values.ingredientLines.length]);
 
   useEffect(() => {
     let active = true;
@@ -74,7 +92,6 @@ export function AddProductForm({ categories, onSave, busy, submitError, serverEr
       ingredientLines: current.ingredientLines.map((line, i) =>
         i === index ? { ...line, [field]: value } : line),
     }));
-    setTouched(current => ({ ...current, ingredientLines: true }));
     setEditedAfterServerError(current => ({ ...current, ingredientLines: true }));
   }
 
@@ -101,21 +118,26 @@ export function AddProductForm({ categories, onSave, busy, submitError, serverEr
         ? Math.floor(Math.round(Number(item.stockQuantity) * 1000) / required) : 0;
     })) : 0;
 
-  return <Form noValidate onSubmit={submit} onBlurCapture={event => {
-    if (event.target.name) setTouched(current => ({ ...current, [event.target.name]: true }));
+  return <Form className="manager-product-form" noValidate onSubmit={submit} onBlurCapture={event => {
+    const { name, value } = event.target;
+    if (!name) return;
+    if (name === 'ingredientLines' && value &&
+      values.ingredientLines.some(line => !line.ingredientId || !line.requiredQuantity)) return;
+    setTouched(current => ({ ...current, [name]: true }));
   }}>
     {(submitError || loadError) && <Alert variant="danger">{submitError || loadError}</Alert>}
     <fieldset disabled={busy}>
-      <Row className="g-3 align-items-start">
-        <Col lg={7} xl={8}>
-          <Card body>
-            <h2 className="h5 mb-4">Thông tin sản phẩm</h2>
-            <FormField label="Tên sản phẩm *" name="name" value={values.name}
+      <Row className="g-3 align-items-stretch manager-product-columns">
+        <Col lg={7}>
+          <Card className="manager-product-card manager-product-details">
+            <Card.Header><span className="manager-card-icon"><ShoppingBagIcon size={21} /></span><h3>Thông tin sản phẩm</h3></Card.Header>
+            <Card.Body>
+            <FormField label={<RequiredLabel>Tên sản phẩm</RequiredLabel>} name="name" value={values.name}
               onChange={change} error={errorFor('name')} maxLength={150} />
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Danh mục *</Form.Label>
+                  <Form.Label><RequiredLabel>Danh mục</RequiredLabel></Form.Label>
                   <Form.Select name="categoryId" value={values.categoryId} onChange={change}
                     isInvalid={Boolean(errorFor('categoryId'))}>
                     <option value="">Chọn danh mục</option>
@@ -125,12 +147,12 @@ export function AddProductForm({ categories, onSave, busy, submitError, serverEr
                 </Form.Group>
               </Col>
               <Col md={6}>
-                <FormField label="Giá bán (VNĐ) *" name="price" type="number"
+                <FormField label={<RequiredLabel>Giá bán (VNĐ)</RequiredLabel>} name="price" type="number"
                   min="1" step="1" value={values.price} onChange={change} error={errorFor('price')} />
               </Col>
             </Row>
             <Form.Group className="mb-3">
-              <Form.Label>Trạng thái bán *</Form.Label>
+              <Form.Label><RequiredLabel>Trạng thái bán</RequiredLabel></Form.Label>
               <Form.Select name="status" value={values.status} onChange={change}
                 isInvalid={Boolean(errorFor('status'))}>
                 <option value="AVAILABLE">Đang bán</option>
@@ -140,55 +162,65 @@ export function AddProductForm({ categories, onSave, busy, submitError, serverEr
             </Form.Group>
             <FormField label="Mô tả" name="description" as="textarea" rows={3}
               value={values.description} onChange={change} />
-            <h3 className="h6 mt-3">Dinh dưỡng trên một phần</h3>
+            <h4 className="manager-nutrition-heading"><LeafIcon size={22} /> Dinh dưỡng trên một phần</h4>
             <Row>{[
-              ['caloriesKcal', 'Calories (kcal) *', '1'],
-              ['proteinG', 'Protein (g) *', '0.1'],
-              ['carbohydrateG', 'Carbohydrate (g) *', '0.1'],
-              ['fatG', 'Chất béo (g) *', '0.1'],
+              ['caloriesKcal', 'Calories (kcal)', '1', true],
+              ['proteinG', 'Protein (g)', '0.1', true],
+              ['carbohydrateG', 'Carbohydrate (g)', '0.1', true],
+              ['fatG', 'Chất béo (g)', '0.1', true],
               ['fiberG', 'Chất xơ (g)', '0.1'],
               ['sugarG', 'Đường (g)', '0.1'],
               ['sodiumMg', 'Natri (mg)', '0.1'],
               ['potassiumMg', 'Kali (mg)', '0.1'],
-            ].map(([name, label, step]) =>
+            ].map(([name, label, step, required]) =>
               <Col md={6} key={name}>
-                <FormField label={label} name={name} type="number" min="0" step={step}
+                <FormField label={required ? <RequiredLabel>{label}</RequiredLabel> : label}
+                  name={name} type="number" min="0" step={step}
                   value={values[name]} onChange={change} error={errorFor(name)} />
               </Col>)}</Row>
+            </Card.Body>
           </Card>
         </Col>
-        <Col lg={5} xl={4}>
-          <Card body>
-            <h2 className="h5 mb-3">Hình ảnh sản phẩm</h2>
+        <Col lg={5}>
+          <Card className="manager-product-card manager-product-image-card">
+            <Card.Header><span className="manager-card-icon"><ImageIcon size={21} /></span><h3>Hình ảnh sản phẩm</h3></Card.Header>
+            <Card.Body>
             <ProductImage src={preview || currentImage} name={values.name || 'Sản phẩm'} large />
-            <Form.Group className="mt-3">
-              <Form.Label>Chọn ảnh từ máy</Form.Label>
-              <Form.Control name="imageFile" type="file" accept="image/jpeg,image/png"
+            <Form.Group className="manager-image-upload mt-3">
+              <Form.Control id="product-image-file" className="manager-image-file-input"
+                name="imageFile" type="file" accept="image/jpeg,image/png"
+                aria-describedby={`product-image-help${errorFor('imageFile') ? ' product-image-error' : ''}`}
                 onChange={event => {
                   setValues(current => ({ ...current, imageFile: event.target.files?.[0] || null }));
                   setTouched(current => ({ ...current, imageFile: true }));
                   setEditedAfterServerError(current => ({ ...current, imageFile: true }));
                 }} isInvalid={Boolean(errorFor('imageFile'))} />
-              <Form.Control.Feedback type="invalid">{errorFor('imageFile')}</Form.Control.Feedback>
-              <Form.Text muted>JPEG hoặc PNG, tối đa 5 MB.</Form.Text>
+              <label htmlFor="product-image-file"
+                className={`manager-image-upload-button${errorFor('imageFile') ? ' is-invalid' : ''}`}>
+                <PlusIcon size={17} /> Chọn tệp
+              </label>
+              {errorFor('imageFile') && <div id="product-image-error" className="invalid-feedback d-block" role="alert">{errorFor('imageFile')}</div>}
+              <Form.Text id="product-image-help" muted>JPEG hoặc PNG, tối đa 5 MB.</Form.Text>
             </Form.Group>
+            </Card.Body>
           </Card>
-          <Card body className="mt-3">
-            <div className="d-flex justify-content-between align-items-start gap-2 mb-3">
-              <div>
-                <h2 className="h5 mb-1">Công thức cho 1 combo</h2>
-                <div className="small text-secondary">Định lượng được tính theo đơn vị của nguyên liệu.</div>
-              </div>
-              <Button size="sm" variant="outline-success" type="button"
+          <Card className="manager-product-card manager-product-recipe mt-2">
+            <Card.Header><span className="manager-card-icon"><LeafIcon size={21} /></span><h3>Công thức cho 1 combo</h3></Card.Header>
+            <Card.Body>
+            <p className="manager-recipe-hint">Định lượng các thành phần cho một combo nguyên liệu.</p>
+            <div className="manager-recipe-toolbar">
+              <Button size="sm" variant="success" type="button"
                 onClick={() => {
+                  focusNewLineRef.current = true;
                   setValues(current => ({
                     ...current,
                     ingredientLines: [...current.ingredientLines, {
                       ingredientId: '', requiredQuantity: '', unit: '',
                     }],
                   }));
-                  setTouched(current => ({ ...current, ingredientLines: true }));
-                }}>+ Thêm</Button>
+                  setTouched(current => ({ ...current, ingredientLines: false }));
+                  setEditedAfterServerError(current => ({ ...current, ingredientLines: true }));
+                }}><PlusIcon size={17} /> Thêm nguyên liệu</Button>
             </div>
             {errorFor('ingredientLines') && <Alert variant="danger" className="py-2">
               {errorFor('ingredientLines')}
@@ -196,10 +228,11 @@ export function AddProductForm({ categories, onSave, busy, submitError, serverEr
             {!values.ingredientLines.length && <p className="small text-secondary mb-3">
               Thêm ít nhất một nguyên liệu cho combo.
             </p>}
+            <div ref={recipeLinesRef} className="manager-recipe-lines" role="region" aria-label="Danh sách nguyên liệu trong công thức" tabIndex={0}>
             {values.ingredientLines.map((line, index) => {
               const item = ingredients.find(ingredient =>
                 String(ingredient.id) === String(line.ingredientId));
-              return <div className="border rounded p-3 mb-2" key={index}>
+              return <div className="manager-recipe-line" key={index}>
                 <div className="d-flex gap-2">
                   <Form.Select name="ingredientLines" aria-label={`Nguyên liệu ${index + 1}`}
                     value={line.ingredientId}
@@ -207,7 +240,6 @@ export function AddProductForm({ categories, onSave, busy, submitError, serverEr
                       const selected = ingredients.find(ingredient => String(ingredient.id) === event.target.value);
                       setValues(current => ({ ...current, ingredientLines: current.ingredientLines.map((entry, i) =>
                         i === index ? { ingredientId: event.target.value, requiredQuantity: '', unit: inputUnit(selected?.unit) || '' } : entry) }));
-                      setTouched(current => ({ ...current, ingredientLines: true }));
                       setEditedAfterServerError(current => ({ ...current, ingredientLines: true }));
                     }}>
                     <option value="">Chọn nguyên liệu</option>
@@ -224,8 +256,9 @@ export function AddProductForm({ categories, onSave, busy, submitError, serverEr
                         ...current,
                         ingredientLines: current.ingredientLines.filter((_, i) => i !== index),
                       }));
-                      setTouched(current => ({ ...current, ingredientLines: true }));
-                    }}>Xóa</Button>
+                      setTouched(current => ({ ...current, ingredientLines: false }));
+                      setEditedAfterServerError(current => ({ ...current, ingredientLines: true }));
+                    }}><TrashIcon size={16} /> Xóa</Button>
                 </div>
                 <div className="d-flex align-items-center gap-2 mt-2">
                   <Form.Control name="ingredientLines" aria-label={`Định lượng ${index + 1}`}
@@ -245,14 +278,18 @@ export function AddProductForm({ categories, onSave, busy, submitError, serverEr
                 </div>}
               </div>;
             })}
+            </div>
             <Alert variant={available > 0 ? 'success' : 'warning'} className="mb-0 mt-3">
               Số lượng có thể bán (ước tính): <strong>{Number.isFinite(available) ? available : 0} combo</strong>
             </Alert>
+            </Card.Body>
           </Card>
         </Col>
       </Row>
-      <div className="d-flex justify-content-end mt-4">
+      <div className="manager-product-actions">
+        <Button as={Link} to="/manager/products" variant="outline-secondary" type="button">Hủy</Button>
         <Button type="submit" disabled={busy}>
+          {!busy && <CheckIcon size={18} className="me-2" />}
           {busy ? 'Đang lưu...' : product ? 'Lưu thay đổi' : 'Thêm sản phẩm'}
         </Button>
       </div>

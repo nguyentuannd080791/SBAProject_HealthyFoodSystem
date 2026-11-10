@@ -10,7 +10,7 @@ export function validateProduct(values, ingredients = [], products = [], editing
     errors.name = 'Tên sản phẩm đã tồn tại.';
   if (!Number.isInteger(Number(values.categoryId)) || Number(values.categoryId) <= 0) errors.categoryId = 'Chọn danh mục.';
   if (!/^\d+$/.test(values.price) || Number(values.price) <= 0 || Number(values.price) > 999999999999) errors.price = 'Giá phải là số nguyên dương tối đa 12 chữ số.';
-  if (!values.ingredientLines.length) errors.ingredientLines = 'Combo cần ít nhất một nguyên liệu.';
+  if (!values.ingredientLines.length) errors.ingredientLines = 'Hãy điền đủ thông tin công thức.';
   const ids = new Set();
   for (const line of values.ingredientLines) {
     const ingredient = ingredients.find(item => String(item.id) === String(line.ingredientId));
@@ -18,7 +18,7 @@ export function validateProduct(values, ingredients = [], products = [], editing
       !/^\d{1,15}(\.\d{1,3})?$/.test(String(line.requiredQuantity)) || Number(line.requiredQuantity) <= 0 ||
       !ingredient || !hasSupportedPrecision(line.requiredQuantity, line.unit, ingredient.unit) ||
       toIngredientUnit(line.requiredQuantity, line.unit, ingredient.unit) < 0.001)
-      errors.ingredientLines = 'Chọn nguyên liệu không trùng; định lượng phải quy đổi chính xác đến 0,001 đơn vị kho.';
+      errors.ingredientLines = 'Hãy điền đủ thông tin công thức.';
     ids.add(String(line.ingredientId));
   }
   if (!['AVAILABLE', 'UNAVAILABLE'].includes(values.status)) errors.status = 'Chọn trạng thái bán hợp lệ.';
