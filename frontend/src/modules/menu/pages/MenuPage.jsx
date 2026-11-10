@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { Alert, Button } from "react-bootstrap";
-import { useEffect, useState } from "react";
-import { Alert, Button } from "react-bootstrap";
 import { useSearchParams } from "react-router";
 import { useAuth } from "../../../app/provider/useAuth";
 import { CheckIcon } from "../../../shared/components/Icons";
