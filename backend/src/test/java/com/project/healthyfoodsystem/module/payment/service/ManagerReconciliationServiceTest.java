@@ -26,13 +26,14 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 
 class ManagerReconciliationServiceTest {
+    private final com.project.healthyfoodsystem.module.ingredient.service.InventoryService inventory = mock(com.project.healthyfoodsystem.module.ingredient.service.InventoryService.class);
     private final UserRepository users = mock(UserRepository.class);
     private final PaymentTransactionRepository receipts = mock(PaymentTransactionRepository.class);
     private final PaymentRepository payments = mock(PaymentRepository.class);
     private final OrderRepository orders = mock(OrderRepository.class);
     private final ProductRepository products = mock(ProductRepository.class);
     private final ManagerReconciliationService service = new ManagerReconciliationServiceImpl(
-            users, receipts, payments, orders, products);
+            users, receipts, payments, orders, products, inventory);
     private User manager;
     private PaymentTransaction receipt;
     private Payment payment;
@@ -62,7 +63,7 @@ class ManagerReconciliationServiceTest {
         when(receipts.lockById(11L)).thenReturn(Optional.of(receipt));
         when(payments.lockById("p1")).thenReturn(Optional.of(payment));
         when(orders.findById("o1")).thenReturn(Optional.of(order));
-        when(products.reserveStock(anyInt(), anyInt())).thenReturn(1);
+        when(products.lockById(anyInt())).thenReturn(Optional.of(mock(com.project.healthyfoodsystem.module.product.entity.Product.class)));
     }
 
     private ResumeExpiredOrderRequest request() {
@@ -86,11 +87,12 @@ class ManagerReconciliationServiceTest {
         assertEquals(9, receipt.getResolvedBy());
         assertNotNull(receipt.getResolvedAt());
         assertEquals("Đã gọi khách đồng ý nhận đơn.", receipt.getResolutionNote());
-        var sequence = inOrder(payments, receipts, products);
+        var sequence = inOrder(payments, receipts, products, inventory);
         sequence.verify(payments).lockById("p1");
         sequence.verify(receipts).lockById(11L);
-        sequence.verify(products).reserveStock(1, 1);
-        sequence.verify(products).reserveStock(3, 2);
+        sequence.verify(products).lockById(1);
+        sequence.verify(products).lockById(3);
+        sequence.verify(inventory).reserveRestoredOrder(eq(order), anyMap());
     }
 
     @Test
@@ -99,8 +101,8 @@ class ManagerReconciliationServiceTest {
         var resolvedAt = receipt.getResolvedAt();
         service.resumeOrder("manager", 11L,
                 ResumeExpiredOrderRequest.builder().fulfillmentConfirmed(true).note("Retry").build());
-        verify(products, times(1)).reserveStock(1, 1);
-        verify(products, times(1)).reserveStock(3, 2);
+        verify(inventory, times(1)).reserveRestoredOrder(eq(order), anyMap());
+
         assertEquals(resolvedAt, receipt.getResolvedAt());
         assertEquals("Đã gọi khách đồng ý nhận đơn.", receipt.getResolutionNote());
     }
@@ -152,8 +154,8 @@ class ManagerReconciliationServiceTest {
     }
 
     @Test
-    void missingProductRejectsBeforeChangingOrderOrReceipt() {
-        when(products.reserveStock(3, 2)).thenReturn(0);
+    void ingredientShortageLeavesOrderAndReceiptUnchanged() {
+        doThrow(new ApiException(HttpStatus.CONFLICT, "Insufficient ingredients")).when(inventory).reserveRestoredOrder(eq(order), anyMap());
         assertEquals(HttpStatus.CONFLICT, assertThrows(ApiException.class,
                 () -> service.resumeOrder("manager", 11L, request())).getStatus());
         assertEquals("expired", payment.getStatus());

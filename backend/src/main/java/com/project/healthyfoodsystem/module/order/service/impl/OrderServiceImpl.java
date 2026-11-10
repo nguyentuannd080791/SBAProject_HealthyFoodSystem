@@ -183,7 +183,9 @@ public class OrderServiceImpl implements OrderService {
                                         .city(address.getCity().trim())
                                         .build())
                         .build();
-        orders.saveAndFlush(order);
+        // Assigned UUIDs are merged by Spring Data. Keep the managed instance so
+        // inventoryReserved changes made by reserve() are persisted at commit.
+        order = orders.saveAndFlush(order);
         inventory.reserve(order, lockedProducts);
         Payment payment =
                 Payment.builder()

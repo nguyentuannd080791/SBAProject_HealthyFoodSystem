@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 
 class PaymentServiceTest {
+    private final com.project.healthyfoodsystem.module.ingredient.service.InventoryService inventory = mock(com.project.healthyfoodsystem.module.ingredient.service.InventoryService.class);
     private final UserRepository users = mock(UserRepository.class);
     private final CartRepository carts = mock(CartRepository.class);
     private final CartItemRepository cartItems = mock(CartItemRepository.class);
@@ -47,13 +48,14 @@ class PaymentServiceTest {
             new PaymentServiceImpl(
                     users, orders, payments, transactions, settings, expiry);
     private final com.project.healthyfoodsystem.module.order.service.CheckoutPromotionService promotionService = mock(com.project.healthyfoodsystem.module.order.service.CheckoutPromotionService.class);
-    private final OrderService orderService = new OrderServiceImpl(users, carts, cartItems, products, orders, payments, settings, promotionService);
+    private final OrderService orderService = new OrderServiceImpl(users, carts, cartItems, products, inventory, orders, payments, settings, promotionService);
     private final String email = "customer@example.com";
     private List<CartItem> rows;
 
     @BeforeEach
     void setup() {
         configured();
+        when(orders.saveAndFlush(any())).thenAnswer(call -> call.getArgument(0));
         when(promotionService.evaluate(any(), any())).thenReturn(
                 com.project.healthyfoodsystem.module.order.dto.response.PromotionQuoteResponse.builder()
                         .code("TEST10").discount(new BigDecimal("13800")).build());
@@ -102,10 +104,11 @@ class PaymentServiceTest {
         when(product.getId()).thenReturn(3);
         when(product.getName()).thenReturn("Salad");
         when(product.getStatus()).thenReturn("AVAILABLE");
-        when(product.getStockQuantity()).thenReturn(5);
+        when(inventory.availableQuantity(product)).thenReturn(5);
         when(product.getPrice()).thenReturn(new BigDecimal("69000"));
         when(products.findById(3)).thenReturn(Optional.of(product));
-        when(products.reserveStock(3, 2)).thenReturn(1);
+        when(products.lockById(3)).thenReturn(Optional.of(product));
+        doAnswer(call -> { ((CustomerOrder) call.getArgument(0)).setInventoryReserved(true); return null; }).when(inventory).reserve(any(), any());
     }
 
     private Payment payment() {
@@ -147,9 +150,10 @@ class PaymentServiceTest {
         assertEquals(new BigDecimal("125200"), result.getTotal());
         assertEquals("pending", result.getPaymentStatus());
         assertEquals("pending_payment", result.getStatus());
-        verify(products, times(1)).reserveStock(3, 2);
-        var sequence = inOrder(orders, payments, cartItems);
-        sequence.verify(orders).save(any());
+        verify(inventory, times(1)).reserve(any(), any());
+        var sequence = inOrder(orders, inventory, payments, cartItems);
+        sequence.verify(orders).saveAndFlush(any());
+        sequence.verify(inventory).reserve(any(), any());
         sequence.verify(payments).save(any());
         sequence.verify(cartItems).deleteAll(rows);
     }
@@ -158,7 +162,7 @@ class PaymentServiceTest {
     void emptyCartCannotCheckout() {
         assertThrows(ApiException.class, () -> orderService.checkout(email, request("sepay")));
         verifyNoInteractions(transactions);
-        verify(orders, never()).save(any());
+        verify(orders, never()).saveAndFlush(any());
         verify(cartItems, never()).deleteAll(any());
     }
 
@@ -168,7 +172,7 @@ class PaymentServiceTest {
         var request = request("sepay");
         request.setExpectedCart(Map.of(10, 1));
         assertThrows(ApiException.class, () -> orderService.checkout(email, request));
-        verify(orders, never()).save(any());
+        verify(orders, never()).saveAndFlush(any());
         verify(cartItems, never()).deleteAll(any());
     }
 
@@ -178,7 +182,7 @@ class PaymentServiceTest {
         var request = request("sepay");
         request.setExpectedSubtotal(BigDecimal.ONE);
         assertThrows(ApiException.class, () -> orderService.checkout(email, request));
-        verify(orders, never()).save(any());
+        verify(orders, never()).saveAndFlush(any());
         verify(cartItems, never()).deleteAll(any());
     }
 
@@ -189,7 +193,7 @@ class PaymentServiceTest {
         assertEquals("o1", orderService.checkout(email, request("sepay")).getId());
         verifyNoInteractions(products);
         verifyNoInteractions(carts);
-        verify(orders, never()).save(any());
+        verify(orders, never()).saveAndFlush(any());
     }
 
     @Test
@@ -205,23 +209,23 @@ class PaymentServiceTest {
         when(settings.enabled()).thenReturn(false);
         assertThrows(ApiException.class, () -> orderService.checkout(email, request("sepay")));
         verifyNoInteractions(carts);
-        verify(orders, never()).save(any());
+        verify(orders, never()).saveAndFlush(any());
     }
 
     @Test
     void cashCheckoutIsRejectedWithoutConsumingCart() {
         assertThrows(ApiException.class, () -> orderService.checkout(email, request("cash")));
         verifyNoInteractions(carts);
-        verify(orders, never()).save(any());
+        verify(orders, never()).saveAndFlush(any());
         verify(payments, never()).save(any());
     }
 
     @Test
-    void concurrentStockChangeRejectsCheckoutBeforeSavingOrder() {
+    void ingredientShortageRejectsCheckoutWithoutConsumingCart() {
         cart();
-        when(products.reserveStock(3, 2)).thenReturn(0);
+        doThrow(new ApiException(org.springframework.http.HttpStatus.CONFLICT, "Insufficient ingredients")).when(inventory).reserve(any(), any());
         assertThrows(ApiException.class, () -> orderService.checkout(email, request("sepay")));
-        verify(orders, never()).save(any());
+        verify(orders).saveAndFlush(any()); // Real transaction rollback is verified by integration tests.
         verify(payments, never()).save(any());
         verify(cartItems, never()).deleteAll(any());
     }
@@ -233,8 +237,8 @@ class PaymentServiceTest {
                 com.project.healthyfoodsystem.module.order.dto.response.PromotionQuoteResponse.builder()
                         .code("TEST10").discount(BigDecimal.valueOf(5000)).build());
         assertThrows(ApiException.class, () -> orderService.checkout(email, request("sepay")));
-        verify(products, never()).reserveStock(any(), anyInt());
-        verify(orders, never()).save(any());
+        verify(inventory, never()).reserve(any(), any());
+        verify(orders, never()).saveAndFlush(any());
     }
 
     @Test
@@ -246,12 +250,12 @@ class PaymentServiceTest {
         payment.setStatus("pending");
         when(orders.findById("o1")).thenReturn(Optional.of(order));
         when(payments.lockByOrderId("o1")).thenReturn(Optional.of(payment));
-        when(products.restoreStock(3, 2)).thenReturn(1);
+        doAnswer(call -> { ((CustomerOrder) call.getArgument(0)).setInventoryReserved(false); return null; }).when(inventory).restore(any());
         orderService.cancel(email, "o1");
         assertEquals("cancelled", order.getStatus());
         assertFalse(order.getInventoryReserved());
         assertThrows(ApiException.class, () -> orderService.cancel(email, "o1"));
-        verify(products, times(1)).restoreStock(3, 2);
+        verify(inventory, times(1)).restore(order);
     }
 
     @Test
@@ -263,7 +267,7 @@ class PaymentServiceTest {
         when(orders.findById("o1")).thenReturn(Optional.of(order));
         when(payments.lockByOrderId("o1")).thenReturn(Optional.of(payment));
         assertThrows(ApiException.class, () -> orderService.cancel(email, "o1"));
-        verify(products, never()).restoreStock(any(), anyInt());
+        verify(inventory, never()).restore(any());
     }
 
     @Test
@@ -317,8 +321,8 @@ class PaymentServiceTest {
         order.setItems(List.of(CustomerOrder.Item.builder().id(3).quantity(2).build()));
         when(payments.lockByCode("HF123")).thenReturn(Optional.of(payment));
         when(orders.findById("o1")).thenReturn(Optional.of(order));
-        when(products.restoreStock(3, 2)).thenReturn(1);
-        var realExpiry = new PaymentExpiryService(payments, orders, products);
+        doAnswer(call -> { ((CustomerOrder) call.getArgument(0)).setInventoryReserved(false); return null; }).when(inventory).restore(any());
+        var realExpiry = new PaymentExpiryService(payments, orders, inventory);
         var subject = new PaymentServiceImpl(users, orders, payments, transactions, settings, realExpiry);
         var event = event("139200");
         event.setTransactionDate("2026-11-09 10:00:00");
@@ -330,7 +334,7 @@ class PaymentServiceTest {
                 && "2026-11-09 10:00:00".equals(t.getBankTransactionDate())));
         when(transactions.existsById(event.getId())).thenReturn(true);
         subject.webhook("Apikey secret", event);
-        verify(products, times(1)).restoreStock(3, 2);
+        verify(inventory, times(1)).restore(order);
         verify(transactions, times(1)).saveAndFlush(any());
     }
 
