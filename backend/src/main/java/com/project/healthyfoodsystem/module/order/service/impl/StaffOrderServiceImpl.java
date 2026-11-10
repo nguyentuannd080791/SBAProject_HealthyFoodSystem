@@ -35,7 +35,7 @@ public class StaffOrderServiceImpl implements StaffOrderService {
     private final PaymentRepository payments;
     private final OrderStatusHistoryRepository history;
     private static final Map<String, String> NEXT =
-            Map.of("processing", "preparing", "preparing", "shipping", "shipping", "delivered");
+            Map.of("processing", "shipping");
 
     private User staff(String email) {
         var user =
@@ -54,7 +54,7 @@ public class StaffOrderServiceImpl implements StaffOrderService {
     public ManagerOrderPageResponse list(String email, String status, int page) {
         staff(email);
         if (page < 0
-                || !Set.of("processing", "preparing", "shipping", "delivered").contains(status))
+                || !Set.of("processing", "shipping").contains(status))
             throw new ApiException(HttpStatus.BAD_REQUEST, "Bộ lọc không hợp lệ.");
         var result = queue.search("", "", status, "paid", null, null, PageRequest.of(page, 20));
         return ManagerOrderPageResponse.builder()

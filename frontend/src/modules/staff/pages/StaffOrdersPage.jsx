@@ -8,10 +8,10 @@ import { OrderPageHeader } from "../../orders/components/OrderPageHeader";
 import "../../orders/styles/orders.css";
 
 const steps = {
-  processing: { next: "preparing", action: "Bắt đầu chuẩn bị" },
-  preparing: { next: "shipping", action: "Đánh dấu đang giao" },
-  shipping: { next: "delivered", action: "Xác nhận đã giao" },
+  processing: { next: "shipping", action: "Xác nhận đang giao hàng" },
 };
+const statusLabel = (status) => status === "shipping"
+  ? "Đơn hàng đang được giao đến cho khách" : orderStatuses[status]?.label;
 
 export function StaffOrdersPage() {
   const [status, setStatus] = useState("processing");
@@ -63,21 +63,21 @@ export function StaffOrdersPage() {
     } else {
       setOrder(null);
       setError("");
-      setNotice(`Đơn #${result.data.id.slice(-8)}: ${orderStatuses[result.data.status].label}.`);
+      setNotice(`Đơn #${result.data.id.slice(-8)}: ${statusLabel(result.data.status)}.`);
     }
   }
 
   return <div className="orders-page">
     <OrderPageHeader eyebrow="KHU VỰC NHÂN VIÊN" title="Xử lý đơn hàng"
-      description="Chuẩn bị, theo dõi giao hàng và xác nhận hoàn tất các đơn đã thanh toán.">
+      description="Tiếp nhận đơn đã thanh toán và cập nhật khi đơn bắt đầu được giao cho khách.">
       <Button variant="outline-primary" disabled={loading || busy} onClick={() => setRefresh((value) => value + 1)}>Làm mới</Button>
     </OrderPageHeader>
     {error && <Alert variant="danger">{error}</Alert>}
     {notice && <Alert variant="success" dismissible onClose={() => setNotice("")}>{notice}</Alert>}
     <nav aria-label="Lọc trạng thái đơn" className="d-flex flex-wrap gap-2 mb-4">
-      {["processing", "preparing", "shipping", "delivered"].map((key) => <Button key={key}
+      {["processing", "shipping"].map((key) => <Button key={key}
         variant={status === key ? "primary" : "outline-secondary"} onClick={() => { setStatus(key); setPage(0); }}>
-        {key === "processing" ? "Chờ chuẩn bị" : orderStatuses[key].label}
+        {statusLabel(key)}
       </Button>)}
     </nav>
     <Card body>
@@ -100,7 +100,7 @@ export function StaffOrdersPage() {
     <Modal show={!!order} onHide={() => { if (!busy) setOrder(null); }} size="lg" centered backdrop={busy ? "static" : true} keyboard={!busy}>
       <Modal.Header closeButton={!busy}><Modal.Title>Đơn #{order?.id.slice(-8)}</Modal.Title></Modal.Header>
       <Modal.Body>{order && <>
-        <Badge bg={orderStatuses[order.status]?.variant}>{orderStatuses[order.status]?.label}</Badge>
+        <Badge bg={orderStatuses[order.status]?.variant}>{statusLabel(order.status)}</Badge>
         <Badge bg="success" className="ms-2">Đã thanh toán</Badge>
         <h3 className="h6 mt-4">Món cần chuẩn bị</h3>
         {order.items.map((item, index) => <div key={index} className="border-bottom py-2">
@@ -108,7 +108,7 @@ export function StaffOrdersPage() {
         </div>)}
         <h3 className="h6 mt-4">Thông tin giao hàng</h3>
         <p>{order.delivery.recipientName} · {order.delivery.recipientPhone}<br />{formatOrderAddress(order.delivery)}</p>
-        <small className="text-secondary">Chỉ xác nhận đã giao sau khi khách đã nhận hàng. Đơn đã giao không thể chuyển ngược trạng thái.</small>
+        <small className="text-secondary">Chỉ cập nhật đang giao khi đơn thực sự bắt đầu được giao cho khách. Đây là bước cuối trong luồng hiện tại.</small>
       </>}</Modal.Body>
       <Modal.Footer><Button disabled={busy} variant="outline-secondary" onClick={() => setOrder(null)}>Đóng</Button>
         {order && <Button as={Link} to={`/staff/orders/${encodeURIComponent(order.id)}/invoice`} variant="outline-primary" disabled={busy}>Xem / in hóa đơn</Button>}

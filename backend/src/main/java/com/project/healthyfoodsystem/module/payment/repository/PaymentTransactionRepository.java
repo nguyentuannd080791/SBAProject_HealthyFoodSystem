@@ -2,9 +2,41 @@ package com.project.healthyfoodsystem.module.payment.repository;
 
 import com.project.healthyfoodsystem.module.payment.entity.PaymentTransaction;
 
+import jakarta.persistence.LockModeType;
+import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface PaymentTransactionRepository extends JpaRepository<PaymentTransaction, Long> {
-    org.springframework.data.domain.Page<PaymentTransaction> findByReconciliationStatusNotOrderByReceivedAtDesc(
-            String status, org.springframework.data.domain.Pageable pageable);
+    // Read only a scalar first so no stale entity is cached before locking its payment.
+    @Query("select t.paymentId from PaymentTransaction t where t.id=:id")
+    Optional<String> findPaymentId(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select t from PaymentTransaction t where t.id=:id")
+    Optional<PaymentTransaction> lockById(@Param("id") Long id);
+
+    @Query("""
+        select t from PaymentTransaction t
+        where (:filter = 'ALL'
+           or (:filter = 'PENDING' and t.reconciliationStatus <> 'MATCHED'
+               and (t.resolutionStatus is null or t.resolutionStatus = 'PENDING'))
+           or (:filter = 'ACCEPTED_FOR_ORDER' and t.resolutionStatus = 'ACCEPTED_FOR_ORDER'))
+          and (:status = '' or t.reconciliationStatus = :status)
+          and (:search = '' or locate(lower(:search), lower(coalesce(t.code, ''))) > 0
+               or locate(lower(:search), lower(coalesce(t.content, ''))) > 0
+               or locate(:search, coalesce(t.accountNumber, '')) > 0
+               or cast(t.id as string) = :search)
+          and (:fromDate is null or t.receivedAt >= :fromDate)
+          and (:toDate is null or t.receivedAt < :toDate)
+        order by t.receivedAt desc, t.id desc
+        """)
+    Page<PaymentTransaction> search(@Param("filter") String filter,
+            @Param("search") String search, @Param("status") String status,
+            @Param("fromDate") java.time.Instant fromDate,
+            @Param("toDate") java.time.Instant toDate, Pageable pageable);
 }

@@ -16,7 +16,7 @@
 .order-empty { align-items: center; padding: 3rem 1rem; border: 1px solid #e4ebdf; border-radius: 16px; }
 .order-empty > span { font-size: 3rem; }
 .tracking-card { background: linear-gradient(145deg, #fff, #f8fcf6); }
-.tracking-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: .7rem; margin-top: 1.4rem; }
+.tracking-steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; margin-top: 1.4rem; }
 .tracking-step { color: #8b958b; font-size: .84rem; }
 .tracking-step > div { border-top: 2px solid #e4e9e1; padding-top: .7rem; margin-top: .5rem; }
 .tracking-step strong { color: #788278; }

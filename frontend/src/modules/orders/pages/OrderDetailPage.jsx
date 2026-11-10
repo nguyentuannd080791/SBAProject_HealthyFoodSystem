@@ -4,13 +4,13 @@ import { Link, useParams } from "react-router";
 import { useAuth } from "../../../app/provider/useAuth";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { orderStore } from "../api/orderStore";
-import { rememberPendingPayment } from "../utils/paymentNotifications";
-import { canCancelOrder, formatOrderAddress, formatOrderDate, orderStatuses } from "../utils/orderFormatting";
 import "../styles/orders.css";
+import { canCancelOrder, formatOrderAddress, formatOrderDate, orderStatuses } from "../utils/orderFormatting";
+import { rememberPendingPayment } from "../utils/paymentNotifications";
 
 import { PaymentCountdown } from "../components/PaymentCountdown";
 
-const stages = ["processing", "preparing", "shipping", "delivered"];
+const stages = ["processing", "shipping"];
 
 export function OrderDetailPage() {
   const { orderId } = useParams();
@@ -47,7 +47,7 @@ export function OrderDetailPage() {
         timer = setTimeout(reload, 10000);
       } else {
         setPayment(null);
-        if (["processing", "preparing", "shipping"].includes(result.data?.status)) {
+        if (result.data?.paymentStatus === "expired" || result.data?.status === "processing") {
           timer = setTimeout(reload, 10000);
         }
       }
@@ -109,7 +109,7 @@ export function OrderDetailPage() {
         <p className="qr-payment-reference mb-0">Nội dung: <strong>{payment.content}</strong></p>
         <small className="d-block text-secondary mt-3">Trạng thái tự cập nhật sau khi hệ thống nhận được thanh toán.</small>
       </Card>}
-      {order.status === "cancelled" ? <Alert variant="secondary">Đơn hàng đã được hủy.</Alert> : <Card body className="tracking-card mb-3">
+      {order.status === "cancelled" ? <Alert variant="secondary">Đơn hàng đã được hủy.</Alert> : order.status === "delivered" ? <Alert variant="success">Đơn hàng cũ đã được giao thành công.</Alert> : <Card body className="tracking-card mb-3">
         <h2 className="h5">Theo dõi đơn hàng</h2><div className="tracking-steps">{stages.map((stage, index) => <div className={`tracking-step ${currentStage >= index && order.status !== "pending_payment" ? "is-complete" : ""}`} key={stage}>
           <span className="tracking-dot">{currentStage >= index && order.status !== "pending_payment" ? "✓" : index + 1}</span>
           <div><strong>{orderStatuses[stage].label}</strong><p>{["Cửa hàng đã nhận đơn.", "Đang chuẩn bị combo nguyên liệu.", "Đơn hàng đang trên đường giao.", "Đơn hàng đã được giao."][index]}</p></div>

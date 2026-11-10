@@ -16,10 +16,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UpdateOrderStatusRequest {
     @NotNull
-    @Pattern(regexp = "processing|preparing|shipping")
+    @Pattern(regexp = "processing")
     private String expectedStatus;
 
     @NotNull
-    @Pattern(regexp = "preparing|shipping|delivered")
+    @Pattern(regexp = "shipping")
     private String status;
 }
