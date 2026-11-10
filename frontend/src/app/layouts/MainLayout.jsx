@@ -1,11 +1,11 @@
-import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { Container, Nav, Navbar } from "react-bootstrap";
-import { LeafIcon } from "../../shared/components/Icons";
+import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { FloatingCartLink } from "../../modules/cart/components/FloatingCartLink";
-import { UserMenu } from "./UserMenu";
-import { NotificationProvider } from "../../shared/notifications/NotificationProvider";
 import { PaymentNotificationWatcher } from "../../modules/orders/components/PaymentNotificationWatcher";
+import { LeafIcon, ShoppingBagIcon } from "../../shared/components/Icons";
+import { NotificationProvider } from "../../shared/notifications/NotificationProvider";
 import { useAuth } from "../provider/useAuth";
+import { UserMenu } from "./UserMenu";
 
 import "../../modules/menu/styles/menu.css";
 
@@ -24,8 +24,10 @@ export function MainLayout() {
   const { pathname, search } = useLocation();
   const isMenuPage = pathname === "/menu";
   const isOffersPage = isMenuPage && new URLSearchParams(search).get("offers") === "1";
+  const isManagerPage = /^\/manager(\/|$)/.test(pathname);
   const isCustomerPage = !/^\/(manager|staff|admin)(\/|$)/.test(pathname);
   const showFloatingCart = pathname === "/" || isMenuPage || pathname.startsWith("/products/");
+  const isManager = (user?.role || "").toLowerCase() === "manager";
 
   return (
     <NotificationProvider key={user?.id ?? "guest"}>

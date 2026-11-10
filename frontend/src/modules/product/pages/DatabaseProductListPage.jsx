@@ -67,7 +67,7 @@ export function DatabaseProductListPage() {
         <option value="inactive">Không khuyến mại</option>
       </Form.Select></div>
       {loading ? <Spinner animation="border" role="status" /> : error ? null : <Table responsive hover className="align-middle mb-0" style={{ minWidth: 1100 }}><thead><tr>
-        <th>Sản phẩm</th><th>Danh mục</th><th>Giá gốc</th><th>Giá sau giảm</th><th>Khuyến mại</th><th>Combo khả dụng</th><th>Trạng thái kho</th><th>Trạng thái bán</th><th>Thao tác</th>
+        <th>Sản phẩm</th><th>Danh mục</th><th>Giá gốc</th><th>Giá sau giảm</th><th>Khuyến mại</th><th>Combo</th><th>Trạng thái kho</th><th>Trạng thái bán</th><th>Thao tác</th>
       </tr></thead><tbody>{filtered.map(({ product, pricing }) => <tr key={product.id}>
         <td><div className="d-flex align-items-center gap-3"><ProductImage src={imageSource(product.imageUrl)} name={product.name} /><strong>{product.name}</strong></div></td>
         <td>{categories.find(item => item.id === product.categoryId)?.name || `#${product.categoryId}`}</td>

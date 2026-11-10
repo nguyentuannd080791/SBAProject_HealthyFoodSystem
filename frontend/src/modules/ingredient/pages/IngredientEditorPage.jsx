@@ -5,7 +5,7 @@ import { ingredientApi } from '../api/ingredientApi';
 import { productApi } from '../../product/api/productApi';
 import { validateIngredient } from '../validators/ingredientValidation';
 
-const empty = { name: '', unit: '', stockQuantity: '0', warningQuantity: '0', note: '' };
+const empty = { name: '', unit: '', stockQuantity: '', warningQuantity: '', note: '' };
 
 export function IngredientEditorPage() {
   const { ingredientId } = useParams();
