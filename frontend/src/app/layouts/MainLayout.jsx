@@ -2,7 +2,7 @@ import { Container, Nav, Navbar } from "react-bootstrap";
 import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { FloatingCartLink } from "../../modules/cart/components/FloatingCartLink";
 import { PaymentNotificationWatcher } from "../../modules/orders/components/PaymentNotificationWatcher";
-import { LeafIcon, ShoppingBagIcon } from "../../shared/components/Icons";
+import { LeafIcon } from "../../shared/components/Icons";
 import { NotificationProvider } from "../../shared/notifications/NotificationProvider";
 import { useAuth } from "../provider/useAuth";
 import { UserMenu } from "./UserMenu";
@@ -24,10 +24,8 @@ export function MainLayout() {
   const { pathname, search } = useLocation();
   const isMenuPage = pathname === "/menu";
   const isOffersPage = isMenuPage && new URLSearchParams(search).get("offers") === "1";
-  const isManagerPage = /^\/manager(\/|$)/.test(pathname);
   const isCustomerPage = !/^\/(manager|staff|admin)(\/|$)/.test(pathname);
   const showFloatingCart = pathname === "/" || isMenuPage || pathname.startsWith("/products/");
-  const isManager = (user?.role || "").toLowerCase() === "manager";
 
   return (
     <NotificationProvider key={user?.id ?? "guest"}>
@@ -43,11 +41,13 @@ export function MainLayout() {
           <Navbar.Collapse id="main-navbar">
             {isMenuPage ? <Nav className="menu-primary-nav menu-catalog-nav me-auto">
               <Nav.Link as={Link} to="/"><HeaderIcon type="home" /><span>Trang chủ</span></Nav.Link>
-              <Nav.Link as={Link} to="/menu" className={!isOffersPage ? "is-current" : undefined}><HeaderIcon type="menu" /><span>Thực đơn</span></Nav.Link>
-              <Nav.Link as={Link} to="/menu?offers=1" className={isOffersPage ? "is-current" : undefined}><HeaderIcon type="offer" /><span>Khuyến mãi</span></Nav.Link>
+              {user && <>
+                <Nav.Link as={Link} to="/menu" className={!isOffersPage ? "is-current" : undefined}><HeaderIcon type="menu" /><span>Thực đơn</span></Nav.Link>
+                <Nav.Link as={Link} to="/menu?offers=1" className={isOffersPage ? "is-current" : undefined}><HeaderIcon type="offer" /><span>Khuyến mãi</span></Nav.Link>
+              </>}
             </Nav> : <Nav className={isCustomerPage ? "menu-primary-nav me-auto" : "me-auto"}>
-              <Nav.Link as={NavLink} to="/menu">Thực đơn</Nav.Link>
-              {isCustomerPage && <Nav.Link as={NavLink} to="/orders">Đơn hàng</Nav.Link>}
+              {user && <Nav.Link as={NavLink} to="/menu">Thực đơn</Nav.Link>}
+              {user && isCustomerPage && <Nav.Link as={NavLink} to="/orders">Đơn hàng</Nav.Link>}
             </Nav>}
             {isMenuPage && <button type="button" className="menu-header-search" aria-label="Tìm món ăn"
               onClick={() => document.getElementById("menu-search")?.focus()}>

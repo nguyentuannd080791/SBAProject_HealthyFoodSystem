@@ -1,4 +1,5 @@
 import { ProfilePage } from "../../../modules/profile/pages/ProfilePage";
+import { RequireAuth } from "../RequireAuth";
 import { RequireRole } from "../RequireRole";
 import { CartPage } from "../../../modules/cart/pages/CartPage";
 import { MenuPage } from "../../../modules/menu/pages/MenuPage";
@@ -8,7 +9,7 @@ import { OrderHistoryPage } from "../../../modules/orders/pages/OrderHistoryPage
 import { OrderDetailPage } from "../../../modules/orders/pages/OrderDetailPage";
 
 export const customerRoutes = [
-  { path: "menu", element: <MenuPage /> },
+  { path: "menu", element: <RequireAuth><MenuPage /></RequireAuth> },
   { path: "products/:id", element: <ProductDetailPage /> },
   { path: "cart", element: <CartPage /> },
   {

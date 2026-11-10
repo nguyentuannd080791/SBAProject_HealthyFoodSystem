@@ -49,9 +49,9 @@ export function LoginPage() {
 
   return (
     <>
-      <Button as={Link} to="/menu" variant="outline-success" size="sm"
+      <Button as={Link} to="/" variant="outline-success" size="sm"
         className="position-fixed top-0 start-0 m-4 z-3">
-        <span aria-hidden="true">←</span> Quay lại thực đơn
+        <span aria-hidden="true">←</span> Quay lại trang chủ
       </Button>
     <Row className="justify-content-center">
       <Col xs={12} sm={10} md={8} lg={5} xl={4}>

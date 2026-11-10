@@ -13,8 +13,8 @@ export function UserMenu({ menuStyle = false, showCart = true }) {
 
   async function handleLogout() {
     await authApi.logout();
-    await navigate("/menu", { replace: true, flushSync: true });
     logout();
+    navigate("/login", { replace: true });
   }
 
   if (menuStyle) {
