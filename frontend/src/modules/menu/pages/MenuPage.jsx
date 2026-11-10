@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Alert, Button } from "react-bootstrap";
+import { useAuth } from "../../../app/provider/useAuth";
 import { CheckIcon } from "../../../shared/components/Icons";
 import { useCart } from "../../cart/hooks/useCart";
+import { screeningApi } from "../../screening/api/screeningApi";
 import { MenuFilterBar } from "../components/MenuFilterBar";
 import { ProductCard } from "../components/ProductCard";
 import { useProducts } from "../hooks/useProducts";
@@ -10,8 +12,23 @@ import "../styles/menu.css";
 export function MenuPage() {
   const catalog = useProducts();
   const { items } = useCart();
+  const { user } = useAuth();
   const [notice, setNotice] = useState(null);
+  const [screeningMap, setScreeningMap] = useState(new Map());
   const cartItemsByProduct = new Map(items.map((item) => [String(item.id), item]));
+
+  useEffect(() => {
+    if (!user) {
+      setScreeningMap(new Map());
+      return;
+    }
+    screeningApi.evaluateCatalog()
+      .then((results) => {
+        const map = new Map((results || []).map((r) => [r.productId, r]));
+        setScreeningMap(map);
+      })
+      .catch(() => {});
+  }, [user]);
 
   useEffect(() => {
     if (!notice) return undefined;
@@ -51,6 +68,7 @@ export function MenuPage() {
           <div className="menu-product-grid">
             {catalog.filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product}
+                screeningResult={screeningMap.get(product.id)}
                 cartItem={cartItemsByProduct.get(String(product.id))}
                 onAdded={(addedProduct, quantity) => setNotice({ name: addedProduct.name, quantity })} />
             ))}

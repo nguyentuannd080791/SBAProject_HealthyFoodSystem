@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Badge, Button, Col, Image, Row } from "react-bootstrap";
 import { Link } from "react-router";
+import { useAuth } from "../../../app/provider/useAuth";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { useCart } from "../../cart/hooks/useCart";
+import { screeningApi } from "../../screening/api/screeningApi";
+import { ProductHealthAlert } from "../../screening/components/ProductHealthAlert";
 import { AddToCartDialog } from "../components/AddToCartDialog";
 import { NutritionFacts } from "../components/NutritionFacts";
 import { useProductDetail } from "../hooks/useProductDetail";
@@ -10,10 +13,22 @@ import { useProductDetail } from "../hooks/useProductDetail";
 export function ProductDetailPage() {
   const { product, loading, error } = useProductDetail();
   const { addToCart } = useCart();
+  const { user } = useAuth();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [addedQuantity, setAddedQuantity] = useState(null);
   const [addError, setAddError] = useState("");
   const [pending, setPending] = useState(false);
+  const [screeningResult, setScreeningResult] = useState(null);
+
+  useEffect(() => {
+    if (!user || !product?.id) {
+      setScreeningResult(null);
+      return;
+    }
+    screeningApi.evaluateProduct(product.id)
+      .then(setScreeningResult)
+      .catch(() => {});
+  }, [user, product?.id]);
 
   async function confirmAddToCart(selectedProduct, quantity) {
     setPending(true);
@@ -60,6 +75,7 @@ export function ProductDetailPage() {
           <h2 className="h5">Thành phần nguyên liệu</h2>
           <ul className="mb-4">{product.ingredients.map((ingredient) => <li key={ingredient}>{ingredient}</li>)}</ul>
           <NutritionFacts nutrition={product.nutrition} />
+          <ProductHealthAlert screeningResult={screeningResult} />
           <Button onClick={() => setShowAddDialog(true)} disabled={soldOut}>
             {product.status !== 'AVAILABLE' ? 'Ngừng bán' : soldOut ? "Hết hàng" : "Thêm vào giỏ hàng"}
           </Button>

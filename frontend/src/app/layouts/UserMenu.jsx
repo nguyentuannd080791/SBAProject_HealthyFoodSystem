@@ -12,9 +12,14 @@ export function UserMenu({ menuStyle = false }) {
   const navigate = useNavigate();
 
   async function handleLogout() {
-    await authApi.logout();
-    logout();
-    navigate("/");
+    try {
+      await authApi.logout();
+    } catch {
+      // ignore server logout error
+    } finally {
+      logout();
+      navigate("/");
+    }
   }
 
   if (menuStyle) {

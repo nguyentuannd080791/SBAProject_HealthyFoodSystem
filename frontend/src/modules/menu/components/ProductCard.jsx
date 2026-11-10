@@ -4,8 +4,9 @@ import { Link } from "react-router";
 import { CheckIcon, PlusIcon } from "../../../shared/components/Icons";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { useCart } from "../../cart/hooks/useCart";
+import { HealthWarningBadge } from "../../screening/components/HealthWarningBadge";
 
-export function ProductCard({ product, cartItem, onAdded }) {
+export function ProductCard({ product, cartItem, screeningResult, onAdded }) {
   const { addToCart } = useCart();
   const [pending, setPending] = useState(false);
   const [addError, setAddError] = useState("");
@@ -34,9 +35,12 @@ export function ProductCard({ product, cartItem, onAdded }) {
           : <span className="menu-product-image menu-product-image-empty">Chưa có ảnh</span>}
       </Link>
       <div className="menu-product-content">
-        <div className="menu-product-meta">
-          <span className="menu-product-category">{product.categoryName}</span>
-          <span className="menu-product-calories">🔥 {product.nutrition.calories} kcal</span>
+        <div className="menu-product-meta d-flex align-items-center justify-content-between flex-wrap gap-1">
+          <div className="d-flex align-items-center gap-2">
+            <span className="menu-product-category">{product.categoryName}</span>
+            <span className="menu-product-calories">🔥 {product.nutrition.calories} kcal</span>
+          </div>
+          <HealthWarningBadge screeningResult={screeningResult} />
         </div>
         <h3 className="menu-product-title"><Link to={`/products/${product.id}`}>{product.name}</Link></h3>
         <p className="menu-product-description">{product.description}</p>
