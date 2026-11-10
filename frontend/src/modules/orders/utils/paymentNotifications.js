@@ -18,7 +18,7 @@ export function collectPaymentNotifications(userId, orders, storage) {
     const previous = states[order.id];
     // Ignore stale pending responses that arrive after a successful confirmation.
     if (previous === "paid") continue;
-    if (order.paymentStatus === "paid" && (previous === "pending" || previous === "unpaid")) {
+    if (order.paymentStatus === "paid" && ["pending", "unpaid", "expired"].includes(previous)) {
       notifications.push(order);
     }
     next[order.id] = order.paymentStatus;

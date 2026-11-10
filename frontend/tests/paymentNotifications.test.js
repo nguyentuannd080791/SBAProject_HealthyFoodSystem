@@ -12,6 +12,15 @@ test("historic paid orders do not show a new payment popup", () => {
   assert.deepEqual(collectPaymentNotifications("historic", [order("a", "paid")], storage()), []);
 });
 
+test("an expired payment accepted by a manager is announced exactly once", () => {
+  const saved = storage();
+  collectPaymentNotifications("late-accepted", [order("a", "pending")], saved);
+  collectPaymentNotifications("late-accepted", [order("a", "expired")], saved);
+  assert.equal(collectPaymentNotifications("late-accepted", [order("a", "paid")], saved).length, 1);
+  collectPaymentNotifications("late-accepted", [order("a", "expired")], saved);
+  assert.deepEqual(collectPaymentNotifications("late-accepted", [order("a", "paid")], saved), []);
+});
+
 test("a pending payment confirmed by the server is announced only once", () => {
   const saved = storage();
   collectPaymentNotifications("live", [order("a", "pending")], saved);

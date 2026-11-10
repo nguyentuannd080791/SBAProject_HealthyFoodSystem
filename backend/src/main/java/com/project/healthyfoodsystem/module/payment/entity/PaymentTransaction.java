@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.Nationalized;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,7 +41,22 @@ public class PaymentTransaction {
     private String reconciliationStatus;
 
     private Instant receivedAt;
-    @Column(length = 100) private String bankTransactionDate;
-    @org.hibernate.annotations.Nationalized
-    @Column(length = 4000) private String content;
+
+    @Column(length = 100)
+    private String bankTransactionDate;
+
+    @Nationalized
+    @Column(length = 4000)
+    private String content;
+
+    // Keep reconciliationStatus as the original webhook result for audit purposes.
+    @Column(length = 30)
+    private String resolutionStatus;
+
+    private Integer resolvedBy;
+    private Instant resolvedAt;
+
+    @Nationalized
+    @Column(length = 500)
+    private String resolutionNote;
 }

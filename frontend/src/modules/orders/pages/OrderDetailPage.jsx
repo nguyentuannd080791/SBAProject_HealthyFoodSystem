@@ -47,7 +47,7 @@ export function OrderDetailPage() {
         timer = setTimeout(reload, 10000);
       } else {
         setPayment(null);
-        if (["processing", "preparing", "shipping"].includes(result.data?.status)) {
+        if (result.data?.paymentStatus === "expired" || ["processing", "preparing", "shipping"].includes(result.data?.status)) {
           timer = setTimeout(reload, 10000);
         }
       }
