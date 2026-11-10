@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.Nationalized;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -38,6 +39,7 @@ public class User {
     @EqualsAndHashCode.Include
     private Integer id;
 
+    @Nationalized
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
 

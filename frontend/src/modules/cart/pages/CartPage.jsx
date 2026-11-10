@@ -44,6 +44,7 @@ export function CartPage() {
 
   return (
     <div className="orders-page cart-page">
+      <Button as={Link} to="/menu" variant="outline-success">← Quay lại danh sách sản phẩm</Button>
       <OrderPageHeader eyebrow="BỮA ĂN CỦA BẠN" title="Giỏ hàng"
         description="Một bữa ăn ngon bắt đầu từ những lựa chọn lành mạnh.">
         <span className="order-count-pill">{totalItems} món đã chọn</span>
@@ -61,7 +62,6 @@ export function CartPage() {
           <div className="display-4 mb-3" aria-hidden="true">🛒</div>
           <h2 className="h4">Giỏ hàng đang trống</h2>
           <p className="text-muted">Chọn món ăn yêu thích để bắt đầu bữa ăn của bạn.</p>
-          <Button as={Link} to="/menu">Khám phá thực đơn</Button>
         </Card>
       ) : (
         <Row className="g-4">
@@ -94,8 +94,7 @@ export function CartPage() {
                 ))}</tbody>
               </Table>
             </Card>
-            <div className="d-flex flex-wrap justify-content-between gap-2 mt-3">
-              <Button as={Link} to="/menu" variant="outline-primary">Tiếp tục chọn món</Button>
+            <div className="d-flex flex-wrap justify-content-end gap-2 mt-3">
               <Button variant="outline-danger" onClick={() => setShowClearConfirm(true)}
                 disabled={clearPending || isCartLoading || pendingIds.size > 0}>Làm rỗng giỏ hàng</Button>
             </div>

@@ -1,10 +1,11 @@
 import { Link } from "react-router";
 import { CartIcon } from "../../../shared/components/Icons";
+import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { useCart } from "../hooks/useCart";
 import "./floatingCartLink.css";
 
 export function FloatingCartLink() {
-  const { totalItems } = useCart();
+  const { totalItems, totalPrice } = useCart();
 
   if (totalItems < 1) return null;
 
@@ -16,6 +17,8 @@ export function FloatingCartLink() {
         <span className="floating-cart-count" aria-live="polite">{totalItems}</span>
       </span>
       <span>Giỏ hàng ({totalItems})</span>
+      <span className="floating-cart-divider" aria-hidden="true" />
+      <strong>{formatCurrency(totalPrice)}</strong>
       <span className="floating-cart-arrow" aria-hidden="true">›</span>
     </Link>
   );

@@ -357,6 +357,17 @@ export function PlusIcon({ size = 16, className = "" }) {
   );
 }
 
+export function TagIcon({ size = 18, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+      strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M20.59 13.41 13.41 20.6a2 2 0 0 1-2.82 0L3 13V4a1 1 0 0 1 1-1h9l7.59 7.59a2 2 0 0 1 0 2.82Z" />
+      <circle cx="7.5" cy="7.5" r="1" />
+    </svg>
+  );
+}
+
 export function CheckIcon({ size = 16, className = "" }) {
   return (
     <svg
