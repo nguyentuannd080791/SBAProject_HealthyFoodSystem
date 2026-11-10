@@ -106,6 +106,55 @@ public class InventoryService {
         order.setInventoryReserved(true);
     }
 
+    // A payment-expired order keeps its original reservation snapshot after stock is restored.
+    // Reopening it must reserve those exact quantities, even if a recipe changed meanwhile.
+    public void checkRestoredOrder(CustomerOrder order) {
+        List<OrderIngredientReservation> saved = restoredReservations(order);
+        for (CustomerOrder.Item item : order.getItems()) {
+            Product product = products.findById(item.getId()).orElse(null);
+            if (product == null || !"AVAILABLE".equals(product.getStatus()))
+                throw conflict("Món trong đơn không còn bán (ID " + item.getId() + ").");
+        }
+        for (OrderIngredientReservation reservation : saved) {
+            Ingredient ingredient = reservation.getIngredient();
+            if (!ingredient.isActive() || ingredient.getStockQuantity() == null
+                    || ingredient.getStockQuantity().compareTo(reservation.getReservedQuantity()) < 0)
+                throw conflict("Không đủ nguyên liệu: " + ingredient.getName());
+        }
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public void reserveRestoredOrder(CustomerOrder order, Map<Integer, Product> lockedProducts) {
+        if (Boolean.TRUE.equals(order.getInventoryReserved())) throw conflict("Đơn hàng đã giữ kho.");
+        List<OrderIngredientReservation> saved = restoredReservations(order);
+        for (CustomerOrder.Item item : order.getItems()) {
+            Product product = lockedProducts.get(item.getId());
+            if (product == null || !"AVAILABLE".equals(product.getStatus()))
+                throw conflict("Món trong đơn không còn bán (ID " + item.getId() + ").");
+        }
+        for (OrderIngredientReservation reservation : saved) {
+            Ingredient ingredient = reservation.getIngredient();
+            BigDecimal amount = reservation.getReservedQuantity();
+            if (ingredients.reserve(ingredient.getId(), amount) != 1)
+                throw conflict("Không đủ nguyên liệu: " + ingredient.getName());
+            history(ingredient, order, "ORDER_RESERVE", amount.negate());
+        }
+        order.setInventoryReserved(true);
+    }
+
+    private List<OrderIngredientReservation> restoredReservations(CustomerOrder order) {
+        if (order == null || order.getItems() == null || order.getItems().isEmpty()
+                || order.getItems().stream().anyMatch(item -> item.getId() == null
+                    || item.getQuantity() == null || item.getQuantity() < 1
+                    || !"INGREDIENT".equals(item.getInventorySource())))
+            throw conflict("Đơn cũ cần đối soát tồn kho thủ công trước khi tiếp tục.");
+        List<OrderIngredientReservation> saved = reservations.findByOrder_IdOrderByIngredient_IdAsc(order.getId());
+        if (saved.isEmpty() || saved.stream().anyMatch(row -> row.getReservedQuantity() == null
+                || row.getReservedQuantity().signum() <= 0))
+            throw conflict("Đơn thiếu dữ liệu giữ kho nguyên liệu.");
+        return saved;
+    }
+
     @Transactional(propagation = Propagation.MANDATORY)
     public void restore(CustomerOrder order) {
         if (!Boolean.TRUE.equals(order.getInventoryReserved())) return;

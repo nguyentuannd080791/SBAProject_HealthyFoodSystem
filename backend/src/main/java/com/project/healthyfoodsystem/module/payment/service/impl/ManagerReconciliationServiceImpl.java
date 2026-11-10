@@ -3,6 +3,7 @@ package com.project.healthyfoodsystem.module.payment.service.impl;
 import com.project.healthyfoodsystem.module.auth.entity.User;
 import com.project.healthyfoodsystem.module.auth.repository.UserRepository;
 import com.project.healthyfoodsystem.module.exception.ApiException;
+import com.project.healthyfoodsystem.module.ingredient.service.InventoryService;
 import com.project.healthyfoodsystem.module.order.entity.CustomerOrder;
 import com.project.healthyfoodsystem.module.order.mapper.OrderMapper;
 import com.project.healthyfoodsystem.module.order.repository.OrderRepository;
@@ -15,8 +16,10 @@ import com.project.healthyfoodsystem.module.payment.entity.PaymentTransaction;
 import com.project.healthyfoodsystem.module.payment.repository.PaymentRepository;
 import com.project.healthyfoodsystem.module.payment.repository.PaymentTransactionRepository;
 import com.project.healthyfoodsystem.module.payment.service.ManagerReconciliationService;
+import com.project.healthyfoodsystem.module.product.entity.Product;
 import com.project.healthyfoodsystem.module.product.repository.ProductRepository;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -37,6 +40,7 @@ public class ManagerReconciliationServiceImpl implements ManagerReconciliationSe
     private final PaymentRepository payments;
     private final OrderRepository orders;
     private final ProductRepository products;
+    private final InventoryService inventory;
 
     private User manager(String email) {
         var user = users.findByEmail(email).orElseThrow(() ->
@@ -80,7 +84,7 @@ public class ManagerReconciliationServiceImpl implements ManagerReconciliationSe
                 : payments.findById(receipt.getPaymentId()).orElse(null);
         var order = payment == null ? null : orders.findById(payment.getOrderId()).orElse(null);
         String reason = blockedReason(receipt, payment, order);
-        if (reason == null) reason = inventoryProblem(quantities(order));
+        if (reason == null) reason = inventoryProblem(order);
         return response(receipt, payment, order, reason);
     }
 
@@ -116,14 +120,13 @@ public class ManagerReconciliationServiceImpl implements ManagerReconciliationSe
         String reason = blockedReason(receipt, payment, order);
         if (reason != null) throw new ApiException(HttpStatus.CONFLICT, reason);
 
-        for (var item : quantities(order).entrySet()) {
-            if (products.reserveStock(item.getKey(), item.getValue()) != 1) {
-                // Runtime exception rolls back ALL previous reservations in this transaction.
-                throw new ApiException(HttpStatus.CONFLICT,
-                        "Không đủ hàng hoặc món đã ngừng bán (ID " + item.getKey()
-                                + "). Đơn vẫn hết hạn và giao dịch vẫn chờ xử lý.");
-            }
+        // Lock Products in the same order as checkout, then re-reserve the original Ingredient quantities.
+        Map<Integer, Product> lockedProducts = new HashMap<>();
+        for (Integer productId : quantities(order).keySet()) {
+            lockedProducts.put(productId, products.lockById(productId).orElseThrow(() ->
+                    new ApiException(HttpStatus.CONFLICT, "Món trong đơn không còn tồn tại (ID " + productId + ").")));
         }
+        inventory.reserveRestoredOrder(order, lockedProducts);
         Instant now = Instant.now();
         order.setInventoryReserved(true);
         order.setCancelReason(null);
@@ -180,14 +183,13 @@ public class ManagerReconciliationServiceImpl implements ManagerReconciliationSe
         return result;
     }
 
-    private String inventoryProblem(Map<Integer, Integer> quantities) {
-        for (var item : quantities.entrySet()) {
-            var product = products.findById(item.getKey()).orElse(null);
-            if (product == null || !"AVAILABLE".equals(product.getStatus())
-                    || product.getStockQuantity() == null || product.getStockQuantity() < item.getValue())
-                return "Không đủ hàng hoặc món đã ngừng bán (ID " + item.getKey() + ").";
+    private String inventoryProblem(CustomerOrder order) {
+        try {
+            inventory.checkRestoredOrder(order);
+            return null;
+        } catch (ApiException ex) {
+            return ex.getMessage();
         }
-        return null;
     }
 
     private ReconciliationDetailResponse response(PaymentTransaction receipt, Payment payment,
