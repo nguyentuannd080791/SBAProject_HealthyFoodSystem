@@ -5,32 +5,67 @@ import com.project.healthyfoodsystem.module.admin.dto.request.UpdateUserRequest;
 import com.project.healthyfoodsystem.module.admin.dto.response.AdminStatsResponse;
 import com.project.healthyfoodsystem.module.admin.dto.response.RoleDto;
 import com.project.healthyfoodsystem.module.admin.dto.response.UserAdminResponse;
+import com.project.healthyfoodsystem.module.admin.dto.response.UserDeliveryStatsDto;
+import com.project.healthyfoodsystem.module.admin.dto.response.UserOrderStatsDto;
 import com.project.healthyfoodsystem.module.admin.service.AdminService;
 import com.project.healthyfoodsystem.module.auth.constant.RoleConstants;
 import com.project.healthyfoodsystem.module.auth.entity.Role;
 import com.project.healthyfoodsystem.module.auth.entity.User;
 import com.project.healthyfoodsystem.module.auth.repository.RoleRepository;
 import com.project.healthyfoodsystem.module.auth.repository.UserRepository;
+import com.project.healthyfoodsystem.module.auth.service.RefreshTokenService;
+import com.project.healthyfoodsystem.module.delivery.constant.HandoverStatusConstants;
+import com.project.healthyfoodsystem.module.delivery.entity.DeliveryHandover;
+import com.project.healthyfoodsystem.module.delivery.repository.DeliveryHandoverRepository;
 import com.project.healthyfoodsystem.module.exception.AppException;
+import com.project.healthyfoodsystem.module.order.entity.CustomerOrder;
+import com.project.healthyfoodsystem.module.order.repository.OrderRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Service
 public class AdminServiceImpl implements AdminService {
 
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^0\\d{9}$");
+    private static final Set<String> VALID_STATUSES = Set.of("active", "inactive");
+    private static final Set<String> UNPAID_OR_CANCELLED_STATUSES = Set.of("cancelled", "pending_payment");
+    private static final int RECENT_RECORD_LIMIT = 5;
+    private static final Set<String> INTERNAL_ROLE_NAMES = Set.of(
+            RoleConstants.STAFF,
+            RoleConstants.MANAGER,
+            RoleConstants.ADMINISTRATOR,
+            RoleConstants.DELIVERY_PARTNER
+    );
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenService refreshTokenService;
+    private final OrderRepository orderRepository;
+    private final DeliveryHandoverRepository deliveryHandoverRepository;
 
-    public AdminServiceImpl(UserRepository userRepository, RoleRepository roleRepository, @Lazy PasswordEncoder passwordEncoder) {
+    public AdminServiceImpl(
+            UserRepository userRepository,
+            RoleRepository roleRepository,
+            @Lazy PasswordEncoder passwordEncoder,
+            RefreshTokenService refreshTokenService,
+            OrderRepository orderRepository,
+            DeliveryHandoverRepository deliveryHandoverRepository
+    ) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.refreshTokenService = refreshTokenService;
+        this.orderRepository = orderRepository;
+        this.deliveryHandoverRepository = deliveryHandoverRepository;
     }
 
     // =========================================================================
@@ -51,10 +86,13 @@ public class AdminServiceImpl implements AdminService {
     }
 
     /**
-     * Chuyển đổi vai trò từ Frontend (administrator, staff...) sang quyền chuẩn Database (ADMINISTRATOR, STAFF...)
+     * Chuyển đổi vai trò từ Frontend (administrator, staff...) sang quyền chuẩn Database (ADMINISTRATOR, STAFF...).
+     * Ném lỗi BAD_REQUEST nếu vai trò không nằm trong tập vai trò hệ thống hỗ trợ.
      */
-    private String toRoleName(String frontendRole) {
-        if (frontendRole == null) return RoleConstants.CUSTOMER;
+    private String resolveRoleName(String frontendRole) {
+        if (frontendRole == null || frontendRole.isBlank()) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Vai trò không hợp lệ.");
+        }
         String clean = frontendRole.toLowerCase().trim();
         switch (clean) {
             case "administrator":
@@ -72,9 +110,34 @@ public class AdminServiceImpl implements AdminService {
             case "delivery":
             case "role_delivery_partner":
                 return RoleConstants.DELIVERY_PARTNER;
-            default:
+            case "customer":
+            case "role_customer":
                 return RoleConstants.CUSTOMER;
+            default:
+                throw new AppException(HttpStatus.BAD_REQUEST, "Vai trò không hợp lệ.");
         }
+    }
+
+    private String normalizeAndValidatePhone(String phone) {
+        if (phone == null) {
+            return "";
+        }
+        String trimmed = phone.trim();
+        if (trimmed.isEmpty()) {
+            return "";
+        }
+        if (!PHONE_PATTERN.matcher(trimmed).matches()) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Số điện thoại phải gồm 10 chữ số và bắt đầu bằng 0.");
+        }
+        return trimmed;
+    }
+
+    private String validateAndNormalizeStatus(String status) {
+        String normalized = status.trim().toLowerCase();
+        if (!VALID_STATUSES.contains(normalized)) {
+            throw new AppException(HttpStatus.BAD_REQUEST, "Trạng thái không hợp lệ.");
+        }
+        return normalized;
     }
 
     /**
@@ -89,6 +152,94 @@ public class AdminServiceImpl implements AdminService {
                 .role(toFrontendRole(user.getRole()))
                 .status(user.getStatus() != null ? user.getStatus() : "active")
                 .emailVerified(true)
+                .build();
+    }
+
+    private UserOrderStatsDto buildCustomerOrderStats(Integer customerId) {
+        List<CustomerOrder> orders = orderRepository.findByCustomerIdOrderByCreatedAtDesc(customerId);
+        long completedOrders = 0L;
+        long cancelledOrders = 0L;
+        BigDecimal totalSpent = BigDecimal.ZERO;
+
+        for (CustomerOrder order : orders) {
+            String status = order.getStatus() != null ? order.getStatus().toLowerCase() : "";
+            if ("delivered".equals(status)) {
+                completedOrders++;
+            } else if ("cancelled".equals(status)) {
+                cancelledOrders++;
+            }
+            if (!UNPAID_OR_CANCELLED_STATUSES.contains(status) && order.getTotal() != null) {
+                totalSpent = totalSpent.add(order.getTotal());
+            }
+        }
+
+        long totalOrders = orders.size();
+        long activeOrders = totalOrders - completedOrders - cancelledOrders;
+        Instant lastOrderAt = orders.isEmpty() ? null : orders.get(0).getCreatedAt();
+
+        List<UserOrderStatsDto.RecentOrderSummary> recentOrders = orders.stream()
+                .limit(RECENT_RECORD_LIMIT)
+                .map(order -> UserOrderStatsDto.RecentOrderSummary.builder()
+                        .id(order.getId())
+                        .status(order.getStatus())
+                        .total(order.getTotal() != null ? order.getTotal() : BigDecimal.ZERO)
+                        .totalItems(order.getTotalItems())
+                        .createdAt(order.getCreatedAt())
+                        .build())
+                .toList();
+
+        return UserOrderStatsDto.builder()
+                .totalOrders(totalOrders)
+                .completedOrders(completedOrders)
+                .activeOrders(activeOrders)
+                .cancelledOrders(cancelledOrders)
+                .totalSpent(totalSpent)
+                .lastOrderAt(lastOrderAt)
+                .recentOrders(recentOrders)
+                .build();
+    }
+
+    private UserDeliveryStatsDto buildDeliveryPartnerStats(Integer partnerId) {
+        List<DeliveryHandover> handovers = deliveryHandoverRepository.findByDeliveryPartnerIdOrderByDispatchedAtDesc(partnerId);
+        long waitingConfirm = 0L;
+        long inTransit = 0L;
+        long completedDeliveries = 0L;
+
+        for (DeliveryHandover h : handovers) {
+            String status = h.getHandoverStatus();
+            if (HandoverStatusConstants.DRIVER_ARRIVED.equals(status)) {
+                waitingConfirm++;
+            } else if (HandoverStatusConstants.SHIPPING.equals(status)) {
+                inTransit++;
+            } else if (HandoverStatusConstants.DELIVERED.equals(status)) {
+                completedDeliveries++;
+            }
+        }
+
+        Instant lastDeliveryAt = handovers.stream()
+                .map(h -> h.getDeliveredAt() != null ? h.getDeliveredAt() : h.getArrivedAt())
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+
+        List<UserDeliveryStatsDto.RecentDeliverySummary> recentDeliveries = handovers.stream()
+                .limit(RECENT_RECORD_LIMIT)
+                .map(h -> UserDeliveryStatsDto.RecentDeliverySummary.builder()
+                        .orderId(h.getOrderId())
+                        .handoverCode(h.getHandoverCode())
+                        .handoverStatus(h.getHandoverStatus())
+                        .arrivedAt(h.getArrivedAt())
+                        .deliveredAt(h.getDeliveredAt())
+                        .build())
+                .toList();
+
+        return UserDeliveryStatsDto.builder()
+                .totalDeliveries(handovers.size())
+                .waitingConfirm(waitingConfirm)
+                .inTransit(inTransit)
+                .completedDeliveries(completedDeliveries)
+                .lastDeliveryAt(lastDeliveryAt)
+                .recentDeliveries(recentDeliveries)
                 .build();
     }
 
@@ -142,11 +293,11 @@ public class AdminServiceImpl implements AdminService {
         // Chuẩn hóa bộ lọc vai trò (role)
         String dbRoleFilter = null;
         if (role != null && !role.isBlank()) {
-            dbRoleFilter = toRoleName(role);
+            dbRoleFilter = resolveRoleName(role);
         }
 
         // Chuẩn hóa bộ lọc trạng thái (status)
-        String statusFilter = (status != null && !status.isBlank()) ? status.trim().toLowerCase() : null;
+        String statusFilter = (status != null && !status.isBlank()) ? validateAndNormalizeStatus(status) : null;
 
         // Chuẩn hóa từ khóa tìm kiếm (search)
         String cleanSearch = (search != null && !search.isBlank()) ? search.trim() : null;
@@ -163,13 +314,20 @@ public class AdminServiceImpl implements AdminService {
     }
 
     /**
-     * Xem thông tin chi tiết một tài khoản theo ID
+     * Xem thông tin chi tiết một tài khoản theo ID (kèm thống kê đơn hàng nếu là khách hàng hoặc thống kê giao nhận nếu là tài xế)
      */
     @Override
+    @Transactional(readOnly = true)
     public UserAdminResponse getUserById(Integer id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(HttpStatus.NOT_FOUND, "Không tìm thấy tài khoản."));
-        return toResponse(user);
+        UserAdminResponse response = toResponse(user);
+        if ("customer".equals(response.getRole())) {
+            response.setOrderStats(buildCustomerOrderStats(user.getId()));
+        } else if ("delivery_partner".equals(response.getRole())) {
+            response.setDeliveryStats(buildDeliveryPartnerStats(user.getId()));
+        }
+        return response;
     }
 
     // =========================================================================
@@ -183,30 +341,26 @@ public class AdminServiceImpl implements AdminService {
     @Transactional
     public UserAdminResponse createInternalAccount(CreateInternalAccountRequest request) {
         // 1. Kiểm tra tính hợp lệ của vai trò: Chỉ chấp nhận các vai trò nội bộ
-        String inputRole = request.getRole().trim().toLowerCase();
-        List<String> validInternalRoles = List.of(
-                "staff", "manager", "administrator", "delivery_partner",
-                "role_staff", "role_manager", "role_admin", "role_delivery_partner"
-        );
-        if (!validInternalRoles.contains(inputRole)) {
+        String targetRoleName = resolveRoleName(request.getRole());
+        if (!INTERNAL_ROLE_NAMES.contains(targetRoleName)) {
             throw new AppException(HttpStatus.BAD_REQUEST, "Vai trò không hợp lệ cho tài khoản nội bộ.");
         }
 
-        // 2. Kiểm tra email đã tồn tại hay chưa
+        // 2. Kiểm tra số điện thoại và email đã tồn tại hay chưa
+        String normalizedPhone = normalizeAndValidatePhone(request.getPhone());
         String email = request.getEmail().trim().toLowerCase();
         if (userRepository.existsByEmail(email)) {
             throw new AppException(HttpStatus.CONFLICT, "Email đã được sử dụng.");
         }
 
         // 3. Khởi tạo đối tượng User mới và lưu vào cơ sở dữ liệu
-        String targetRoleName = toRoleName(request.getRole());
         Role role = roleRepository.findByNameIgnoreCase(targetRoleName)
                 .orElseGet(() -> roleRepository.save(Role.builder().name(targetRoleName).build()));
 
         User user = User.builder()
                 .fullName(request.getFullName().trim())
                 .email(email)
-                .phone(request.getPhone() != null ? request.getPhone().trim() : "")
+                .phone(normalizedPhone)
                 .hashPassword(passwordEncoder.encode(request.getPassword()))
                 .role(role)
                 .status("active")
@@ -234,16 +388,19 @@ public class AdminServiceImpl implements AdminService {
         boolean isSelf = currentAdminEmail != null && currentAdminEmail.equalsIgnoreCase(user.getEmail());
 
         // 2. Cập nhật Họ tên và SĐT
-        if (request.getFullName() != null && !request.getFullName().isBlank()) {
+        if (request.getFullName() != null) {
+            if (request.getFullName().isBlank()) {
+                throw new AppException(HttpStatus.BAD_REQUEST, "Họ và tên không được để trống.");
+            }
             user.setFullName(request.getFullName().trim());
         }
         if (request.getPhone() != null) {
-            user.setPhone(request.getPhone().trim());
+            user.setPhone(normalizeAndValidatePhone(request.getPhone()));
         }
 
         // 3. Cập nhật vai trò (Quy tắc an toàn: Chặn tự hạ quyền admin của chính mình)
         if (request.getRole() != null && !request.getRole().isBlank()) {
-            String targetRoleName = toRoleName(request.getRole());
+            String targetRoleName = resolveRoleName(request.getRole());
             if (isSelf && !targetRoleName.equals(RoleConstants.ADMINISTRATOR)) {
                 throw new AppException(HttpStatus.BAD_REQUEST, "Không thể tự thay đổi vai trò quản trị viên của chính bạn.");
             }
@@ -254,11 +411,14 @@ public class AdminServiceImpl implements AdminService {
 
         // 4. Cập nhật trạng thái (Quy tắc an toàn: Chặn tự khóa chính mình)
         if (request.getStatus() != null && !request.getStatus().isBlank()) {
-            String targetStatus = request.getStatus().trim().toLowerCase();
+            String targetStatus = validateAndNormalizeStatus(request.getStatus());
             if (isSelf && targetStatus.equals("inactive")) {
                 throw new AppException(HttpStatus.BAD_REQUEST, "Không thể tự tạm khóa tài khoản của chính bạn.");
             }
             user.setStatus(targetStatus);
+            if ("inactive".equals(targetStatus)) {
+                refreshTokenService.revokeAllUserTokens(user.getEmail());
+            }
         }
 
         User updatedUser = userRepository.save(user);
@@ -287,6 +447,9 @@ public class AdminServiceImpl implements AdminService {
         user.setStatus(nextStatus);
 
         User updatedUser = userRepository.save(user);
+        if ("inactive".equals(nextStatus)) {
+            refreshTokenService.revokeAllUserTokens(user.getEmail());
+        }
         return toResponse(updatedUser);
     }
 

@@ -60,6 +60,7 @@ public class SecurityConfig {
                                 "ROLE_USER", "ROLE_ADMIN"
                         )
                         .requestMatchers("/api/staff/**").hasAuthority("ROLE_STAFF")
+                        .requestMatchers("/api/delivery/**").hasAuthority(RoleConstants.ROLE_PREFIX + RoleConstants.DELIVERY_PARTNER)
                         .requestMatchers("/api/manager/**", "/manager/**").hasAnyAuthority(
                                 RoleConstants.ROLE_PREFIX + RoleConstants.MANAGER,
                                 RoleConstants.ROLE_PREFIX + RoleConstants.ADMINISTRATOR,

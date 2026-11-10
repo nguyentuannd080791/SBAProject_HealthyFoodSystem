@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { formatOrderAddress, formatOrderDate, orderStatuses } from "../../orders/utils/orderFormatting";
 import { managerOrderApi } from "../api/managerOrderApi";
+import { HandoverTrackingBadge } from "../../delivery/components/HandoverTrackingBadge";
 
 export function ManagerOrderDetailPage() {
   const { orderId } = useParams();
@@ -47,6 +48,7 @@ export function ManagerOrderDetailPage() {
             <div className="small">Phương thức: {order.paymentMethod === "sepay" ? "Chuyển khoản SePay" : "Tiền mặt"}</div>
             <div className="small">Mã thanh toán: {order.paymentCode}</div></div>
         </div>
+        <HandoverTrackingBadge orderId={order.id} orderStatus={order.status} />
         <div className="row g-3 mb-4">
           <div className="col-md-6"><h3 className="h6">Khách hàng</h3><p className="mb-1 fw-semibold">{order.customerName}</p>
             <p className="mb-0">Ngày đặt: {formatOrderDate(order.createdAt)}</p></div>

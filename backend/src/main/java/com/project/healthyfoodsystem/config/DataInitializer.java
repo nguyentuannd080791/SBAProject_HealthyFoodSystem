@@ -39,20 +39,20 @@ public class DataInitializer implements CommandLineRunner {
         Role deliveryRole = getOrCreateRole(RoleConstants.DELIVERY_PARTNER, "Đối tác giao hàng");
         Role customerRole = getOrCreateRole(RoleConstants.CUSTOMER, "Khách hàng sử dụng dịch vụ");
 
-        // 2. Tạo hoặc cập nhật thông tin tài khoản mẫu
-        saveOrUpdateUser("admin@healthy.vn", "Quản Trị Viên Mẫu", "123456", adminRole, "0900000004");
-        saveOrUpdateUser("staff@healthy.vn", "Nhân Viên Mẫu", "123456", staffRole, "0900000002");
-        saveOrUpdateUser("manager@healthy.vn", "Quản Lý Mẫu", "123456", managerRole, "0900000003");
-        saveOrUpdateUser("delivery@healthy.vn", "Tài Xế Mẫu", "123456", deliveryRole, "0900000005");
-        saveOrUpdateUser("customer@healthy.vn", "Khách Hàng Mẫu", "Passw123", customerRole, "0900000009");
+        // 2. Tạo tài khoản mẫu nếu chưa tồn tại (chỉ sửa tên khi bị lỗi ký tự ? từ DB cũ, không ghi đè thay đổi của Admin)
+        seedUserIfMissingOrCorrupted("admin@healthy.vn", "Quản Trị Viên Mẫu", "123456", adminRole, "0900000004");
+        seedUserIfMissingOrCorrupted("staff@healthy.vn", "Nhân Viên Mẫu", "123456", staffRole, "0900000002");
+        seedUserIfMissingOrCorrupted("manager@healthy.vn", "Quản Lý Mẫu", "123456", managerRole, "0900000003");
+        seedUserIfMissingOrCorrupted("delivery@healthy.vn", "Tài Xế Mẫu", "123456", deliveryRole, "0900000005");
+        seedUserIfMissingOrCorrupted("customer@healthy.vn", "Khách Hàng Mẫu", "Passw123", customerRole, "0900000009");
 
-        // 3. Cập nhật trực tiếp qua câu lệnh SQL với tiền tố N'...' để sửa triệt để các bản ghi bị dấu ? trong database cũ
+        // 3. Sửa các bản ghi mẫu bị lỗi dấu ? trong database cũ bằng tiền tố N'...' mà không ghi đè dữ liệu đã chỉnh sửa
         try {
-            jdbcTemplate.update("UPDATE [users] SET full_name = N'Quản Trị Viên Mẫu' WHERE email = 'admin@healthy.vn'");
-            jdbcTemplate.update("UPDATE [users] SET full_name = N'Nhân Viên Mẫu' WHERE email = 'staff@healthy.vn'");
-            jdbcTemplate.update("UPDATE [users] SET full_name = N'Quản Lý Mẫu' WHERE email = 'manager@healthy.vn'");
-            jdbcTemplate.update("UPDATE [users] SET full_name = N'Tài Xế Mẫu' WHERE email = 'delivery@healthy.vn'");
-            jdbcTemplate.update("UPDATE [users] SET full_name = N'Khách Hàng Mẫu' WHERE email = 'customer@healthy.vn'");
+            jdbcTemplate.update("UPDATE [users] SET full_name = N'Quản Trị Viên Mẫu' WHERE email = 'admin@healthy.vn' AND full_name LIKE '%?%'");
+            jdbcTemplate.update("UPDATE [users] SET full_name = N'Nhân Viên Mẫu' WHERE email = 'staff@healthy.vn' AND full_name LIKE '%?%'");
+            jdbcTemplate.update("UPDATE [users] SET full_name = N'Quản Lý Mẫu' WHERE email = 'manager@healthy.vn' AND full_name LIKE '%?%'");
+            jdbcTemplate.update("UPDATE [users] SET full_name = N'Tài Xế Mẫu' WHERE email = 'delivery@healthy.vn' AND full_name LIKE '%?%'");
+            jdbcTemplate.update("UPDATE [users] SET full_name = N'Khách Hàng Mẫu' WHERE email = 'customer@healthy.vn' AND full_name LIKE '%?%'");
         } catch (Exception e) {
             log.warn("Không thể cập nhật trực tiếp qua SQL: {}", e.getMessage());
         }
@@ -60,19 +60,23 @@ public class DataInitializer implements CommandLineRunner {
         log.info("✅ Dữ liệu mẫu tiếng Việt đã sẵn sàng! Đăng nhập Admin: admin@healthy.vn / 123456");
     }
 
-    private void saveOrUpdateUser(String email, String fullName, String rawPassword, Role role, String phone) {
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            user = User.builder()
+    private void seedUserIfMissingOrCorrupted(String email, String fullName, String rawPassword, Role role, String phone) {
+        User existing = userRepository.findByEmail(email).orElse(null);
+        if (existing == null) {
+            userRepository.save(User.builder()
                     .email(email)
+                    .fullName(fullName)
                     .hashPassword(passwordEncoder.encode(rawPassword))
+                    .role(role)
+                    .phone(phone)
                     .status("active")
-                    .build();
+                    .build());
+            return;
         }
-        user.setFullName(fullName);
-        user.setRole(role);
-        user.setPhone(phone);
-        userRepository.save(user);
+        if (existing.getFullName() == null || existing.getFullName().contains("?")) {
+            existing.setFullName(fullName);
+            userRepository.save(existing);
+        }
     }
 
     private Role getOrCreateRole(String roleName, String description) {

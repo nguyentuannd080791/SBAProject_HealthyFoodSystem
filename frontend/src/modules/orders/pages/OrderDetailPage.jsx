@@ -9,6 +9,7 @@ import { canCancelOrder, formatOrderAddress, formatOrderDate, orderStatuses } fr
 import "../styles/orders.css";
 
 import { PaymentCountdown } from "../components/PaymentCountdown";
+import { HandoverTrackingBadge } from "../../delivery/components/HandoverTrackingBadge";
 
 const stages = ["processing", "preparing", "shipping", "delivered"];
 
@@ -116,6 +117,7 @@ export function OrderDetailPage() {
         </div>)}</div>
       </Card>}
 
+      {order.status !== "cancelled" && <HandoverTrackingBadge orderId={order.id} orderStatus={order.status} />}
       <div className="row g-3 align-items-start">
         <div className="col-lg-7"><Card body className="mb-3"><div className="d-flex justify-content-between align-items-center mb-3">
           <h2 className="h5 mb-0">Món đã đặt</h2></div>

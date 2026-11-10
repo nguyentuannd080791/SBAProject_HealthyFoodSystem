@@ -40,6 +40,7 @@ export function UserMenu({ menuStyle = false }) {
               <Dropdown.Item as={Link} to="/change-password"><LockIcon size={19} /> Đổi mật khẩu</Dropdown.Item>
               {role === "manager" && <Dropdown.Item as={Link} to="/manager">Quản lý cửa hàng</Dropdown.Item>}
               {role === "staff" && <Dropdown.Item as={Link} to="/staff">Xử lý đơn hàng</Dropdown.Item>}
+              {role === "delivery_partner" && <Dropdown.Item as={Link} to="/delivery">Đơn giao hàng</Dropdown.Item>}
               {role === "administrator" && <Dropdown.Item as={Link} to="/admin">Quản trị</Dropdown.Item>}
               <Dropdown.Divider />
               <Dropdown.Item as="button" onClick={handleLogout}><LogOutIcon size={19} /> Đăng xuất</Dropdown.Item>
@@ -66,6 +67,7 @@ export function UserMenu({ menuStyle = false }) {
       <span>{user.fullName}</span>
       {role === "manager" && <Link to="/manager">Quản lý cửa hàng</Link>}
       {role === "staff" && <Link to="/staff">Xử lý đơn hàng</Link>}
+      {role === "delivery_partner" && <Link to="/delivery">Đơn giao hàng</Link>}
       {role === "customer" && <><Link to="/orders">Đơn hàng</Link><Link to="/profile">Hồ sơ</Link></>}
       {role === "administrator" && <Link to="/admin">Quản trị</Link>}
       <Link to="/change-password">Đổi mật khẩu</Link>

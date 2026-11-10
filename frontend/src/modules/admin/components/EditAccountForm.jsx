@@ -6,6 +6,7 @@ import { validateEditAccountValues } from "../utils/validators";
 
 export function EditAccountForm({
   user,
+  isSelf = false,
   onSubmit,
   onCancel,
   submitError,
@@ -67,6 +68,7 @@ export function EditAccountForm({
               onChange={form.handleChange}
               onBlur={form.handleBlur}
               isInvalid={Boolean(form.errors.role)}
+              disabled={isSelf}
             >
               {ROLES.map((r) => (
                 <option key={r.value} value={r.value}>
@@ -74,6 +76,11 @@ export function EditAccountForm({
                 </option>
               ))}
             </Form.Select>
+            {isSelf && (
+              <Form.Text className="text-muted">
+                Không thể tự thay đổi vai trò của chính bạn.
+              </Form.Text>
+            )}
             {form.errors.role && (
               <Form.Control.Feedback type="invalid">
                 {form.errors.role}
@@ -88,10 +95,16 @@ export function EditAccountForm({
               name="status"
               value={form.values.status}
               onChange={form.handleChange}
+              disabled={isSelf}
             >
               <option value="active">Hoạt động</option>
               <option value="inactive">Tạm khóa</option>
             </Form.Select>
+            {isSelf && (
+              <Form.Text className="text-muted">
+                Không thể tự tạm khóa tài khoản của chính bạn.
+              </Form.Text>
+            )}
           </Form.Group>
         </Col>
       </Row>

@@ -5,6 +5,7 @@ import { FloatingCartLink } from "../../modules/cart/components/FloatingCartLink
 import { UserMenu } from "./UserMenu";
 import { NotificationProvider } from "../../shared/notifications/NotificationProvider";
 import { PaymentNotificationWatcher } from "../../modules/orders/components/PaymentNotificationWatcher";
+import { StaffHandoverNotificationWatcher } from "../../modules/staff/components/StaffHandoverNotificationWatcher";
 import { useAuth } from "../provider/useAuth";
 
 import "../../modules/menu/styles/menu.css";
@@ -13,12 +14,13 @@ export function MainLayout() {
   const { user } = useAuth();
   const pathname = useLocation().pathname;
   const isMenuPage = pathname === "/menu";
-  const isCustomerPage = !/^\/(manager|staff|admin)(\/|$)/.test(pathname);
+  const isCustomerPage = !/^\/(manager|staff|admin|delivery)(\/|$)/.test(pathname);
   const showFloatingCart = pathname === "/" || isMenuPage || pathname.startsWith("/products/");
 
   return (
     <NotificationProvider key={user?.id ?? "guest"}>
       <PaymentNotificationWatcher />
+      <StaffHandoverNotificationWatcher />
     <div className={isCustomerPage ? "menu-layout" : undefined}>
       <Navbar expand="lg" className={isCustomerPage ? "menu-navbar" : "border-bottom bg-white"}>
         <Container fluid={isCustomerPage} className={isCustomerPage ? "menu-shell menu-navbar-inner" : undefined}>

@@ -31,4 +31,8 @@ export const adminApi = {
   toggleStatus(id) {
     return callApi(() => httpClient.patch(`/admin/users/${id}/toggle-status`))
   },
+
+  getRoles() {
+    return callApi(() => httpClient.get('/admin/roles'))
+  },
 }

@@ -3,6 +3,7 @@ const roleHomePaths = {
   staff: "/staff",
   manager: "/manager",
   administrator: "/admin",
+  delivery_partner: "/delivery",
 };
 
 export function getHomePath(role) {

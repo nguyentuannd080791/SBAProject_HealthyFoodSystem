@@ -17,4 +17,6 @@ public class UserAdminResponse {
     private String role;
     private String status;
     private Boolean emailVerified;
+    private UserOrderStatsDto orderStats;
+    private UserDeliveryStatsDto deliveryStats;
 }
