@@ -18,9 +18,9 @@ public interface ManagerOrderRepository extends JpaRepository<Payment, String> {
             where (:method = '' or p.method = :method)
               and (:status = '' or o.status = :status)
               and (:paymentStatus = '' or p.status = :paymentStatus)
-              and (:search = '' or locate(lower(:search), lower(o.customerName)) > 0
-                   or locate(lower(:search), lower(concat('HF-', o.id))) > 0
-                   or locate(lower(:search), lower(p.paymentCode)) > 0)
+              and (:search = '' or lower(o.customerName) like concat('%', lower(:search), '%')
+                   or lower(concat('HF-', o.id)) like concat('%', lower(:search), '%')
+                   or lower(p.paymentCode) like concat('%', lower(:search), '%'))
               and (:fromDate is null or o.createdAt >= :fromDate)
               and (:toDate is null or o.createdAt < :toDate)
             order by o.createdAt desc, o.id desc

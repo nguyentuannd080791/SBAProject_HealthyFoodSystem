@@ -27,9 +27,9 @@ public interface PaymentTransactionRepository extends JpaRepository<PaymentTrans
                and (t.resolutionStatus is null or t.resolutionStatus = 'PENDING'))
            or (:filter = 'ACCEPTED_FOR_ORDER' and t.resolutionStatus = 'ACCEPTED_FOR_ORDER'))
           and (:status = '' or t.reconciliationStatus = :status)
-          and (:search = '' or locate(lower(:search), lower(coalesce(t.code, ''))) > 0
-               or locate(lower(:search), lower(coalesce(t.content, ''))) > 0
-               or locate(:search, coalesce(t.accountNumber, '')) > 0
+          and (:search = '' or lower(coalesce(t.code, '')) like concat('%', lower(:search), '%')
+               or lower(coalesce(t.content, '')) like concat('%', lower(:search), '%')
+               or coalesce(t.accountNumber, '') like concat('%', :search, '%')
                or cast(t.id as string) = :search)
           and (:fromDate is null or t.receivedAt >= :fromDate)
           and (:toDate is null or t.receivedAt < :toDate)

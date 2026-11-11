@@ -250,7 +250,11 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
     reconciliation_status VARCHAR(30),
     received_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     bank_transaction_date VARCHAR(100),
-    content VARCHAR(4000)
+    content VARCHAR(4000),
+    resolution_status VARCHAR(30),
+    resolved_by INT,
+    resolved_at TIMESTAMPTZ,
+    resolution_note VARCHAR(500)
 );
 
 -- 21. MEDICAL CONDITIONS (CLINICAL SCREENING)
