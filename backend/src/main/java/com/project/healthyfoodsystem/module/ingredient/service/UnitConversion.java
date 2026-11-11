@@ -20,7 +20,9 @@ public final class UnitConversion {
         if (source.equals(target)) converted = quantity;
         else if (source.equals("kg") && target.equals("g")) converted = quantity.multiply(THOUSAND);
         else if (source.equals("g") && target.equals("kg")) converted = quantity.divide(THOUSAND);
-        else throw new IllegalArgumentException("Chỉ hỗ trợ quy đổi giữa kg và g của cùng nguyên liệu.");
+        else if (source.equals("l") && target.equals("ml")) converted = quantity.multiply(THOUSAND);
+        else if (source.equals("ml") && target.equals("l")) converted = quantity.divide(THOUSAND);
+        else throw new IllegalArgumentException("Chỉ hỗ trợ quy đổi giữa kg/g hoặc l/ml của cùng nguyên liệu.");
         try {
             converted = converted.setScale(3, RoundingMode.UNNECESSARY);
         } catch (ArithmeticException ex) {

@@ -20,6 +20,16 @@
 .manager-image-empty { display: flex; align-items: center; justify-content: center; background: #eef7eb; color: #52714a; text-align: center; padding: 10px; }
 .manager-products-picker { max-height: 240px; overflow-y: auto; border: 1px solid #dbe7d6; border-radius: 10px; padding: 12px; }
 .manager-stat { font-size: 1.8rem; font-weight: 700; color: #15803d; }
+.manager-summary-button { width: 100%; min-height: 110px; border: 0; border-radius: inherit; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.manager-summary-button:disabled { cursor: default; }
+.manager-summary-button:hover:not(:disabled) { background: #f4faf5; }
+.manager-summary-button:focus-visible { outline: 3px solid #15804a; outline-offset: 2px; }
+.manager-area .manager-summary-card.is-active { border-color: #15804a; background: #edf8f0; box-shadow: 0 0 0 1px #15804a; }
+.manager-pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+.manager-pagination .page-link { color: #147849; border-color: #d7e5da; }
+.manager-pagination .page-link:hover { color: #0e653b; background: #edf7ef; }
+.manager-pagination .active > .page-link { color: #fff; background: #15804a; border-color: #15804a; }
+.manager-pagination .page-link:focus-visible { box-shadow: 0 0 0 3px #168c4440; }
 .manager-area td { padding-top: 16px; padding-bottom: 16px; }
 .manager-area .table { min-width: 720px; }
 .manager-breadcrumb { display: flex; align-items: center; gap: 12px; margin: 0 4px 17px; color: #657384; font-size: .88rem; }
@@ -61,6 +71,13 @@
 .manager-recipe-line .form-control, .manager-recipe-line .form-select { min-height: 34px; padding: 5px 10px; font-size: .82rem; }
 .manager-recipe-line .btn { display: inline-flex; align-items: center; gap: 4px; min-height: 34px; padding: 5px 9px; white-space: nowrap; }
 .manager-recipe-line .small { font-size: .75rem; }
+.manager-ingredient-search { flex: 1; min-width: 0; }
+.manager-ingredient-search .form-control { width: 100%; }
+.manager-ingredient-suggestions { max-height: 190px; margin-top: 4px; overflow-y: auto; border: 1px solid #c8d9d0; border-radius: 8px; background: #fff; box-shadow: 0 5px 14px #183d2b16; }
+.manager-ingredient-option { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 8px 10px; border: 0; background: #fff; color: #19362a; text-align: left; font-size: .82rem; }
+.manager-ingredient-option:hover, .manager-ingredient-option[data-active="true"] { background: #e8f6eb; }
+.manager-ingredient-option small { flex: none; color: #647a6a; }
+.manager-ingredient-no-results { padding: 9px 10px; color: #66786d; font-size: .82rem; }
 .manager-product-recipe .alert { padding: 10px 12px; border-radius: 8px; font-size: .86rem; }
 .manager-product-recipe .alert-warning { border-color: #f8c841; background: #fff2c6; color: #614100; }
 .manager-product-actions { display: flex; justify-content: flex-end; gap: 14px; margin-top: 22px; }

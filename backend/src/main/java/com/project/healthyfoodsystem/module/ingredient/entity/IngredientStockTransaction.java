@@ -27,6 +27,8 @@ public class IngredientStockTransaction {
     private BigDecimal quantityChange;
     @Nationalized @Column(length = 500)
     private String note;
+    @Column(name = "performed_by", length = 150)
+    private String performedBy;
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt = OffsetDateTime.now();
 }

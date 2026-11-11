@@ -5,6 +5,7 @@ import { LeafIcon, PencilIcon, PlusIcon } from '../../../shared/components/Icons
 import { ingredientApi } from '../api/ingredientApi';
 import { productApi } from '../../product/api/productApi';
 import { validateIngredient } from '../validators/ingredientValidation';
+import { ingredientUnits } from '../utils/unitConversion';
 
 const empty = { name: '', unit: '', stockQuantity: '', warningQuantity: '', note: '' };
 
@@ -51,8 +52,8 @@ export function IngredientEditorPage() {
     const unit = values.unit.trim();
     setBusy(true);
     setError('');
-    const request = { name, unit, stockQuantity: values.stockQuantity,
-      warningQuantity: values.warningQuantity, note: values.note || '' };
+    const request = { name, unit, warningQuantity: values.warningQuantity, note: values.note || '' };
+    if (!ingredientId) request.stockQuantity = values.stockQuantity;
     const result = ingredientId
       ? await ingredientApi.update(ingredientId, request)
       : await ingredientApi.create(request);
@@ -97,13 +98,14 @@ export function IngredientEditorPage() {
               <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Đơn vị *</Form.Label>
-                  <Form.Control name="unit" required maxLength={20} list="ingredient-units"
-                    placeholder="Ví dụ: g, ml, con, bó..." value={values.unit} onChange={change}
-                    isInvalid={Boolean(errorFor('unit'))} />
+                  <Form.Select name="unit" required value={values.unit} onChange={change}
+                    isInvalid={Boolean(errorFor('unit'))}>
+                    <option value="">Chọn đơn vị</option>
+                    {ingredientId && values.unit && !ingredientUnits.includes(values.unit) &&
+                      <option value={values.unit}>{values.unit} (đơn vị hiện tại)</option>}
+                    {ingredientUnits.map(unit => <option key={unit} value={unit}>{unit}</option>)}
+                  </Form.Select>
                   <Form.Control.Feedback type="invalid">{errorFor('unit')}</Form.Control.Feedback>
-                  <datalist id="ingredient-units">
-                    {['g', 'kg', 'ml', 'l', 'con', 'chiếc', 'bó', 'gói', 'hộp'].map(unit => <option key={unit} value={unit} />)}
-                  </datalist>
                 </Form.Group>
               </Col>
               <Col md={6}>
@@ -116,13 +118,15 @@ export function IngredientEditorPage() {
                 </Form.Group>
               </Col>
             </Row>
-            <Form.Group className="mb-3">
-              <Form.Label>Tồn kho {ingredientId ? 'hiện tại' : 'ban đầu'} *</Form.Label>
+            {ingredientId ? <p className="text-secondary mb-3">
+              Tồn kho hiện tại: <strong>{original?.stockQuantity} {original?.unit}</strong>
+            </p> : <Form.Group className="mb-3">
+              <Form.Label>Tồn kho ban đầu *</Form.Label>
               <Form.Control name="stockQuantity" type="number" min="0" step="0.001" required
                 value={values.stockQuantity} onChange={change}
                 isInvalid={Boolean(errorFor('stockQuantity'))} />
               <Form.Control.Feedback type="invalid">{errorFor('stockQuantity')}</Form.Control.Feedback>
-            </Form.Group>
+            </Form.Group>}
             <Form.Group className="mb-4">
               <Form.Label>Ghi chú</Form.Label>
               <Form.Control name="note" as="textarea" rows={3} maxLength={500}

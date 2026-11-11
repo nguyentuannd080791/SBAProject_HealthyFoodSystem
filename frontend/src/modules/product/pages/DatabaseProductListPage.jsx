@@ -9,6 +9,9 @@ import { formatCurrency as money } from '../../../shared/utils/formatCurrency';
 import { bestActivePromotion } from '../../promotion/utils/promotionPricing';
 import { RotateCcwIcon } from '../../../shared/components/Icons';
 import { httpClient } from '../../../shared/api/httpClient';
+import { ManagerSummaryStats } from '../../manager/components/ManagerSummaryStats';
+import { ManagerPagination } from '../../manager/components/ManagerPagination';
+import { useManagerPagination } from '../../manager/hooks/useManagerPagination';
 
 function imageSource(path) {
   if (!path) return '';
@@ -21,25 +24,25 @@ export function DatabaseProductListPage() {
   const [promotions, setPromotions] = useState([]);
   const [now, setNow] = useState(Date.now);
   const [loading, setLoading] = useState(true);
+  const [statsReady, setStatsReady] = useState(false);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const location = useLocation();
   const [categoryId, setCategoryId] = useState(() => new URLSearchParams(location.search).get('categoryId') || '');
   const [promotionFilter, setPromotionFilter] = useState('');
+  const [summaryFilter, setSummaryFilter] = useState('');
   const navigate = useNavigate();
   const [notice, setNotice] = useState(location.state?.notice || '');
   useEffect(() => {
     if (location.state?.notice) navigate(location.pathname, { replace: true, state: null });
   }, [location.state, location.pathname, navigate]);
   useEffect(() => {
-    setCategoryId(new URLSearchParams(location.search).get('categoryId') || '');
-  }, [location.search]);
-  useEffect(() => {
     let active = true;
     Promise.all([productApi.list(), categoryApi.listAllForManager(), promotionApi.list()]).then(([list, categoryList, promotionList]) => {
       if (!active) return;
       setError(list.error || categoryList.error || promotionList.error || '');
       setProducts(list.data || []);
+      setStatsReady(Array.isArray(list.data));
       setCategories(categoryList.data || []);
       setPromotions(promotionList.data || []);
       setLoading(false);
@@ -51,25 +54,46 @@ export function DatabaseProductListPage() {
     .map(product => ({ product, pricing: bestActivePromotion(product, promotions, now) }))
     .filter(({ product, pricing }) => product.name.toLocaleLowerCase('vi').includes(search.trim().toLocaleLowerCase('vi'))
       && (!categoryId || String(product.categoryId) === categoryId)
-      && (!promotionFilter || (promotionFilter === 'active' ? !!pricing : !pricing)));
+      && (!promotionFilter || (promotionFilter === 'active' ? !!pricing : !pricing))
+      && (!summaryFilter || (summaryFilter === 'available'
+        ? product.status === 'AVAILABLE'
+        : product.recipeConfigured && product.inventoryStatus === 'OUT_OF_STOCK')));
+  const { items: pageItems, page, totalPages, start, end, total, setPage, resetPage } = useManagerPagination(filtered);
+  useEffect(() => {
+    setCategoryId(new URLSearchParams(location.search).get('categoryId') || '');
+    resetPage();
+  }, [location.search, resetPage]);
+  function selectSummary(value) {
+    setSummaryFilter(value);
+    setSearch('');
+    setCategoryId('');
+    setPromotionFilter('');
+    resetPage();
+    if (location.search) navigate(location.pathname, { replace: true });
+  }
   return <>
     <div className="d-flex justify-content-between align-items-center mb-4"><h2 className="h4 mb-0">Danh sách sản phẩm</h2>
       <Button as={Link} to="/manager/products/new">+ Thêm sản phẩm</Button></div>
+    <ManagerSummaryStats ready={statsReady} selected={summaryFilter || (search || categoryId || promotionFilter ? null : '')} onSelect={selectSummary} stats={[
+      ['Tổng sản phẩm', products.length, ''],
+      ['Đang bán', products.filter(item => item.status === 'AVAILABLE').length, 'available'],
+      ['Hết hàng', products.filter(item => item.recipeConfigured && item.inventoryStatus === 'OUT_OF_STOCK').length, 'out_of_stock'],
+    ]} />
     {notice && <Alert variant="success" dismissible onClose={() => setNotice('')}>{notice}</Alert>}
     {error && <Alert variant="danger">{error}</Alert>}
     <Card body><div className="d-flex gap-3 mb-4 flex-wrap align-items-center">
-      <Form.Control style={{ maxWidth: 360 }} placeholder="Tìm tên sản phẩm..." aria-label="Tìm tên sản phẩm" value={search} onChange={event => setSearch(event.target.value)} />
-      <Form.Select style={{ maxWidth: 260 }} aria-label="Lọc danh mục" value={categoryId} onChange={event => setCategoryId(event.target.value)}>
+      <Form.Control style={{ maxWidth: 360 }} placeholder="Tìm tên sản phẩm..." aria-label="Tìm tên sản phẩm" value={search} onChange={event => { setSearch(event.target.value); resetPage(); }} />
+      <Form.Select style={{ maxWidth: 260 }} aria-label="Lọc danh mục" value={categoryId} onChange={event => { setCategoryId(event.target.value); resetPage(); }}>
         <option value="">Tất cả danh mục</option>{categories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
       </Form.Select>
-      <Form.Select style={{ maxWidth: 260 }} aria-label="Lọc khuyến mại" value={promotionFilter} onChange={event => setPromotionFilter(event.target.value)}>
+      <Form.Select style={{ maxWidth: 260 }} aria-label="Lọc khuyến mại" value={promotionFilter} onChange={event => { setPromotionFilter(event.target.value); resetPage(); }}>
         <option value="">Tất cả sản phẩm</option>
         <option value="active">Đang khuyến mại</option>
         <option value="inactive">Không khuyến mại</option>
       </Form.Select>
-      {(search || categoryId || promotionFilter) && (
+      {(search || categoryId || promotionFilter || summaryFilter) && (
         <Button variant="outline-secondary" size="sm" aria-label="Xóa bộ lọc" title="Xóa bộ lọc"
-          onClick={() => { setSearch(''); setCategoryId(''); setPromotionFilter(''); }}>
+          onClick={() => selectSummary('')}>
           <RotateCcwIcon size={16} />
         </Button>
       )}</div>
@@ -77,7 +101,7 @@ export function DatabaseProductListPage() {
         <p className="text-muted text-center py-4 mb-0">{products.length ? "Không tìm thấy sản phẩm phù hợp." : "Chưa có sản phẩm nào. Hãy thêm sản phẩm đầu tiên."}</p>
       ) : <Table responsive hover className="align-middle mb-0" style={{ minWidth: 1100 }}><thead><tr>
         <th>Sản phẩm</th><th>Danh mục</th><th>Giá gốc</th><th>Giá sau giảm</th><th>Khuyến mại</th><th>Combo</th><th>Trạng thái kho</th><th>Trạng thái bán</th><th>Thao tác</th>
-      </tr></thead><tbody>{filtered.map(({ product, pricing }) => <tr key={product.id}>
+      </tr></thead><tbody>{pageItems.map(({ product, pricing }) => <tr key={product.id}>
         <td><div className="d-flex align-items-center gap-3"><ProductImage src={imageSource(product.imageUrl)} name={product.name} /><strong>{product.name}</strong></div></td>
         <td>{categories.find(item => item.id === product.categoryId)?.name || `#${product.categoryId}`}</td>
         <td>{money(product.price)}</td>
@@ -88,6 +112,7 @@ export function DatabaseProductListPage() {
         <td>{product.status === 'AVAILABLE' ? 'Đang bán' : product.status === 'UNAVAILABLE' ? 'Ngừng bán' : product.status}</td>
         <td><Button as={Link} to={`/manager/products/${product.id}/edit`} size="sm" variant="outline-primary">Sửa</Button></td>
       </tr>)}</tbody></Table>}
+      {!loading && !error && <ManagerPagination page={page} totalPages={totalPages} start={start} end={end} total={total} onPageChange={setPage} />}
     </Card>
   </>;
 }

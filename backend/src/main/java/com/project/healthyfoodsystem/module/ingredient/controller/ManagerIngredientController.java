@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -22,18 +23,19 @@ public class ManagerIngredientController {
     public IngredientResponse get(@PathVariable Integer id) { return service.get(id); }
 
     @PostMapping
-    public ResponseEntity<IngredientResponse> create(@Valid @RequestBody IngredientRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
+    public ResponseEntity<IngredientResponse> create(@Valid @RequestBody IngredientRequest request, Principal principal) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request, principal.getName()));
     }
 
     @PutMapping("/{id}")
-    public IngredientResponse update(@PathVariable Integer id, @Valid @RequestBody IngredientRequest request) {
+    public IngredientResponse update(@PathVariable Integer id, @Valid @RequestBody UpdateIngredientRequest request) {
         return service.update(id, request);
     }
 
-    @PostMapping("/{id}/stock")
-    public IngredientResponse changeStock(@PathVariable Integer id, @Valid @RequestBody StockChangeRequest request) {
-        return service.changeStock(id, request);
+    @PostMapping("/{id}/stock-in")
+    public IngredientResponse stockIn(@PathVariable Integer id, @Valid @RequestBody StockInRequest request,
+                                      Principal principal) {
+        return service.stockIn(id, request, principal.getName());
     }
 
     @GetMapping("/{id}/transactions")

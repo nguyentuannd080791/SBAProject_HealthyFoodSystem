@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateCategoryName } from '../category/validators/categoryValidation.js';
-import { validateIngredient, validateStockChange } from '../ingredient/validators/ingredientValidation.js';
+import { validateIngredient, validateStockIn } from '../ingredient/validators/ingredientValidation.js';
 import { validateProduct } from '../product/validators/productValidation.js';
 import { validatePromotion } from '../promotion/validators/promotionValidation.js';
 
@@ -12,15 +12,16 @@ test('category and ingredient names detect existing records before save', () => 
   assert.match(validateIngredient(values, [{ id: 2, name: 'Gà' }]).name, /đã tồn tại/);
   assert.equal(validateIngredient(values, [{ id: 2, name: 'Gà' }], 2).name, undefined);
   assert.ok(validateIngredient({ ...values, stockQuantity: '1.1234' }).stockQuantity);
+  assert.ok(validateIngredient({ ...values, unit: 'chai' }).unit);
   assert.ok(validateIngredient({ ...values, unit: 'kg' }, [], 2,
     { unit: 'con', stockQuantity: '10' }).unit);
 });
 
-test('stock changes reject overselling and unchanged adjustments', () => {
+test('stock in only accepts positive quantities with supported precision', () => {
   const ingredient = { unit: 'con', stockQuantity: 5 };
-  assert.ok(validateStockChange({ type: 'OUT', quantity: '6', unit: 'con' }, ingredient).quantity);
-  assert.ok(validateStockChange({ type: 'ADJUSTMENT', quantity: '5', unit: 'con' }, ingredient).quantity);
-  assert.deepEqual(validateStockChange({ type: 'IN', quantity: '2', unit: 'con' }, ingredient), {});
+  assert.ok(validateStockIn({ quantity: '0', unit: 'con' }, ingredient).quantity);
+  assert.ok(validateStockIn({ quantity: '1.0001', unit: 'con' }, ingredient).quantity);
+  assert.deepEqual(validateStockIn({ quantity: '2', unit: 'con' }, ingredient), {});
 });
 
 test('product checks recipe quantity and duplicate name on the client', () => {

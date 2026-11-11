@@ -10,6 +10,6 @@ export const ingredientApi = {
   get: id => call(() => httpClient.get(`/api/manager/ingredients/${id}`)),
   create: values => call(() => httpClient.post('/api/manager/ingredients', values)),
   update: (id, values) => call(() => httpClient.put(`/api/manager/ingredients/${id}`, values)),
-  changeStock: (id, values) => call(() => httpClient.post(`/api/manager/ingredients/${id}/stock`, values)),
+  stockIn: (id, values) => call(() => httpClient.post(`/api/manager/ingredients/${id}/stock-in`, values)),
   history: id => call(() => httpClient.get(`/api/manager/ingredients/${id}/transactions`)),
 };
