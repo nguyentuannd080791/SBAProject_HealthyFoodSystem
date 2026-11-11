@@ -16,7 +16,11 @@ export function HealthWarningBadge({ screeningResult }) {
     );
   }
 
-  const { hasAllergy, hasForbiddenIngredients, exceedsNutrientLimits, warningSummary } = screeningResult;
+  const { hasAllergy, hasForbiddenIngredients, exceedsNutrientLimits, warningSummary, violations = [] } = screeningResult;
+
+  if (!hasAllergy && !hasForbiddenIngredients && !exceedsNutrientLimits && violations.length === 0) {
+    return null;
+  }
 
   if (hasAllergy && (hasForbiddenIngredients || exceedsNutrientLimits)) {
     return (
@@ -42,13 +46,17 @@ export function HealthWarningBadge({ screeningResult }) {
     );
   }
 
-  return (
-    <Badge
-      bg="warning-subtle"
-      className="text-warning-emphasis border border-warning-subtle px-2 py-1 small fw-semibold"
-      title={warningSummary || "Món ăn có chỉ số vi chất vượt ngưỡng bệnh lý nền"}
-    >
-      Cảnh báo bệnh nền
-    </Badge>
-  );
+  if (hasForbiddenIngredients || exceedsNutrientLimits || violations.length > 0) {
+    return (
+      <Badge
+        bg="warning-subtle"
+        className="text-warning-emphasis border border-warning-subtle px-2 py-1 small fw-semibold"
+        title={warningSummary || "Món ăn có chỉ số vi chất vượt ngưỡng bệnh lý nền"}
+      >
+        Cảnh báo bệnh nền
+      </Badge>
+    );
+  }
+
+  return null;
 }

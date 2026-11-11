@@ -141,9 +141,38 @@ function ProductDetailContent({ product, promotion, promotionError, promotionLoa
       </div>
       <div className="product-detail-tab-panel" id="product-detail-panel" role="tabpanel"
         aria-labelledby={activeTab === "description" ? "product-description-tab" : "product-ingredients-tab"}>
-        {activeTab === "description" ? <p>{product.description || "Chưa có mô tả sản phẩm."}</p>
-          : product.ingredients.length ? <ul>{product.ingredients.map((ingredient) => <li key={ingredient}>{ingredient}</li>)}</ul>
-            : <p>Chưa có thông tin thành phần.</p>}
+        {activeTab === "description" ? (
+          <p>{product.description || "Chưa có mô tả sản phẩm."}</p>
+        ) : product.ingredientLines?.length ? (
+          <div className="product-ingredients-table-wrapper">
+            <table className="product-ingredients-table">
+              <thead>
+                <tr>
+                  <th scope="col" className="text-start">Nguyên liệu</th>
+                  <th scope="col" className="text-end">Định lượng</th>
+                  <th scope="col" className="text-start">Đơn vị</th>
+                </tr>
+              </thead>
+              <tbody>
+                {product.ingredientLines.map((item, idx) => (
+                  <tr key={item.id ?? idx}>
+                    <td className="fw-medium text-dark">{item.name}</td>
+                    <td className="text-end text-success fw-bold">{item.quantity != null ? item.quantity : "—"}</td>
+                    <td className="text-muted">{item.unit || "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : product.ingredients?.length ? (
+          <ul>
+            {product.ingredients.map((ingredient) => (
+              <li key={ingredient}>{ingredient}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>Chưa có thông tin thành phần.</p>
+        )}
       </div>
     </section>
   </div>;
