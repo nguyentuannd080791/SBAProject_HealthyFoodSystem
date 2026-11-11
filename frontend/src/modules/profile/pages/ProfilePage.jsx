@@ -3,6 +3,7 @@ import { Badge } from "react-bootstrap";
 import { useAuth } from "../../../app/provider/useAuth";
 import { getRoleLabel, getUserInitials } from "../../../shared/utils/roleUtils";
 import {
+  HeartPulseIcon,
   LockIcon,
   MapPinIcon,
   ShieldCheckIcon,
@@ -11,9 +12,11 @@ import {
 import { ChangePasswordSection } from "../../auth/components/ChangePasswordSection";
 import { AddressSection } from "../components/AddressSection";
 import { PersonalInfoSection } from "../components/PersonalInfoSection";
+import { ClinicalScreeningSection } from "../../screening/components/ClinicalScreeningSection";
 
 const TABS = [
   { key: "profile", label: "Thông tin cá nhân", icon: UserIcon },
+  { key: "clinical", label: "Sàng lọc sức khỏe & Dị ứng", icon: HeartPulseIcon },
   { key: "address", label: "Địa chỉ giao hàng", icon: MapPinIcon },
   { key: "password", label: "Đổi mật khẩu", icon: LockIcon },
 ];
@@ -77,6 +80,7 @@ export function ProfilePage() {
 
       <div className="profile-content-body">
         {activeTab === "profile" && <PersonalInfoSection />}
+        {activeTab === "clinical" && <ClinicalScreeningSection />}
         {activeTab === "address" && <AddressSection />}
         {activeTab === "password" && <ChangePasswordSection />}
       </div>

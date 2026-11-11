@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
     Optional<Category> findByIdAndIsActiveTrue(Integer id);
+    Optional<Category> findByNameIgnoreCase(String name);
     List<Category> findByIsActiveTrueOrderByNameAsc();
     List<Category> findAllByOrderByNameAsc();
     boolean existsByNameIgnoreCase(String name);

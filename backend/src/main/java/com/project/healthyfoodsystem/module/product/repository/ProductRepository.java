@@ -3,25 +3,29 @@ package com.project.healthyfoodsystem.module.product.repository;
 import com.project.healthyfoodsystem.module.product.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.query.Param;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
+import java.util.Optional;
 
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
-    @Modifying
-    @Query("update Product p set p.stockQuantity = p.stockQuantity - :quantity where p.id = :id and p.status = 'AVAILABLE' and p.stockQuantity >= :quantity")
-    int reserveStock(@Param("id") Integer id, @Param("quantity") int quantity);
+    // V4 retains this column only for orders created before ingredient inventory.
+    @org.springframework.data.jpa.repository.Modifying
+    @Query(value = "update dbo.products set stock_quantity = stock_quantity + :quantity where id = :id and stock_quantity is not null", nativeQuery = true)
+    int restoreLegacyStock(@Param("id") Integer id, @Param("quantity") int quantity);
 
-    @Modifying
-    @Query("update Product p set p.stockQuantity = p.stockQuantity + :quantity where p.id = :id and p.stockQuantity is not null")
-    int restoreStock(@Param("id") Integer id, @Param("quantity") int quantity);
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from Product p where p.id = :id")
+    Optional<Product> lockById(@Param("id") Integer id);
     interface CategoryProductCount {
         Integer getCategoryId();
         long getProductCount();
     }
 
     boolean existsByNameIgnoreCase(String name);
+    Optional<Product> findByNameIgnoreCase(String name);
     boolean existsByNameIgnoreCaseAndIdNot(String name, Integer id);
     boolean existsByCategory_IdAndStatus(Integer categoryId, String status);
     long countByCategory_Id(Integer categoryId);

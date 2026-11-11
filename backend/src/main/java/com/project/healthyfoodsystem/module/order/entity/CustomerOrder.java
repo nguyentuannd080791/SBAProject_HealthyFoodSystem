@@ -125,6 +125,10 @@ public class CustomerOrder {
         @Column(name = "product_id")
         private Integer id;
 
+        // Null in pre-existing orders means PRODUCT stock.
+        @Column(name = "inventory_source", length = 10)
+        private String inventorySource;
+
         @Nationalized
         @Column(length = 150)
         private String name;

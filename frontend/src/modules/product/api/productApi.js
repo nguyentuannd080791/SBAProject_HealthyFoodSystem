@@ -15,6 +15,15 @@ function listResult(response) {
 function productBody(values) {
   const body = new FormData();
   for (const [name, value] of Object.entries(values)) {
+    if (name === 'ingredientLines') {
+      value.forEach((line, index) => {
+        body.append(`ingredientLines[${index}].ingredientId`, line.ingredientId);
+        if (line.requiredQuantity !== '' && line.requiredQuantity != null)
+          body.append(`ingredientLines[${index}].requiredQuantity`, line.requiredQuantity);
+        if (line.unit) body.append(`ingredientLines[${index}].unit`, line.unit);
+      });
+      continue;
+    }
     if (value !== null && value !== undefined && value !== '') body.append(name, value);
   }
   return body;

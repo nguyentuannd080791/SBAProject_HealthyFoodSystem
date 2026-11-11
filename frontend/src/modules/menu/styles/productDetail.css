@@ -1,0 +1,297 @@
+.menu-layout:has(.product-detail-page) { background: #fff; }
+
+.product-detail-page {
+  max-width: 1190px;
+  margin: 0 auto;
+  padding: 8px 0 70px;
+  color: #172033;
+}
+
+.product-detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 18px;
+  color: #49634e;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.15s ease;
+}
+.product-detail-back:hover {
+  color: #15803d;
+}
+
+.product-detail-main {
+  display: grid;
+  grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
+  align-items: start;
+  gap: 38px;
+}
+
+.product-detail-media {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1.36;
+  border-radius: 18px;
+  background: #eef2e9;
+}
+
+.product-detail-media img,
+.product-detail-image-empty {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-detail-image-empty {
+  display: grid;
+  place-items: center;
+  color: #718071;
+}
+
+.product-detail-image-discount {
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: #e00008;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.product-detail-summary h1 {
+  margin: 3px 0 8px;
+  color: #151b2b;
+  font-size: clamp(29px, 2.7vw, 36px);
+  font-weight: 800;
+  letter-spacing: -.8px;
+  line-height: 1.17;
+}
+
+.product-detail-summary-description {
+  margin: 0 0 12px;
+  color: #5b6471;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.product-detail-pricing {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 9px 24px;
+  margin-top: 16px;
+}
+
+.product-detail-original-price {
+  color: #9ca0a8;
+  font-size: 23px;
+  font-weight: 700;
+  text-decoration: line-through;
+  white-space: nowrap;
+}
+
+.product-detail-price {
+  color: #08732b;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.product-detail-price-discount {
+  align-self: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #ffe2e2;
+  color: #e00008;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.product-detail-promo-note {
+  margin: 7px 0 0;
+  color: #506252;
+  font-size: 13px;
+}
+
+.product-detail-promo-note strong { color: #08732b; }
+
+.product-detail-purchase {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 33px;
+}
+
+.product-detail-quantity {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  flex: none;
+  margin-right: auto;
+  white-space: nowrap;
+}
+
+.product-detail-quantity > span {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.product-detail-quantity .btn-group {
+  overflow: hidden;
+  height: 47px;
+  border: 1px solid #dfe2e6;
+  border-radius: 999px;
+  box-shadow: 0 2px 7px rgb(17 28 30 / 4%);
+}
+
+.product-detail-quantity .btn-group .btn {
+  min-width: 42px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #172033;
+  font-size: 25px;
+  line-height: 1;
+}
+
+.product-detail-quantity .btn-group .btn:hover:not(:disabled),
+.product-detail-quantity .btn-group .btn:focus-visible { background: #eaf4e9; }
+.product-detail-quantity .btn-group .btn:disabled { color: #a6abb2; opacity: 1; }
+.product-detail-quantity output { display: grid; place-items: center; font-weight: 700; }
+
+.product-detail-add,
+.product-detail-buy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 47px;
+  padding: 8px 19px;
+  border: 1px solid #07802c;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.product-detail-add { background: #fff; color: #08742b; }
+.product-detail-add:hover:not(:disabled) { background: #edf8ed; }
+.product-detail-buy { min-width: 160px; background: #08772b; color: #fff; }
+.product-detail-buy:hover:not(:disabled) { background: #075f23; }
+.product-detail-add:disabled,
+.product-detail-buy:disabled { opacity: .55; cursor: not-allowed; }
+.product-detail-stock { margin: 10px 0 0; color: #ac5814; font-size: 14px; }
+
+.product-detail-nutrition {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.8fr) minmax(0, 2.7fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 82px;
+  margin-top: 29px;
+  padding: 13px 20px;
+  border-radius: 15px;
+  background: #f1f7f0;
+}
+
+.product-detail-nutrition-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.product-detail-nutrition-heading svg { flex: none; color: #08742b; }
+.product-detail-nutrition-heading h2 { margin: 0 0 5px; font-size: 16px; font-weight: 800; }
+.product-detail-nutrition-heading span { color: #414956; font-size: 13px; }
+
+.product-detail-nutrition-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+}
+
+.product-detail-nutrition-facts > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  min-width: 0;
+  padding: 0 8px;
+  border-left: 1px solid #d8e2d8;
+  text-align: center;
+}
+
+.product-detail-nutrition-facts dt { order: 2; color: #414956; font-size: 13px; font-weight: 400; }
+.product-detail-nutrition-facts dd { margin: 0; font-size: 15px; font-weight: 800; white-space: nowrap; }
+.product-detail-nutrition-facts > div:first-child dd { color: #08742b; }
+
+.product-detail-information { margin-top: 32px; }
+.product-detail-tabs { display: flex; gap: 8px; border-bottom: 1px solid #dde2e5; }
+.product-detail-tabs button {
+  position: relative;
+  min-width: 96px;
+  padding: 10px 22px 13px;
+  border: 0;
+  background: none;
+  color: #686c76;
+  font-size: 17px;
+  font-weight: 750;
+}
+
+.product-detail-tabs button.is-active { color: #08742b; }
+.product-detail-tabs button.is-active::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 3px;
+  background: #08742b;
+  content: "";
+}
+
+.product-detail-tabs button:focus-visible { outline: 2px solid #08742b; outline-offset: -3px; }
+.product-detail-tab-panel { padding-top: 17px; font-size: 16px; line-height: 1.6; }
+.product-detail-tab-panel p { margin: 0; }
+.product-detail-tab-panel ul { margin: 0; padding-left: 24px; }
+
+@media (max-width: 1199.98px) {
+  .product-detail-main { grid-template-columns: minmax(0, 41%) minmax(0, 1fr); gap: 28px; }
+  .product-detail-purchase { flex-wrap: wrap; }
+  .product-detail-quantity { width: 100%; }
+}
+
+@media (max-width: 767.98px) {
+  .product-detail-main { grid-template-columns: 1fr; gap: 25px; }
+  .product-detail-media { max-height: 460px; }
+  .product-detail-purchase { margin-top: 24px; }
+  .product-detail-quantity { width: auto; }
+  .product-detail-nutrition { grid-template-columns: 1fr; gap: 16px; }
+  .product-detail-nutrition-facts > div:first-child { border-left: 0; }
+  .product-detail-information { margin-top: 28px; }
+}
+
+@media (max-width: 575.98px) {
+  .product-detail-page { padding-top: 0; }
+  .product-detail-summary h1 { font-size: 29px; }
+  .product-detail-pricing { gap: 7px 15px; }
+  .product-detail-original-price { font-size: 19px; }
+  .product-detail-price { font-size: 28px; }
+  .product-detail-quantity { width: 100%; justify-content: space-between; }
+  .product-detail-add,
+  .product-detail-buy { flex: 1; min-width: 0; padding-inline: 10px; font-size: 14px; }
+  .product-detail-nutrition { padding: 15px; }
+  .product-detail-nutrition-facts dd { font-size: 13px; }
+  .product-detail-nutrition-facts dt { font-size: 12px; }
+  .product-detail-nutrition-facts > div { padding-inline: 4px; }
+  .product-detail-tabs button { font-size: 16px; }
+}

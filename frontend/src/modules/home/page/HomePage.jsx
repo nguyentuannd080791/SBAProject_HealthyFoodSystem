@@ -1,110 +1,72 @@
-// src/modules/home/pages/HomePage.jsx
 import { useEffect, useState } from "react";
 import { Alert } from "react-bootstrap";
+import { useAuth } from "../../../app/provider/useAuth";
 import { useCart } from "../../cart/hooks/useCart";
-import { productApi } from "../../menu/api/productApi";
+import { useProducts } from "../../menu/hooks/useProducts";
+import { sortMenuCards } from "../../menu/utils/sortMenuCards";
+import { bestActivePromotion } from "../../promotion/utils/promotionPricing";
+import { screeningApi } from "../../screening/api/screeningApi";
 import { HeroBanner } from "../components/HeroBanner";
 import { FeaturedMealList } from "../components/FeaturedMealList";
 import { MealPlanSection } from "../components/MealPlanSection";
 import { DeliveryProcessSection } from "../components/DeliveryProcessSection";
-import { HomeFooter } from "../components/HomeFooter";
-import { DEFAULT_MEAL_CATALOG, Meal, MealCatalog, MacroNutrients, Money, NUTRITION_CATEGORIES } from "../utils/mealModels";
 
-export function HomePage({ onSelectMeal, onSelectPlan }) {
-  const { addToCart } = useCart();
-  const [serverCatalog, setServerCatalog] = useState(null);
-  const [loadError, setLoadError] = useState("");
-  const [pendingMealId, setPendingMealId] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState("ALL");
-  const [searchKeyword, setSearchKeyword] = useState("");
+export function HomePage({ onSelectPlan }) {
+  const { user } = useAuth();
+  const catalog = useProducts();
+  const { items } = useCart();
+  const [now, setNow] = useState(0);
   const [notification, setNotification] = useState("");
-  const [notificationType, setNotificationType] = useState("success");
+  const [screeningMap, setScreeningMap] = useState(new Map());
+  const cards = sortMenuCards(catalog.filteredProducts.map((product) => ({
+    product,
+    promotion: bestActivePromotion(product, catalog.promotions, now),
+  })), catalog.sortBy);
+  const cartItemsByProduct = new Map(items.map((item) => [String(item.id), item]));
 
   useEffect(() => {
-    let active = true;
-    productApi.list().then((result) => {
-      if (!active) return;
-      if (result.error) return setLoadError(result.error);
-      const meals = result.data.map((product) => {
-        const preview = DEFAULT_MEAL_CATALOG.meals.find((meal) => meal.title === product.name);
-        return new Meal({
-          id: product.id, title: product.name, description: product.description,
-          category: NUTRITION_CATEGORIES.find((item) => item.label === product.categoryName)?.id ?? "ALL",
-          weightGrams: preview?.weightGrams ?? 0,
-          macros: new MacroNutrients(product.nutrition.calories, product.nutrition.protein,
-            product.nutrition.carbs, product.nutrition.fat),
-          price: new Money(product.price), imageUrl: product.image,
-          isBestSeller: preview?.isBestSeller ?? false,
-        });
-      });
-      setServerCatalog(new MealCatalog(meals));
-      setLoadError("");
-    });
-    return () => { active = false; };
+    setNow(Date.now());
+    const timer = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(timer);
   }, []);
 
-  const filteredMeals = (serverCatalog ?? new MealCatalog())
-    .filterBy(selectedCategory, searchKeyword);
+  useEffect(() => {
+    if (!user) {
+      setScreeningMap(new Map());
+      return;
+    }
+    screeningApi.evaluateCatalog()
+      .then((results) => {
+        const map = new Map((results || []).map((r) => [r.productId, r]));
+        setScreeningMap(map);
+      })
+      .catch(() => {});
+  }, [user]);
 
-  const scrollToSection = (sectionId) => {
+  function scrollToSection(sectionId) {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
-  };
+  }
 
-  const handleMealSelection = async (meal) => {
-    if (pendingMealId !== null) return;
-    setPendingMealId(meal.id);
-    const result = await addToCart({
-      id: meal.id, name: meal.title, price: meal.price.amount, image: meal.imageUrl,
-      nutrition: { calories: meal.macros.calories, protein: meal.macros.proteinGrams,
-        carbs: meal.macros.carbsGrams, fat: meal.macros.fatGrams },
-    }, 1);
-    setPendingMealId(null);
-    setNotificationType(result.error ? "danger" : "success");
-    setNotification(result.error || `Đã thêm 1 phần ${meal.title} vào giỏ hàng.`);
-    if (result.error) return;
-    onSelectMeal?.(meal);
-  };
+  function handleAdded(product, quantity) {
+    setNotification(`Đã thêm ${quantity} phần ${product.name} vào giỏ hàng.`);
+  }
 
-  const handlePlanSelection = (plan) => {
-    setNotificationType("success");
+  function handlePlanSelection(plan) {
     setNotification(`Đã chọn đăng ký: ${plan.name} (${plan.price.format()})`);
     onSelectPlan?.(plan);
-  };
+  }
 
-  return (
-    <>
-      {notification && (
-        <Alert
-          variant={notificationType}
-          dismissible
-          onClose={() => setNotification("")}
-          className="mb-4 shadow-sm"
-        >
-          {notification}
-        </Alert>
-      )}
+  return <>
+    {notification && <Alert variant="success" dismissible onClose={() => setNotification("")}
+      className="mb-4 shadow-sm">{notification}</Alert>}
 
-      <HeroBanner
-        onExploreMenu={() => scrollToSection("featured-meals")}
-        onExplorePlans={() => scrollToSection("meal-plans")}
-      />
+    <HeroBanner onExploreMenu={() => scrollToSection("featured-meals")}
+      onExplorePlans={() => scrollToSection("meal-plans")} />
 
-      {loadError && <Alert variant="danger">Không tải được thực đơn: {loadError}</Alert>}
-      {!serverCatalog && !loadError && <p role="status">Đang tải thực đơn…</p>}
+    <FeaturedMealList catalog={catalog} cards={cards} cartItemsByProduct={cartItemsByProduct}
+      screeningMap={screeningMap} onAdded={handleAdded} />
 
-      <FeaturedMealList
-        meals={filteredMeals}
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-        searchKeyword={searchKeyword}
-        onSearchChange={setSearchKeyword}
-        onSelectMeal={handleMealSelection}
-        pendingMealId={pendingMealId}
-      />
-
-      <MealPlanSection onSelectPlan={handlePlanSelection} />
-      <DeliveryProcessSection />
-      <HomeFooter />
-    </>
-  );
+    <MealPlanSection onSelectPlan={handlePlanSelection} />
+    <DeliveryProcessSection />
+  </>;
 }

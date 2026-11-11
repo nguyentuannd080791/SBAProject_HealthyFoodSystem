@@ -104,7 +104,7 @@ class DeliveryHandoverServiceTest {
                 .id("order-1")
                 .customerId(9)
                 .customerName("Khách Hàng")
-                .status("preparing")
+                .status("processing")
                 .total(BigDecimal.valueOf(150000))
                 .totalItems(2)
                 .items(List.of())
@@ -202,7 +202,7 @@ class DeliveryHandoverServiceTest {
         assertNull(rejected.getDeliveryPartnerName());
         assertNull(rejected.getArrivedAt());
         assertEquals("Sai tài xế, trả lại hàng chờ", rejected.getNote());
-        assertEquals("preparing", order.getStatus());
+        assertEquals("processing", order.getStatus());
     }
 
     @Test
@@ -227,13 +227,13 @@ class DeliveryHandoverServiceTest {
     }
 
     @Test
-    void dispatchOrder_rejectsIfOrderNotPreparingOrUnpaid() {
-        order.setStatus("processing");
-        ApiException notPreparing = assertThrows(ApiException.class,
+    void dispatchOrder_rejectsIfOrderNotProcessingOrUnpaid() {
+        order.setStatus("pending_payment");
+        ApiException notProcessing = assertThrows(ApiException.class,
                 () -> service.dispatchOrder("staff@healthy.vn", "order-1", null));
-        assertEquals(HttpStatus.CONFLICT, notPreparing.getStatus());
+        assertEquals(HttpStatus.CONFLICT, notProcessing.getStatus());
 
-        order.setStatus("preparing");
+        order.setStatus("processing");
         payment.setStatus("pending");
         ApiException unpaid = assertThrows(ApiException.class,
                 () -> service.dispatchOrder("staff@healthy.vn", "order-1", null));

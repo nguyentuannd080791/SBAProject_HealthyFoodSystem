@@ -29,7 +29,7 @@ export const ROLES = [
   },
   {
     value: "delivery_partner",
-    label: "Tài xế",
+    label: "Đối tác giao hàng",
     color: "#b45309",
     bg: "#fef3c7",
     border: "#fde68a",

@@ -13,19 +13,18 @@ export function HeroBanner({ onExploreMenu, onExplorePlans }) {
       <Row className="align-items-center g-4">
         <Col lg={7}>
           <Badge bg="success" className="mb-3 px-3 py-2 rounded-pill">
-            Hệ thống Bếp Dinh Dưỡng & Giao Món Tận Nơi
+            Combo Nguyên Liệu Tươi Giao Tận Nơi
           </Badge>
           <h1 className="display-5 fw-bold text-dark mb-3">
             Healthy Food System
           </h1>
           <p className="lead text-secondary mb-4">
-            Giải pháp bữa ăn lành mạnh được thiết kế chuẩn xác theo chỉ số năng
-            lượng (Calories & Macros). Chế biến tươi mới mỗi ngày, không chất
-            bảo quản, giao tận cửa đúng khung giờ ăn của bạn.
+            Chọn combo nguyên liệu tươi sống theo món ăn bạn muốn tự chế biến.
+            Mỗi combo có định lượng rõ ràng và được giao tận cửa theo khung giờ đã chọn.
           </p>
           <div className="d-flex flex-wrap gap-3 mb-4">
             <Button variant="success" size="lg" onClick={onExploreMenu}>
-              Đặt món lẻ hôm nay
+              Chọn combo hôm nay
             </Button>
             <Button
               variant="outline-success"

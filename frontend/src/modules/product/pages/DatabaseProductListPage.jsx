@@ -7,6 +7,7 @@ import { categoryApi } from '../../category/api/categoryApi';
 import { ProductImage } from '../components/ProductImage';
 import { formatCurrency as money } from '../../../shared/utils/formatCurrency';
 import { bestActivePromotion } from '../../promotion/utils/promotionPricing';
+import { RotateCcwIcon } from '../../../shared/components/Icons';
 import { httpClient } from '../../../shared/api/httpClient';
 
 function imageSource(path) {
@@ -43,7 +44,7 @@ export function DatabaseProductListPage() {
       setPromotions(promotionList.data || []);
       setLoading(false);
     });
-    const timer = setInterval(() => setNow(Date.now()), 1000);
+    const timer = setInterval(() => setNow(Date.now()), 60_000);
     return () => { active = false; clearInterval(timer); };
   }, []);
   const filtered = products
@@ -56,7 +57,7 @@ export function DatabaseProductListPage() {
       <Button as={Link} to="/manager/products/new">+ Thêm sản phẩm</Button></div>
     {notice && <Alert variant="success" dismissible onClose={() => setNotice('')}>{notice}</Alert>}
     {error && <Alert variant="danger">{error}</Alert>}
-    <Card body><div className="d-flex gap-3 mb-4 flex-wrap">
+    <Card body><div className="d-flex gap-3 mb-4 flex-wrap align-items-center">
       <Form.Control style={{ maxWidth: 360 }} placeholder="Tìm tên sản phẩm..." aria-label="Tìm tên sản phẩm" value={search} onChange={event => setSearch(event.target.value)} />
       <Form.Select style={{ maxWidth: 260 }} aria-label="Lọc danh mục" value={categoryId} onChange={event => setCategoryId(event.target.value)}>
         <option value="">Tất cả danh mục</option>{categories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
@@ -65,16 +66,25 @@ export function DatabaseProductListPage() {
         <option value="">Tất cả sản phẩm</option>
         <option value="active">Đang khuyến mại</option>
         <option value="inactive">Không khuyến mại</option>
-      </Form.Select></div>
-      {loading ? <Spinner animation="border" role="status" /> : error ? null : <Table responsive hover className="align-middle mb-0" style={{ minWidth: 1100 }}><thead><tr>
-        <th>Sản phẩm</th><th>Danh mục</th><th>Giá gốc</th><th>Giá sau giảm</th><th>Khuyến mại</th><th>Tồn kho</th><th>Trạng thái bán</th><th>Thao tác</th>
+      </Form.Select>
+      {(search || categoryId || promotionFilter) && (
+        <Button variant="outline-secondary" size="sm" aria-label="Xóa bộ lọc" title="Xóa bộ lọc"
+          onClick={() => { setSearch(''); setCategoryId(''); setPromotionFilter(''); }}>
+          <RotateCcwIcon size={16} />
+        </Button>
+      )}</div>
+      {loading ? <Spinner animation="border" role="status" /> : error ? null : !filtered.length ? (
+        <p className="text-muted text-center py-4 mb-0">{products.length ? "Không tìm thấy sản phẩm phù hợp." : "Chưa có sản phẩm nào. Hãy thêm sản phẩm đầu tiên."}</p>
+      ) : <Table responsive hover className="align-middle mb-0" style={{ minWidth: 1100 }}><thead><tr>
+        <th>Sản phẩm</th><th>Danh mục</th><th>Giá gốc</th><th>Giá sau giảm</th><th>Khuyến mại</th><th>Combo</th><th>Trạng thái kho</th><th>Trạng thái bán</th><th>Thao tác</th>
       </tr></thead><tbody>{filtered.map(({ product, pricing }) => <tr key={product.id}>
         <td><div className="d-flex align-items-center gap-3"><ProductImage src={imageSource(product.imageUrl)} name={product.name} /><strong>{product.name}</strong></div></td>
         <td>{categories.find(item => item.id === product.categoryId)?.name || `#${product.categoryId}`}</td>
         <td>{money(product.price)}</td>
         <td>{pricing ? money(pricing.price) : '—'}</td>
         <td>{pricing ? pricing.promotion.name : 'Không áp dụng'}</td>
-        <td>{product.stockQuantity == null ? 'Chưa cập nhật tồn kho' : product.stockQuantity === 0 ? 'Hết hàng (0)' : product.stockQuantity}</td>
+        <td>{product.availableQuantity ?? 0} combo</td>
+        <td>{!product.recipeConfigured ? 'Chưa có công thức' : product.inventoryStatus === 'OUT_OF_STOCK' ? 'Hết hàng' : 'Còn hàng'}</td>
         <td>{product.status === 'AVAILABLE' ? 'Đang bán' : product.status === 'UNAVAILABLE' ? 'Ngừng bán' : product.status}</td>
         <td><Button as={Link} to={`/manager/products/${product.id}/edit`} size="sm" variant="outline-primary">Sửa</Button></td>
       </tr>)}</tbody></Table>}

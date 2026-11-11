@@ -1,0 +1,3299 @@
+{
+  "categories": [
+    {
+      "name": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Thực đơn calo thấp, giàu đạm nạc, chất xơ cao tối ưu cho quá trình giảm mỡ và giữ dáng lành mạnh.",
+      "sortOrder": 1
+    },
+    {
+      "name": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Thực đơn dồi dào năng lượng lành mạnh, giàu protein xây dựng cơ bắp và carbohydrate phức hợp.",
+      "sortOrder": 2
+    }
+  ],
+  "ingredients": [
+    {
+      "name": "Bún tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Cá rô phi phi lê",
+      "unit": "g"
+    },
+    {
+      "name": "Rau thì là",
+      "unit": "g"
+    },
+    {
+      "name": "Nước mắm cá cơm",
+      "unit": "ml"
+    },
+    {
+      "name": "Chanh tươi",
+      "unit": "quả"
+    },
+    {
+      "name": "Ớt tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Thịt bò thăn",
+      "unit": "g"
+    },
+    {
+      "name": "Giá đỗ tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Rau xà lách tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Đậu phộng rang (lạc)",
+      "unit": "g"
+    },
+    {
+      "name": "Bánh phở tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Hành lá tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Hành tây",
+      "unit": "g"
+    },
+    {
+      "name": "Nước dùng bò hầm",
+      "unit": "ml"
+    },
+    {
+      "name": "Ức gà phi lê",
+      "unit": "g"
+    },
+    {
+      "name": "Lá chanh tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Nước dùng gà thảo mộc",
+      "unit": "ml"
+    },
+    {
+      "name": "Cá lóc tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Cà chua chín",
+      "unit": "g"
+    },
+    {
+      "name": "Dứa (thơm)",
+      "unit": "g"
+    },
+    {
+      "name": "Đậu bắp",
+      "unit": "g"
+    },
+    {
+      "name": "Nước cốt me",
+      "unit": "ml"
+    },
+    {
+      "name": "Miến dong nguyên chất",
+      "unit": "g"
+    },
+    {
+      "name": "Rau răm",
+      "unit": "g"
+    },
+    {
+      "name": "Dưa leo (dưa chuột)",
+      "unit": "g"
+    },
+    {
+      "name": "Đu đủ xanh bào sợi",
+      "unit": "g"
+    },
+    {
+      "name": "Thịt bò khô nạc",
+      "unit": "g"
+    },
+    {
+      "name": "Rau kinh giới",
+      "unit": "g"
+    },
+    {
+      "name": "Nước mắm chua ngọt",
+      "unit": "ml"
+    },
+    {
+      "name": "Ngó sen chua ngọt",
+      "unit": "g"
+    },
+    {
+      "name": "Tôm sú tươi nõn",
+      "unit": "g"
+    },
+    {
+      "name": "Thịt heo nạc thăn",
+      "unit": "g"
+    },
+    {
+      "name": "Cà rốt tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Cá hồi phi lê Nauy",
+      "unit": "g"
+    },
+    {
+      "name": "Măng tây xanh",
+      "unit": "g"
+    },
+    {
+      "name": "Tỏi củ tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Dầu ô liu nguyên chất",
+      "unit": "ml"
+    },
+    {
+      "name": "Chanh vàng",
+      "unit": "quả"
+    },
+    {
+      "name": "Giò lụa nạc",
+      "unit": "g"
+    },
+    {
+      "name": "Trứng gà ta",
+      "unit": "quả"
+    },
+    {
+      "name": "Nấm hương khô",
+      "unit": "g"
+    },
+    {
+      "name": "Cua đồng xay lọc nước",
+      "unit": "g"
+    },
+    {
+      "name": "Đậu phụ non",
+      "unit": "g"
+    },
+    {
+      "name": "Rau muống chẻ",
+      "unit": "g"
+    },
+    {
+      "name": "Dấm bỗng truyền thống",
+      "unit": "ml"
+    },
+    {
+      "name": "Ốc mít tươi làm sạch",
+      "unit": "g"
+    },
+    {
+      "name": "Rau tía tô",
+      "unit": "g"
+    },
+    {
+      "name": "Bánh canh bột gạo",
+      "unit": "g"
+    },
+    {
+      "name": "Thịt ghẹ biển tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Nấm rơm tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Nước dùng xương hầm thanh",
+      "unit": "ml"
+    },
+    {
+      "name": "Lươn đồng tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Nghệ tươi giã nhỏ",
+      "unit": "g"
+    },
+    {
+      "name": "Nấm mèo (mộc nhĩ)",
+      "unit": "g"
+    },
+    {
+      "name": "Gạo tẻ thơm",
+      "unit": "g"
+    },
+    {
+      "name": "Hạt sen tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Đậu xanh bóc vỏ",
+      "unit": "g"
+    },
+    {
+      "name": "Yến mạch nguyên hạt cán dẹt",
+      "unit": "g"
+    },
+    {
+      "name": "Sườn heo non nạc",
+      "unit": "g"
+    },
+    {
+      "name": "Hạt tiêu xay",
+      "unit": "g"
+    },
+    {
+      "name": "Thịt trai đồng làm sạch",
+      "unit": "g"
+    },
+    {
+      "name": "Hành khô (hành tím)",
+      "unit": "g"
+    },
+    {
+      "name": "Gừng tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Gạo lứt đỏ",
+      "unit": "g"
+    },
+    {
+      "name": "Đậu đen xanh lòng",
+      "unit": "g"
+    },
+    {
+      "name": "Hành hoa",
+      "unit": "g"
+    },
+    {
+      "name": "Vỏ burger lúa mạch nguyên cám",
+      "unit": "cái"
+    },
+    {
+      "name": "Cá chẽm phi lê",
+      "unit": "g"
+    },
+    {
+      "name": "Sốt sữa chua tỏi chanh",
+      "unit": "ml"
+    },
+    {
+      "name": "Thịt bò nạc xay",
+      "unit": "g"
+    },
+    {
+      "name": "Bánh mì truyền thống",
+      "unit": "cái"
+    },
+    {
+      "name": "Rau mùi (ngò rí)",
+      "unit": "g"
+    },
+    {
+      "name": "Sốt tiêu xanh ít béo",
+      "unit": "ml"
+    },
+    {
+      "name": "Xì dầu tỏi ớt",
+      "unit": "ml"
+    },
+    {
+      "name": "Rau cần tây",
+      "unit": "g"
+    },
+    {
+      "name": "Tỏi tây (hành boa-rô)",
+      "unit": "g"
+    },
+    {
+      "name": "Dầu hào chay ít mặn",
+      "unit": "ml"
+    },
+    {
+      "name": "Củ sả tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Mật ong nguyên chất",
+      "unit": "ml"
+    },
+    {
+      "name": "Hành tím băm nhỏ",
+      "unit": "g"
+    },
+    {
+      "name": "Cơm gạo lứt dẻo",
+      "unit": "g"
+    },
+    {
+      "name": "Thịt hến tươi làm sạch",
+      "unit": "g"
+    },
+    {
+      "name": "Bắp chuối bào sợi",
+      "unit": "g"
+    },
+    {
+      "name": "Dọc mùng (bạc hà)",
+      "unit": "g"
+    },
+    {
+      "name": "Bột gạo tẻ làm bánh",
+      "unit": "g"
+    },
+    {
+      "name": "Nước cốt chanh dây (chanh leo)",
+      "unit": "ml"
+    },
+    {
+      "name": "Rau mầm tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Nước dừa tươi xiêm",
+      "unit": "ml"
+    },
+    {
+      "name": "Muối tiêu chanh",
+      "unit": "g"
+    },
+    {
+      "name": "Sốt mè rang Nhật Bản",
+      "unit": "ml"
+    },
+    {
+      "name": "Bắp bò hoa",
+      "unit": "g"
+    },
+    {
+      "name": "Rượu vang đỏ",
+      "unit": "ml"
+    },
+    {
+      "name": "Khoai tây chiên giòn",
+      "unit": "g"
+    },
+    {
+      "name": "Pate gan heo",
+      "unit": "g"
+    },
+    {
+      "name": "Sốt bít tết tiêu đen",
+      "unit": "ml"
+    },
+    {
+      "name": "Rươi tươi biển",
+      "unit": "g"
+    },
+    {
+      "name": "Thịt heo nạc xay",
+      "unit": "g"
+    },
+    {
+      "name": "Vỏ quýt thái chỉ",
+      "unit": "g"
+    },
+    {
+      "name": "Móng giò heo ninh",
+      "unit": "g"
+    },
+    {
+      "name": "Rau cải ngọt",
+      "unit": "g"
+    },
+    {
+      "name": "Bánh phở vuông chiên phồng",
+      "unit": "g"
+    },
+    {
+      "name": "Cá lăng tươi phi lê",
+      "unit": "g"
+    },
+    {
+      "name": "Mắm tôm truyền thống",
+      "unit": "ml"
+    },
+    {
+      "name": "Phô mai Cheddar lát",
+      "unit": "g"
+    },
+    {
+      "name": "Thịt ba rọi xông khói",
+      "unit": "g"
+    },
+    {
+      "name": "Sốt BBQ đậm vị",
+      "unit": "ml"
+    },
+    {
+      "name": "Thịt heo ba chỉ",
+      "unit": "g"
+    },
+    {
+      "name": "Chả cốm Hà Nội",
+      "unit": "g"
+    },
+    {
+      "name": "Tắc (quất) tươi",
+      "unit": "quả"
+    },
+    {
+      "name": "Bánh đa đỏ Hải Phòng",
+      "unit": "g"
+    },
+    {
+      "name": "Chả lá lốt thịt băm",
+      "unit": "g"
+    },
+    {
+      "name": "Phô mai Mozzarella sợi",
+      "unit": "g"
+    },
+    {
+      "name": "Sốt tiêu đen đậm vị",
+      "unit": "ml"
+    },
+    {
+      "name": "Bơ lạt tự nhiên",
+      "unit": "g"
+    },
+    {
+      "name": "Kem béo tươi (cooking cream)",
+      "unit": "ml"
+    },
+    {
+      "name": "Nấm mỡ tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Gạo nếp cái hoa vàng",
+      "unit": "g"
+    },
+    {
+      "name": "Cá rô đồng tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Dầu ăn thực vật",
+      "unit": "ml"
+    },
+    {
+      "name": "Sườn heo sụn non",
+      "unit": "g"
+    },
+    {
+      "name": "Chuối tiêu xanh",
+      "unit": "g"
+    },
+    {
+      "name": "Mì trứng tươi sợi",
+      "unit": "g"
+    },
+    {
+      "name": "Thịt heo xá xíu",
+      "unit": "g"
+    },
+    {
+      "name": "Sủi cảo tôm thịt",
+      "unit": "g"
+    },
+    {
+      "name": "Hẹ lá tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Nước dùng gà hầm",
+      "unit": "ml"
+    },
+    {
+      "name": "Chả quế nướng thơm",
+      "unit": "g"
+    },
+    {
+      "name": "Hủ tiếu dai Sa Đéc",
+      "unit": "g"
+    },
+    {
+      "name": "Thịt heo nạc băm",
+      "unit": "g"
+    },
+    {
+      "name": "Gan heo tươi làm sạch",
+      "unit": "g"
+    },
+    {
+      "name": "Trứng cút luộc",
+      "unit": "quả"
+    },
+    {
+      "name": "Mực ống tươi cắt khoanh",
+      "unit": "g"
+    },
+    {
+      "name": "Nước dùng hải sản hầm",
+      "unit": "ml"
+    },
+    {
+      "name": "Nem nướng thịt heo",
+      "unit": "g"
+    },
+    {
+      "name": "Bánh tráng cuốn mè",
+      "unit": "g"
+    },
+    {
+      "name": "Ram tôm chiên giòn",
+      "unit": "g"
+    },
+    {
+      "name": "Xoài xanh bào sợi",
+      "unit": "g"
+    },
+    {
+      "name": "Tương nếp chấm nem nướng",
+      "unit": "ml"
+    },
+    {
+      "name": "Bơ trứng sốt mayo",
+      "unit": "g"
+    },
+    {
+      "name": "Giò gân heo",
+      "unit": "g"
+    },
+    {
+      "name": "Dưa cải muối chua",
+      "unit": "g"
+    },
+    {
+      "name": "Thịt đùi gà tươi",
+      "unit": "g"
+    },
+    {
+      "name": "Lạp xưởng Mai Quế Lộ",
+      "unit": "g"
+    },
+    {
+      "name": "Gạo tấm thơm",
+      "unit": "g"
+    },
+    {
+      "name": "Sườn heo cốt lết",
+      "unit": "g"
+    },
+    {
+      "name": "Chả trứng hấp thịt băm",
+      "unit": "g"
+    },
+    {
+      "name": "Bì heo trộn thính",
+      "unit": "g"
+    },
+    {
+      "name": "Mỡ hành lá",
+      "unit": "ml"
+    },
+    {
+      "name": "Nước mắm kẹo chua ngọt",
+      "unit": "ml"
+    }
+  ],
+  "products": [
+    {
+      "name": "Bún cá chấm thanh đạm",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Bún tươi ăn kèm cá rô phi áp chảo giòn ngoài mềm trong, thì là tươi, nước chấm tỏi ớt chua ngọt thanh nhẹ.",
+      "imageUrl": "https://images.unsplash.com/photo-1594998893017-36147cbcae05?auto=format&fit=crop&w=800&q=80",
+      "price": 55000,
+      "caloriesKcal": 451,
+      "proteinG": 37.6,
+      "carbohydrateG": 64.4,
+      "fatG": 4.8,
+      "fiberG": 4.2,
+      "sugarG": 3.1,
+      "sodiumMg": 457.0,
+      "potassiumMg": 380.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bún tươi",
+          "unit": "g",
+          "requiredQuantity": 180
+        },
+        {
+          "name": "Cá rô phi phi lê",
+          "unit": "g",
+          "requiredQuantity": 150
+        },
+        {
+          "name": "Rau thì là",
+          "unit": "g",
+          "requiredQuantity": 25
+        },
+        {
+          "name": "Nước mắm cá cơm",
+          "unit": "ml",
+          "requiredQuantity": 15
+        },
+        {
+          "name": "Chanh tươi",
+          "unit": "quả",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Ớt tươi",
+          "unit": "g",
+          "requiredQuantity": 5
+        }
+      ]
+    },
+    {
+      "name": "Bún bò Nam Bộ Eat Clean",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Bún tươi trộn thịt bò thăn áp chảo mềm ngọt, rau thơm, giá đỗ giòn và lạc rang ít dầu sốt chua ngọt chuẩn vị.",
+      "imageUrl": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=800&q=80",
+      "price": 65000,
+      "caloriesKcal": 458,
+      "proteinG": 26.3,
+      "carbohydrateG": 71.4,
+      "fatG": 7.4,
+      "fiberG": 5.1,
+      "sugarG": 4.2,
+      "sodiumMg": 520.0,
+      "potassiumMg": 410.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bún tươi",
+          "unit": "g",
+          "requiredQuantity": 180
+        },
+        {
+          "name": "Thịt bò thăn",
+          "unit": "g",
+          "requiredQuantity": 100
+        },
+        {
+          "name": "Giá đỗ tươi",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Rau xà lách tươi",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Đậu phộng rang (lạc)",
+          "unit": "g",
+          "requiredQuantity": 15
+        },
+        {
+          "name": "Nước mắm cá cơm",
+          "unit": "ml",
+          "requiredQuantity": 15
+        }
+      ]
+    },
+    {
+      "name": "Phở bò tái nạc thượng hạng",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Bánh phở tươi truyền thống hòa quyện nước dùng xương hầm trong 12 tiếng cùng thịt bò thăn tái mềm ngọt giàu đạm.",
+      "imageUrl": "https://images.unsplash.com/photo-1576577445504-6af96477db52?auto=format&fit=crop&w=800&q=80",
+      "price": 60000,
+      "caloriesKcal": 410,
+      "proteinG": 28.5,
+      "carbohydrateG": 55.4,
+      "fatG": 8.2,
+      "fiberG": 3.2,
+      "sugarG": 2.5,
+      "sodiumMg": 580.0,
+      "potassiumMg": 360.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bánh phở tươi",
+          "unit": "g",
+          "requiredQuantity": 180
+        },
+        {
+          "name": "Thịt bò thăn",
+          "unit": "g",
+          "requiredQuantity": 110
+        },
+        {
+          "name": "Hành lá tươi",
+          "unit": "g",
+          "requiredQuantity": 20
+        },
+        {
+          "name": "Hành tây",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Nước dùng bò hầm",
+          "unit": "ml",
+          "requiredQuantity": 350
+        }
+      ]
+    },
+    {
+      "name": "Phở gà xé nạc thanh ngọt",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Bánh phở kết hợp ức gà luộc xé sợi không da, nước dùng gà thảo mộc thanh vị, lá chanh tươi thái chỉ thơm nức.",
+      "imageUrl": "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=800&q=80",
+      "price": 55000,
+      "caloriesKcal": 395,
+      "proteinG": 31.0,
+      "carbohydrateG": 53.0,
+      "fatG": 6.5,
+      "fiberG": 2.8,
+      "sugarG": 2.1,
+      "sodiumMg": 510.0,
+      "potassiumMg": 340.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bánh phở tươi",
+          "unit": "g",
+          "requiredQuantity": 180
+        },
+        {
+          "name": "Ức gà phi lê",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Lá chanh tươi",
+          "unit": "g",
+          "requiredQuantity": 5
+        },
+        {
+          "name": "Hành lá tươi",
+          "unit": "g",
+          "requiredQuantity": 20
+        },
+        {
+          "name": "Nước dùng gà thảo mộc",
+          "unit": "ml",
+          "requiredQuantity": 350
+        }
+      ]
+    },
+    {
+      "name": "Canh cá lóc nấu chua thanh mát",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Cá lóc đồng tươi ngon nấu cùng dứa thơm, cà chua, đậu bắp, bạc hà và nước cốt me thanh tao, ít chất béo.",
+      "imageUrl": "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80",
+      "price": 50000,
+      "caloriesKcal": 210,
+      "proteinG": 26.5,
+      "carbohydrateG": 16.5,
+      "fatG": 4.2,
+      "fiberG": 3.8,
+      "sugarG": 4.5,
+      "sodiumMg": 420.0,
+      "potassiumMg": 450.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Cá lóc tươi",
+          "unit": "g",
+          "requiredQuantity": 160
+        },
+        {
+          "name": "Cà chua chín",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Dứa (thơm)",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Đậu bắp",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Giá đỗ tươi",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Nước cốt me",
+          "unit": "ml",
+          "requiredQuantity": 20
+        }
+      ]
+    },
+    {
+      "name": "Miến gà trộn thanh đạm",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Miến dong nguyên chất dai giòn tự nhiên trộn thịt ức gà xé, rau răm, dưa leo và sốt tiêu chanh kích thích vị giác.",
+      "imageUrl": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80",
+      "price": 55000,
+      "caloriesKcal": 385,
+      "proteinG": 27.8,
+      "carbohydrateG": 56.0,
+      "fatG": 5.5,
+      "fiberG": 3.4,
+      "sugarG": 2.8,
+      "sodiumMg": 460.0,
+      "potassiumMg": 330.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Miến dong nguyên chất",
+          "unit": "g",
+          "requiredQuantity": 90
+        },
+        {
+          "name": "Ức gà phi lê",
+          "unit": "g",
+          "requiredQuantity": 110
+        },
+        {
+          "name": "Rau răm",
+          "unit": "g",
+          "requiredQuantity": 15
+        },
+        {
+          "name": "Dưa leo (dưa chuột)",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Nước mắm cá cơm",
+          "unit": "ml",
+          "requiredQuantity": 15
+        }
+      ]
+    },
+    {
+      "name": "Nộm bò khô đu đủ sợi giòn",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Đu đủ xanh bào sợi giòn sần sật trộn thịt bò khô xé sợi, đậu phộng rang giòn, rau kinh giới và nước cốt chua ngọt.",
+      "imageUrl": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80",
+      "price": 45000,
+      "caloriesKcal": 220,
+      "proteinG": 21.0,
+      "carbohydrateG": 25.4,
+      "fatG": 3.8,
+      "fiberG": 4.5,
+      "sugarG": 5.0,
+      "sodiumMg": 480.0,
+      "potassiumMg": 390.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Đu đủ xanh bào sợi",
+          "unit": "g",
+          "requiredQuantity": 150
+        },
+        {
+          "name": "Thịt bò khô nạc",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Đậu phộng rang (lạc)",
+          "unit": "g",
+          "requiredQuantity": 15
+        },
+        {
+          "name": "Rau kinh giới",
+          "unit": "g",
+          "requiredQuantity": 20
+        },
+        {
+          "name": "Nước mắm chua ngọt",
+          "unit": "ml",
+          "requiredQuantity": 25
+        }
+      ]
+    },
+    {
+      "name": "Gỏi tôm thịt ngó sen tươi giòn",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Ngó sen ngâm chua giòn ngọt hòa cùng tôm sú luộc nõn, thịt nạc luộc thái mỏng, cà rốt và rau răm thơm dịu.",
+      "imageUrl": "https://images.unsplash.com/photo-1551248429-40975aa4de74?auto=format&fit=crop&w=800&q=80",
+      "price": 60000,
+      "caloriesKcal": 260,
+      "proteinG": 24.5,
+      "carbohydrateG": 28.7,
+      "fatG": 5.2,
+      "fiberG": 4.1,
+      "sugarG": 4.8,
+      "sodiumMg": 430.0,
+      "potassiumMg": 370.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Ngó sen chua ngọt",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Tôm sú tươi nõn",
+          "unit": "g",
+          "requiredQuantity": 80
+        },
+        {
+          "name": "Thịt heo nạc thăn",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Cà rốt tươi",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Đậu phộng rang (lạc)",
+          "unit": "g",
+          "requiredQuantity": 10
+        },
+        {
+          "name": "Rau răm",
+          "unit": "g",
+          "requiredQuantity": 15
+        }
+      ]
+    },
+    {
+      "name": "Cá hồi áp chảo măng tây sốt chanh",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Phi lê cá hồi tươi áp chảo bơ tỏi ăn kèm măng tây xanh giòn ngọt, sốt chanh vàng thanh lịch giàu Omega-3.",
+      "imageUrl": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=800&q=80",
+      "price": 95000,
+      "caloriesKcal": 380,
+      "proteinG": 34.2,
+      "carbohydrateG": 12.0,
+      "fatG": 11.5,
+      "fiberG": 4.0,
+      "sugarG": 2.2,
+      "sodiumMg": 390.0,
+      "potassiumMg": 590.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Cá hồi phi lê Nauy",
+          "unit": "g",
+          "requiredQuantity": 150
+        },
+        {
+          "name": "Măng tây xanh",
+          "unit": "g",
+          "requiredQuantity": 100
+        },
+        {
+          "name": "Tỏi củ tươi",
+          "unit": "g",
+          "requiredQuantity": 15
+        },
+        {
+          "name": "Dầu ô liu nguyên chất",
+          "unit": "ml",
+          "requiredQuantity": 10
+        },
+        {
+          "name": "Chanh vàng",
+          "unit": "quả",
+          "requiredQuantity": 1
+        }
+      ]
+    },
+    {
+      "name": "Bún thang Hà Thành thanh khiết",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Bún thang truyền thống tinh tế với giò lụa thái chỉ, thịt gà xé, trứng rán mỏng tang, nấm hương và nước dùng ngọt tự nhiên.",
+      "imageUrl": "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=800&q=80",
+      "price": 60000,
+      "caloriesKcal": 425,
+      "proteinG": 29.8,
+      "carbohydrateG": 60.1,
+      "fatG": 7.2,
+      "fiberG": 3.0,
+      "sugarG": 2.6,
+      "sodiumMg": 540.0,
+      "potassiumMg": 380.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bún tươi",
+          "unit": "g",
+          "requiredQuantity": 180
+        },
+        {
+          "name": "Ức gà phi lê",
+          "unit": "g",
+          "requiredQuantity": 70
+        },
+        {
+          "name": "Giò lụa nạc",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Trứng gà ta",
+          "unit": "quả",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Nấm hương khô",
+          "unit": "g",
+          "requiredQuantity": 15
+        },
+        {
+          "name": "Nước dùng gà thảo mộc",
+          "unit": "ml",
+          "requiredQuantity": 350
+        }
+      ]
+    },
+    {
+      "name": "Bún riêu cua đồng thanh vị",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Cua đồng tươi giã nhuyễn thơm lừng gạch cua tự nhiên, đậu hũ chiên nhẹ, cà chua chín mọng và rau muống chẻ mát lành.",
+      "imageUrl": "https://images.unsplash.com/photo-1594998893017-36147cbcae05?auto=format&fit=crop&w=800&q=80",
+      "price": 50000,
+      "caloriesKcal": 430,
+      "proteinG": 25.4,
+      "carbohydrateG": 63.0,
+      "fatG": 8.5,
+      "fiberG": 4.5,
+      "sugarG": 3.2,
+      "sodiumMg": 590.0,
+      "potassiumMg": 420.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bún tươi",
+          "unit": "g",
+          "requiredQuantity": 180
+        },
+        {
+          "name": "Cua đồng xay lọc nước",
+          "unit": "g",
+          "requiredQuantity": 150
+        },
+        {
+          "name": "Đậu phụ non",
+          "unit": "g",
+          "requiredQuantity": 80
+        },
+        {
+          "name": "Cà chua chín",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Rau muống chẻ",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Dấm bỗng truyền thống",
+          "unit": "ml",
+          "requiredQuantity": 20
+        }
+      ]
+    },
+    {
+      "name": "Bún ốc nóng thanh đạm",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Ốc mít béo giòn sần sật nấu giấm bỗng chua dịu cùng cà chua, đậu phụ và tía tô tươi thơm ngát.",
+      "imageUrl": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=800&q=80",
+      "price": 50000,
+      "caloriesKcal": 370,
+      "proteinG": 22.0,
+      "carbohydrateG": 56.8,
+      "fatG": 6.1,
+      "fiberG": 3.8,
+      "sugarG": 2.9,
+      "sodiumMg": 530.0,
+      "potassiumMg": 350.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bún tươi",
+          "unit": "g",
+          "requiredQuantity": 180
+        },
+        {
+          "name": "Ốc mít tươi làm sạch",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Đậu phụ non",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Cà chua chín",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Rau tía tô",
+          "unit": "g",
+          "requiredQuantity": 20
+        },
+        {
+          "name": "Dấm bỗng truyền thống",
+          "unit": "ml",
+          "requiredQuantity": 25
+        }
+      ]
+    },
+    {
+      "name": "Bánh canh ghẹ miền Trung",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Sợi bánh canh bột gạo dai mềm hòa cùng thịt ghẹ tươi xé nõn, nấm rơm ngọt và nước súp sánh nhẹ thanh lành.",
+      "imageUrl": "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80",
+      "price": 70000,
+      "caloriesKcal": 415,
+      "proteinG": 28.0,
+      "carbohydrateG": 58.2,
+      "fatG": 7.8,
+      "fiberG": 3.1,
+      "sugarG": 2.5,
+      "sodiumMg": 540.0,
+      "potassiumMg": 430.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bánh canh bột gạo",
+          "unit": "g",
+          "requiredQuantity": 180
+        },
+        {
+          "name": "Thịt ghẹ biển tươi",
+          "unit": "g",
+          "requiredQuantity": 90
+        },
+        {
+          "name": "Nấm rơm tươi",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Hành lá tươi",
+          "unit": "g",
+          "requiredQuantity": 20
+        },
+        {
+          "name": "Nước dùng xương hầm thanh",
+          "unit": "ml",
+          "requiredQuantity": 350
+        }
+      ]
+    },
+    {
+      "name": "Miến lươn nước thanh vị xứ Nghệ",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Miến dong nguyên chất dai giòn với thịt lươn đồng xào mềm ngấm nghệ tươi, nấm mèo, rau răm và nước hầm thanh ngọt.",
+      "imageUrl": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80",
+      "price": 65000,
+      "caloriesKcal": 390,
+      "proteinG": 25.6,
+      "carbohydrateG": 56.4,
+      "fatG": 6.9,
+      "fiberG": 3.6,
+      "sugarG": 2.2,
+      "sodiumMg": 500.0,
+      "potassiumMg": 390.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Miến dong nguyên chất",
+          "unit": "g",
+          "requiredQuantity": 90
+        },
+        {
+          "name": "Lươn đồng tươi",
+          "unit": "g",
+          "requiredQuantity": 110
+        },
+        {
+          "name": "Rau răm",
+          "unit": "g",
+          "requiredQuantity": 20
+        },
+        {
+          "name": "Nghệ tươi giã nhỏ",
+          "unit": "g",
+          "requiredQuantity": 10
+        },
+        {
+          "name": "Nấm mèo (mộc nhĩ)",
+          "unit": "g",
+          "requiredQuantity": 15
+        }
+      ]
+    },
+    {
+      "name": "Cháo gà hạt sen đậu xanh",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Cháo gạo tẻ nấu nhừ cùng hạt sen bùi béo, đậu xanh tách vỏ và thịt gà ức xé nhỏ bổ dưỡng dễ tiêu.",
+      "imageUrl": "https://images.unsplash.com/photo-1541832676-9b763b0239ab?auto=format&fit=crop&w=800&q=80",
+      "price": 45000,
+      "caloriesKcal": 320,
+      "proteinG": 22.5,
+      "carbohydrateG": 47.5,
+      "fatG": 4.5,
+      "fiberG": 4.8,
+      "sugarG": 3.0,
+      "sodiumMg": 380.0,
+      "potassiumMg": 460.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Gạo tẻ thơm",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Ức gà phi lê",
+          "unit": "g",
+          "requiredQuantity": 90
+        },
+        {
+          "name": "Hạt sen tươi",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Đậu xanh bóc vỏ",
+          "unit": "g",
+          "requiredQuantity": 25
+        },
+        {
+          "name": "Hành lá tươi",
+          "unit": "g",
+          "requiredQuantity": 15
+        }
+      ]
+    },
+    {
+      "name": "Cháo sườn non yến mạch",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Sự kết hợp hoàn hảo giữa yến mạch nguyên cám giàu xơ và sườn non ninh mềm, bổ sung dưỡng chất kiểm soát cân nặng.",
+      "imageUrl": "https://images.unsplash.com/photo-1541832676-9b763b0239ab?auto=format&fit=crop&w=800&q=80",
+      "price": 50000,
+      "caloriesKcal": 340,
+      "proteinG": 21.8,
+      "carbohydrateG": 49.0,
+      "fatG": 6.2,
+      "fiberG": 5.5,
+      "sugarG": 2.4,
+      "sodiumMg": 410.0,
+      "potassiumMg": 420.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Yến mạch nguyên hạt cán dẹt",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Sườn heo non nạc",
+          "unit": "g",
+          "requiredQuantity": 100
+        },
+        {
+          "name": "Cà rốt tươi",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Hành lá tươi",
+          "unit": "g",
+          "requiredQuantity": 15
+        },
+        {
+          "name": "Hạt tiêu xay",
+          "unit": "g",
+          "requiredQuantity": 2
+        }
+      ]
+    },
+    {
+      "name": "Cháo trai đồng giải nhiệt thanh lọc",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Cháo gạo mịn hòa cùng trai đồng xào thơm hành hoa, rắc thì là và rau răm giúp thanh nhiệt cơ thể hiệu quả.",
+      "imageUrl": "https://images.unsplash.com/photo-1541832676-9b763b0239ab?auto=format&fit=crop&w=800&q=80",
+      "price": 45000,
+      "caloriesKcal": 295,
+      "proteinG": 20.2,
+      "carbohydrateG": 45.0,
+      "fatG": 3.8,
+      "fiberG": 3.0,
+      "sugarG": 2.1,
+      "sodiumMg": 430.0,
+      "potassiumMg": 380.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Gạo tẻ thơm",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Thịt trai đồng làm sạch",
+          "unit": "g",
+          "requiredQuantity": 110
+        },
+        {
+          "name": "Rau răm",
+          "unit": "g",
+          "requiredQuantity": 20
+        },
+        {
+          "name": "Hành khô (hành tím)",
+          "unit": "g",
+          "requiredQuantity": 15
+        },
+        {
+          "name": "Gừng tươi",
+          "unit": "g",
+          "requiredQuantity": 5
+        }
+      ]
+    },
+    {
+      "name": "Cháo đậu đen đậu phụ thanh mát",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Món cháo mộc mạc từ gạo lứt, đậu đen nguyên hạt ninh mềm ăn kèm đậu phụ non hấp, thanh lọc nhẹ bụng.",
+      "imageUrl": "https://images.unsplash.com/photo-1541832676-9b763b0239ab?auto=format&fit=crop&w=800&q=80",
+      "price": 40000,
+      "caloriesKcal": 280,
+      "proteinG": 18.5,
+      "carbohydrateG": 40.2,
+      "fatG": 5.0,
+      "fiberG": 6.5,
+      "sugarG": 2.0,
+      "sodiumMg": 320.0,
+      "potassiumMg": 480.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Gạo lứt đỏ",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Đậu đen xanh lòng",
+          "unit": "g",
+          "requiredQuantity": 35
+        },
+        {
+          "name": "Đậu phụ non",
+          "unit": "g",
+          "requiredQuantity": 100
+        },
+        {
+          "name": "Hành hoa",
+          "unit": "g",
+          "requiredQuantity": 15
+        }
+      ]
+    },
+    {
+      "name": "Burger cá phi lê nướng nguyên cám",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Bánh burger bột mì nguyên cám kẹp cá chẽm áp chảo bơ tỏi, sốt sữa chua Hy Lạp sốt dưa leo và xà lách giòn.",
+      "imageUrl": "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80",
+      "price": 60000,
+      "caloriesKcal": 305,
+      "proteinG": 22.1,
+      "carbohydrateG": 38.2,
+      "fatG": 7.1,
+      "fiberG": 4.5,
+      "sugarG": 3.5,
+      "sodiumMg": 410.0,
+      "potassiumMg": 360.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Vỏ burger lúa mạch nguyên cám",
+          "unit": "cái",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Cá chẽm phi lê",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Rau xà lách tươi",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Cà chua chín",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Sốt sữa chua tỏi chanh",
+          "unit": "ml",
+          "requiredQuantity": 20
+        }
+      ]
+    },
+    {
+      "name": "Hamburger bò nạc rau củ healthy",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Thịt bò Úc xay nạc nướng thơm lừng, kẹp cùng trứng ốp la lòng đào, cà chua, hành tây và xà lách tươi ngon.",
+      "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80",
+      "price": 65000,
+      "caloriesKcal": 420,
+      "proteinG": 30.5,
+      "carbohydrateG": 52.5,
+      "fatG": 9.8,
+      "fiberG": 4.2,
+      "sugarG": 3.8,
+      "sodiumMg": 480.0,
+      "potassiumMg": 440.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Vỏ burger lúa mạch nguyên cám",
+          "unit": "cái",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Thịt bò nạc xay",
+          "unit": "g",
+          "requiredQuantity": 110
+        },
+        {
+          "name": "Trứng gà ta",
+          "unit": "quả",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Cà chua chín",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Rau xà lách tươi",
+          "unit": "g",
+          "requiredQuantity": 30
+        }
+      ]
+    },
+    {
+      "name": "Bánh mì ức gà quay xé sốt tiêu xanh",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Bánh mì giòn rụm kẹp đầy đặn ức gà quay xé sốt tiêu xanh đậm đà, dưa leo tươi giòn và rau mùi thơm mát.",
+      "imageUrl": "https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=800&q=80",
+      "price": 40000,
+      "caloriesKcal": 358,
+      "proteinG": 22.5,
+      "carbohydrateG": 40.0,
+      "fatG": 12.1,
+      "fiberG": 3.5,
+      "sugarG": 3.2,
+      "sodiumMg": 460.0,
+      "potassiumMg": 320.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bánh mì truyền thống",
+          "unit": "cái",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Ức gà phi lê",
+          "unit": "g",
+          "requiredQuantity": 90
+        },
+        {
+          "name": "Dưa leo (dưa chuột)",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Rau mùi (ngò rí)",
+          "unit": "g",
+          "requiredQuantity": 10
+        },
+        {
+          "name": "Sốt tiêu xanh ít béo",
+          "unit": "ml",
+          "requiredQuantity": 15
+        }
+      ]
+    },
+    {
+      "name": "Bánh mì trứng ốp la dưa chuột",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Bữa sáng quốc dân nhanh gọn: bánh mì giòn kẹp 2 trứng gà ốp la lòng đào rắc chút tiêu đen và dưa leo thái lát.",
+      "imageUrl": "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
+      "price": 30000,
+      "caloriesKcal": 310,
+      "proteinG": 18.2,
+      "carbohydrateG": 38.0,
+      "fatG": 9.5,
+      "fiberG": 2.8,
+      "sugarG": 2.1,
+      "sodiumMg": 390.0,
+      "potassiumMg": 290.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bánh mì truyền thống",
+          "unit": "cái",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Trứng gà ta",
+          "unit": "quả",
+          "requiredQuantity": 2
+        },
+        {
+          "name": "Dưa leo (dưa chuột)",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Xì dầu tỏi ớt",
+          "unit": "ml",
+          "requiredQuantity": 10
+        }
+      ]
+    },
+    {
+      "name": "Thịt bò xào cần tỏi nạc ít dầu",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Thịt bò thăn mềm xào nhanh tay trên lửa lớn cùng cần tây, tỏi tây và hành tây ngọt thanh, giàu kẽm và sắt.",
+      "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+      "price": 70000,
+      "caloriesKcal": 290,
+      "proteinG": 28.4,
+      "carbohydrateG": 27.2,
+      "fatG": 7.5,
+      "fiberG": 3.9,
+      "sugarG": 3.4,
+      "sodiumMg": 440.0,
+      "potassiumMg": 470.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Thịt bò thăn",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Rau cần tây",
+          "unit": "g",
+          "requiredQuantity": 80
+        },
+        {
+          "name": "Tỏi tây (hành boa-rô)",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Hành tây",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Dầu hào chay ít mặn",
+          "unit": "ml",
+          "requiredQuantity": 15
+        }
+      ]
+    },
+    {
+      "name": "Thịt nạc xiên nướng thảo mộc",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Thịt heo nạc thăn ướp sả non, mật ong rừng và lá móc mật, nướng than hoa vàng rộm không ngấy mỡ.",
+      "imageUrl": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80",
+      "price": 50000,
+      "caloriesKcal": 260,
+      "proteinG": 27.0,
+      "carbohydrateG": 20.0,
+      "fatG": 8.0,
+      "fiberG": 2.2,
+      "sugarG": 3.5,
+      "sodiumMg": 420.0,
+      "potassiumMg": 340.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Thịt heo nạc thăn",
+          "unit": "g",
+          "requiredQuantity": 130
+        },
+        {
+          "name": "Củ sả tươi",
+          "unit": "g",
+          "requiredQuantity": 25
+        },
+        {
+          "name": "Mật ong nguyên chất",
+          "unit": "ml",
+          "requiredQuantity": 10
+        },
+        {
+          "name": "Hành tím băm nhỏ",
+          "unit": "g",
+          "requiredQuantity": 15
+        }
+      ]
+    },
+    {
+      "name": "Cơm hến Huế thanh nhẹ chuẩn vị",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Cơm gạo lứt ăn kèm thịt hến xào đậm vị, bạc hà (dọc mùng), hoa chuối bào sợi và nước luộc hến thanh ngọt.",
+      "imageUrl": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80",
+      "price": 45000,
+      "caloriesKcal": 350,
+      "proteinG": 21.5,
+      "carbohydrateG": 53.0,
+      "fatG": 5.8,
+      "fiberG": 5.2,
+      "sugarG": 2.6,
+      "sodiumMg": 460.0,
+      "potassiumMg": 410.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Cơm gạo lứt dẻo",
+          "unit": "g",
+          "requiredQuantity": 140
+        },
+        {
+          "name": "Thịt hến tươi làm sạch",
+          "unit": "g",
+          "requiredQuantity": 100
+        },
+        {
+          "name": "Bắp chuối bào sợi",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Dọc mùng (bạc hà)",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Đậu phộng rang (lạc)",
+          "unit": "g",
+          "requiredQuantity": 10
+        }
+      ]
+    },
+    {
+      "name": "Bánh giò nạc nóng hổi mộc nhĩ",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Vỏ bánh làm từ bột gạo dẻo mịn bọc nhân thịt nạc băm, mộc nhĩ giòn ngọt, gói trong lá chuối xanh thơm phức.",
+      "imageUrl": "https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=800&q=80",
+      "price": 30000,
+      "caloriesKcal": 330,
+      "proteinG": 19.5,
+      "carbohydrateG": 44.5,
+      "fatG": 8.2,
+      "fiberG": 2.9,
+      "sugarG": 1.8,
+      "sodiumMg": 450.0,
+      "potassiumMg": 310.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bột gạo tẻ làm bánh",
+          "unit": "g",
+          "requiredQuantity": 80
+        },
+        {
+          "name": "Thịt heo nạc thăn",
+          "unit": "g",
+          "requiredQuantity": 70
+        },
+        {
+          "name": "Nấm mèo (mộc nhĩ)",
+          "unit": "g",
+          "requiredQuantity": 20
+        },
+        {
+          "name": "Hành khô (hành tím)",
+          "unit": "g",
+          "requiredQuantity": 15
+        },
+        {
+          "name": "Hạt tiêu xay",
+          "unit": "g",
+          "requiredQuantity": 2
+        }
+      ]
+    },
+    {
+      "name": "Ức gà áp chảo sốt chanh leo",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Ức gà áp chảo vàng đều rưới sốt chanh leo tươi chua dịu thanh mát, ăn kèm salad rau mầm xanh non.",
+      "imageUrl": "https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=800&q=80",
+      "price": 60000,
+      "caloriesKcal": 320,
+      "proteinG": 36.0,
+      "carbohydrateG": 31.6,
+      "fatG": 5.5,
+      "fiberG": 3.7,
+      "sugarG": 4.1,
+      "sodiumMg": 380.0,
+      "potassiumMg": 490.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Ức gà phi lê",
+          "unit": "g",
+          "requiredQuantity": 150
+        },
+        {
+          "name": "Nước cốt chanh dây (chanh leo)",
+          "unit": "ml",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Rau mầm tươi",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Mật ong nguyên chất",
+          "unit": "ml",
+          "requiredQuantity": 10
+        },
+        {
+          "name": "Dầu ô liu nguyên chất",
+          "unit": "ml",
+          "requiredQuantity": 8
+        }
+      ]
+    },
+    {
+      "name": "Tôm hấp sả nước dừa tươi",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Tôm sú tươi sống hấp cùng sả non đập dập trong nước dừa xiêm giữ trọn vẹn vị ngọt tinh túy tự nhiên.",
+      "imageUrl": "https://images.unsplash.com/photo-1551248429-40975aa4de74?auto=format&fit=crop&w=800&q=80",
+      "price": 75000,
+      "caloriesKcal": 210,
+      "proteinG": 29.5,
+      "carbohydrateG": 17.3,
+      "fatG": 2.5,
+      "fiberG": 2.0,
+      "sugarG": 4.0,
+      "sodiumMg": 390.0,
+      "potassiumMg": 460.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Tôm sú tươi nõn",
+          "unit": "g",
+          "requiredQuantity": 160
+        },
+        {
+          "name": "Nước dừa tươi xiêm",
+          "unit": "ml",
+          "requiredQuantity": 150
+        },
+        {
+          "name": "Củ sả tươi",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Lá chanh tươi",
+          "unit": "g",
+          "requiredQuantity": 5
+        },
+        {
+          "name": "Muối tiêu chanh",
+          "unit": "g",
+          "requiredQuantity": 5
+        }
+      ]
+    },
+    {
+      "name": "Salad ức gà xé sốt mè rang",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Ức gà xé sợi trộn cùng xà lách Romaine, cà chua bi, dưa leo giòn rụm và sốt mè rang thơm bùi kiểu Nhật.",
+      "imageUrl": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80",
+      "price": 55000,
+      "caloriesKcal": 280,
+      "proteinG": 28.0,
+      "carbohydrateG": 27.4,
+      "fatG": 6.5,
+      "fiberG": 4.6,
+      "sugarG": 3.8,
+      "sodiumMg": 410.0,
+      "potassiumMg": 430.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Ức gà phi lê",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Rau xà lách tươi",
+          "unit": "g",
+          "requiredQuantity": 70
+        },
+        {
+          "name": "Cà chua chín",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Dưa leo (dưa chuột)",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Sốt mè rang Nhật Bản",
+          "unit": "ml",
+          "requiredQuantity": 25
+        }
+      ]
+    },
+    {
+      "name": "Bún chả nạc thanh vị truyền thống",
+      "category": "Thực đơn Giảm Cân & Eat Clean",
+      "description": "Chả thịt nạc băm viên nướng xém cạnh, ngâm trong bát nước mắm chua ngọt ấm nóng, kèm bún tươi và dưa góp đu đủ.",
+      "imageUrl": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=800&q=80",
+      "price": 60000,
+      "caloriesKcal": 440,
+      "proteinG": 29.2,
+      "carbohydrateG": 59.4,
+      "fatG": 9.5,
+      "fiberG": 3.5,
+      "sugarG": 4.5,
+      "sodiumMg": 530.0,
+      "potassiumMg": 380.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bún tươi",
+          "unit": "g",
+          "requiredQuantity": 180
+        },
+        {
+          "name": "Thịt heo nạc thăn",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Đu đủ xanh bào sợi",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Cà rốt tươi",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Nước mắm chua ngọt",
+          "unit": "ml",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Rau xà lách tươi",
+          "unit": "g",
+          "requiredQuantity": 40
+        }
+      ]
+    },
+    {
+      "name": "Phở bò sốt vang thượng hạng",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Bắp bò và gân bò hầm mềm rục cùng rượu vang đỏ, hoa hồi, quế chi tạo nên màu đỏ óng ánh thơm ngậy sánh quyện.",
+      "imageUrl": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=800&q=80",
+      "price": 85000,
+      "caloriesKcal": 825,
+      "proteinG": 60.8,
+      "carbohydrateG": 79.7,
+      "fatG": 29.3,
+      "fiberG": 3.5,
+      "sugarG": 3.8,
+      "sodiumMg": 849.0,
+      "potassiumMg": 560.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bánh phở tươi",
+          "unit": "g",
+          "requiredQuantity": 220
+        },
+        {
+          "name": "Bắp bò hoa",
+          "unit": "g",
+          "requiredQuantity": 160
+        },
+        {
+          "name": "Rượu vang đỏ",
+          "unit": "ml",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Cà chua chín",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Hành tây",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Nước dùng bò hầm",
+          "unit": "ml",
+          "requiredQuantity": 400
+        }
+      ]
+    },
+    {
+      "name": "Bánh mì bít tết khoai tây trứng ốp",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Thăn bò Úc áp chảo sốt tiêu đậm đà ăn kèm khoai tây chiên vàng giòn, xúc xích tiêu, pate gan và bánh mì giòn.",
+      "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+      "price": 95000,
+      "caloriesKcal": 997,
+      "proteinG": 47.3,
+      "carbohydrateG": 105.2,
+      "fatG": 43.0,
+      "fiberG": 4.8,
+      "sugarG": 5.2,
+      "sodiumMg": 785.0,
+      "potassiumMg": 620.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Thịt bò thăn",
+          "unit": "g",
+          "requiredQuantity": 150
+        },
+        {
+          "name": "Khoai tây chiên giòn",
+          "unit": "g",
+          "requiredQuantity": 100
+        },
+        {
+          "name": "Bánh mì truyền thống",
+          "unit": "cái",
+          "requiredQuantity": 2
+        },
+        {
+          "name": "Trứng gà ta",
+          "unit": "quả",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Pate gan heo",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Sốt bít tết tiêu đen",
+          "unit": "ml",
+          "requiredQuantity": 40
+        }
+      ]
+    },
+    {
+      "name": "Bún chả rươi đặc sản xứ Bắc",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Rươi tươi béo ngậy đúc trứng gà, thịt băm, thì là và vỏ quýt thơm nức chiên vàng rộm ăn cùng bún tươi.",
+      "imageUrl": "https://images.unsplash.com/photo-1594998893017-36147cbcae05?auto=format&fit=crop&w=800&q=80",
+      "price": 90000,
+      "caloriesKcal": 780,
+      "proteinG": 42.5,
+      "carbohydrateG": 73.8,
+      "fatG": 35.0,
+      "fiberG": 3.8,
+      "sugarG": 3.5,
+      "sodiumMg": 710.0,
+      "potassiumMg": 530.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bún tươi",
+          "unit": "g",
+          "requiredQuantity": 220
+        },
+        {
+          "name": "Rươi tươi biển",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Thịt heo nạc xay",
+          "unit": "g",
+          "requiredQuantity": 80
+        },
+        {
+          "name": "Trứng gà ta",
+          "unit": "quả",
+          "requiredQuantity": 2
+        },
+        {
+          "name": "Vỏ quýt thái chỉ",
+          "unit": "g",
+          "requiredQuantity": 10
+        },
+        {
+          "name": "Rau thì là",
+          "unit": "g",
+          "requiredQuantity": 25
+        }
+      ]
+    },
+    {
+      "name": "Bún riêu gánh bò giò chả đầy đặn",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Tô bún riêu đầy ắp thịt bò bắp hoa, móng giò ninh mềm béo ngậy, đậu rán vàng ruộm, gạch cua xào béo ngậy.",
+      "imageUrl": "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=800&q=80",
+      "price": 75000,
+      "caloriesKcal": 720,
+      "proteinG": 44.2,
+      "carbohydrateG": 71.7,
+      "fatG": 28.5,
+      "fiberG": 4.1,
+      "sugarG": 4.0,
+      "sodiumMg": 790.0,
+      "potassiumMg": 580.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bún tươi",
+          "unit": "g",
+          "requiredQuantity": 220
+        },
+        {
+          "name": "Cua đồng xay lọc nước",
+          "unit": "g",
+          "requiredQuantity": 130
+        },
+        {
+          "name": "Bắp bò hoa",
+          "unit": "g",
+          "requiredQuantity": 70
+        },
+        {
+          "name": "Móng giò heo ninh",
+          "unit": "g",
+          "requiredQuantity": 90
+        },
+        {
+          "name": "Đậu phụ non",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Cà chua chín",
+          "unit": "g",
+          "requiredQuantity": 50
+        }
+      ]
+    },
+    {
+      "name": "Phở bò xào giòn đậm vị",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Bánh phở áp chảo cháy cạnh thơm nức mùi khói, quyện sốt bò xào rau cải ngọt bắp bò mềm ngấm vị đậm đà.",
+      "imageUrl": "https://images.unsplash.com/photo-1576577445504-6af96477db52?auto=format&fit=crop&w=800&q=80",
+      "price": 80000,
+      "caloriesKcal": 860,
+      "proteinG": 48.0,
+      "carbohydrateG": 85.0,
+      "fatG": 36.5,
+      "fiberG": 4.0,
+      "sugarG": 3.9,
+      "sodiumMg": 820.0,
+      "potassiumMg": 540.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bánh phở tươi",
+          "unit": "g",
+          "requiredQuantity": 250
+        },
+        {
+          "name": "Thịt bò thăn",
+          "unit": "g",
+          "requiredQuantity": 130
+        },
+        {
+          "name": "Rau cải ngọt",
+          "unit": "g",
+          "requiredQuantity": 90
+        },
+        {
+          "name": "Hành tây",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Dầu hào chay ít mặn",
+          "unit": "ml",
+          "requiredQuantity": 25
+        }
+      ]
+    },
+    {
+      "name": "Phở chiên phồng bò sốt cà chua",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Bánh phở chiên phồng xốp giòn rụm chấm đẫm sốt thịt bò xào cần tây, cà chua sánh mịn giàu đạm năng lượng cao.",
+      "imageUrl": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80",
+      "price": 85000,
+      "caloriesKcal": 890,
+      "proteinG": 46.5,
+      "carbohydrateG": 88.2,
+      "fatG": 39.0,
+      "fiberG": 3.8,
+      "sugarG": 4.2,
+      "sodiumMg": 810.0,
+      "potassiumMg": 510.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bánh phở vuông chiên phồng",
+          "unit": "g",
+          "requiredQuantity": 220
+        },
+        {
+          "name": "Thịt bò thăn",
+          "unit": "g",
+          "requiredQuantity": 130
+        },
+        {
+          "name": "Rau cần tây",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Cà chua chín",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Hành tây",
+          "unit": "g",
+          "requiredQuantity": 30
+        }
+      ]
+    },
+    {
+      "name": "Chả cá Lã Vọng Hà Nội chảo nóng",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Cá lăng tươi ướp riềng mẻ nướng than rồi xào cùng thì là bạt ngàn, hành hoa, ăn cùng bún, đậu phộng và mắm tôm.",
+      "imageUrl": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=800&q=80",
+      "price": 95000,
+      "caloriesKcal": 750,
+      "proteinG": 45.0,
+      "carbohydrateG": 57.0,
+      "fatG": 38.0,
+      "fiberG": 4.2,
+      "sugarG": 2.8,
+      "sodiumMg": 830.0,
+      "potassiumMg": 590.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Cá lăng tươi phi lê",
+          "unit": "g",
+          "requiredQuantity": 180
+        },
+        {
+          "name": "Bún tươi",
+          "unit": "g",
+          "requiredQuantity": 180
+        },
+        {
+          "name": "Rau thì là",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Hành hoa",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Đậu phộng rang (lạc)",
+          "unit": "g",
+          "requiredQuantity": 25
+        },
+        {
+          "name": "Mắm tôm truyền thống",
+          "unit": "ml",
+          "requiredQuantity": 20
+        }
+      ]
+    },
+    {
+      "name": "Burger bò phô mai đôi Double Cheesy",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "2 lớp thịt bò Úc áp chảo phô mai Cheddar tan chảy, xốt kem béo ngậy, thịt xông khói giòn rụm kích thích vị giác.",
+      "imageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80",
+      "price": 89000,
+      "caloriesKcal": 830,
+      "proteinG": 49.5,
+      "carbohydrateG": 74.8,
+      "fatG": 37.0,
+      "fiberG": 3.2,
+      "sugarG": 4.8,
+      "sodiumMg": 860.0,
+      "potassiumMg": 490.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Vỏ burger lúa mạch nguyên cám",
+          "unit": "cái",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Thịt bò nạc xay",
+          "unit": "g",
+          "requiredQuantity": 180
+        },
+        {
+          "name": "Phô mai Cheddar lát",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Thịt ba rọi xông khói",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Rau xà lách tươi",
+          "unit": "g",
+          "requiredQuantity": 30
+        }
+      ]
+    },
+    {
+      "name": "Burger bò sốt BBQ đậm đà",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Thịt bò nướng vung sốt BBQ thơm ngọt mùi khói kẹp hành tây caramel, phô mai lát và bánh mì nướng bơ tỏi.",
+      "imageUrl": "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80",
+      "price": 79000,
+      "caloriesKcal": 760,
+      "proteinG": 43.8,
+      "carbohydrateG": 73.0,
+      "fatG": 32.5,
+      "fiberG": 3.4,
+      "sugarG": 5.5,
+      "sodiumMg": 790.0,
+      "potassiumMg": 470.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Vỏ burger lúa mạch nguyên cám",
+          "unit": "cái",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Thịt bò nạc xay",
+          "unit": "g",
+          "requiredQuantity": 160
+        },
+        {
+          "name": "Sốt BBQ đậm vị",
+          "unit": "ml",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Phô mai Cheddar lát",
+          "unit": "g",
+          "requiredQuantity": 25
+        },
+        {
+          "name": "Hành tây",
+          "unit": "g",
+          "requiredQuantity": 30
+        }
+      ]
+    },
+    {
+      "name": "Bún đậu mắm tôm thập cẩm lòng dồi",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Mẹt bún đậu đầy ắp thịt ba chỉ luộc, chả cốm dẻo thơm, dồi sụn chiên giòn, đậu hũ rán phồng và chén mắm tôm thơm sủi bọt.",
+      "imageUrl": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=800&q=80",
+      "price": 70000,
+      "caloriesKcal": 880,
+      "proteinG": 45.2,
+      "carbohydrateG": 82.5,
+      "fatG": 41.0,
+      "fiberG": 4.5,
+      "sugarG": 3.8,
+      "sodiumMg": 890.0,
+      "potassiumMg": 560.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bún tươi",
+          "unit": "g",
+          "requiredQuantity": 220
+        },
+        {
+          "name": "Đậu phụ non",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Thịt heo ba chỉ",
+          "unit": "g",
+          "requiredQuantity": 80
+        },
+        {
+          "name": "Chả cốm Hà Nội",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Mắm tôm truyền thống",
+          "unit": "ml",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Tắc (quất) tươi",
+          "unit": "quả",
+          "requiredQuantity": 2
+        }
+      ]
+    },
+    {
+      "name": "Bánh đa cua bò mọc thập cẩm Hải Phòng",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Bánh đa đỏ dẻo dai chan nước cua đồng béo ngọt, chả lá lốt thơm lừng, thịt bò tái và mọc giòn sựt sựt.",
+      "imageUrl": "https://images.unsplash.com/photo-1594998893017-36147cbcae05?auto=format&fit=crop&w=800&q=80",
+      "price": 75000,
+      "caloriesKcal": 740,
+      "proteinG": 41.5,
+      "carbohydrateG": 80.9,
+      "fatG": 27.8,
+      "fiberG": 4.3,
+      "sugarG": 3.5,
+      "sodiumMg": 780.0,
+      "potassiumMg": 520.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bánh đa đỏ Hải Phòng",
+          "unit": "g",
+          "requiredQuantity": 200
+        },
+        {
+          "name": "Cua đồng xay lọc nước",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Thịt bò thăn",
+          "unit": "g",
+          "requiredQuantity": 70
+        },
+        {
+          "name": "Chả lá lốt thịt băm",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Rau muống chẻ",
+          "unit": "g",
+          "requiredQuantity": 50
+        }
+      ]
+    },
+    {
+      "name": "Bánh mì chảo xíu mại trứng phô mai",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Chảo gang xèo xèo với viên xíu mại thịt băm mềm ngậy sốt cà chua, trứng ốp la, phô mai kéo sợi và pate thơm lừng.",
+      "imageUrl": "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
+      "price": 65000,
+      "caloriesKcal": 690,
+      "proteinG": 36.5,
+      "carbohydrateG": 64.0,
+      "fatG": 32.0,
+      "fiberG": 3.5,
+      "sugarG": 4.5,
+      "sodiumMg": 760.0,
+      "potassiumMg": 480.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bánh mì truyền thống",
+          "unit": "cái",
+          "requiredQuantity": 2
+        },
+        {
+          "name": "Thịt heo nạc xay",
+          "unit": "g",
+          "requiredQuantity": 90
+        },
+        {
+          "name": "Trứng gà ta",
+          "unit": "quả",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Phô mai Mozzarella sợi",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Pate gan heo",
+          "unit": "g",
+          "requiredQuantity": 25
+        },
+        {
+          "name": "Cà chua chín",
+          "unit": "g",
+          "requiredQuantity": 50
+        }
+      ]
+    },
+    {
+      "name": "Bánh mì chảo bò sốt tiêu đen",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Bò né bắp hoa sốt tiêu đen thơm cay nóng hổi trên chảo gang, trứng ốp la béo ngậy chấm đẫm bánh mì giòn tan.",
+      "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80",
+      "price": 75000,
+      "caloriesKcal": 790,
+      "proteinG": 46.0,
+      "carbohydrateG": 72.8,
+      "fatG": 35.0,
+      "fiberG": 3.8,
+      "sugarG": 4.0,
+      "sodiumMg": 790.0,
+      "potassiumMg": 530.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Thịt bò thăn",
+          "unit": "g",
+          "requiredQuantity": 130
+        },
+        {
+          "name": "Bánh mì truyền thống",
+          "unit": "cái",
+          "requiredQuantity": 2
+        },
+        {
+          "name": "Trứng gà ta",
+          "unit": "quả",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Sốt tiêu đen đậm vị",
+          "unit": "ml",
+          "requiredQuantity": 35
+        },
+        {
+          "name": "Hành tây",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Bơ lạt tự nhiên",
+          "unit": "g",
+          "requiredQuantity": 15
+        }
+      ]
+    },
+    {
+      "name": "Bánh mì chảo sườn sốt kem nấm",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Sườn non rút xương áp chảo vàng ươm om cùng sốt kem tươi béo ngậy, nấm mỡ thơm phức chấm bánh mì giòn.",
+      "imageUrl": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80",
+      "price": 85000,
+      "caloriesKcal": 810,
+      "proteinG": 42.0,
+      "carbohydrateG": 74.0,
+      "fatG": 38.5,
+      "fiberG": 3.6,
+      "sugarG": 4.2,
+      "sodiumMg": 740.0,
+      "potassiumMg": 510.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Sườn heo non nạc",
+          "unit": "g",
+          "requiredQuantity": 150
+        },
+        {
+          "name": "Bánh mì truyền thống",
+          "unit": "cái",
+          "requiredQuantity": 2
+        },
+        {
+          "name": "Kem béo tươi (cooking cream)",
+          "unit": "ml",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Nấm mỡ tươi",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Bơ lạt tự nhiên",
+          "unit": "g",
+          "requiredQuantity": 15
+        }
+      ]
+    },
+    {
+      "name": "Xôi cá rô đồng chiên giòn mỡ hành",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Xôi nếp cái hoa vàng dẻo quánh ăn kèm thịt cá rô đồng gỡ xương chiên vàng ròn rụm, mỡ hành óng ả và ruốc thơm.",
+      "imageUrl": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80",
+      "price": 60000,
+      "caloriesKcal": 650,
+      "proteinG": 34.5,
+      "carbohydrateG": 74.0,
+      "fatG": 24.0,
+      "fiberG": 4.0,
+      "sugarG": 2.5,
+      "sodiumMg": 580.0,
+      "potassiumMg": 450.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Gạo nếp cái hoa vàng",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Cá rô đồng tươi",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Hành lá tươi",
+          "unit": "g",
+          "requiredQuantity": 25
+        },
+        {
+          "name": "Dầu ăn thực vật",
+          "unit": "ml",
+          "requiredQuantity": 20
+        },
+        {
+          "name": "Hành khô (hành tím)",
+          "unit": "g",
+          "requiredQuantity": 20
+        }
+      ]
+    },
+    {
+      "name": "Phở Thìn tái lăn Hà Nội ngập hành",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Thịt bò tái xào lăn trên chảo lửa lớn dậy mùi tỏi gừng thơm nồng, nước dùng béo ngậy phủ ngập hành hoa xanh mướt.",
+      "imageUrl": "https://images.unsplash.com/photo-1576577445504-6af96477db52?auto=format&fit=crop&w=800&q=80",
+      "price": 75000,
+      "caloriesKcal": 760,
+      "proteinG": 43.0,
+      "carbohydrateG": 77.3,
+      "fatG": 31.0,
+      "fiberG": 3.7,
+      "sugarG": 3.2,
+      "sodiumMg": 820.0,
+      "potassiumMg": 530.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bánh phở tươi",
+          "unit": "g",
+          "requiredQuantity": 220
+        },
+        {
+          "name": "Thịt bò thăn",
+          "unit": "g",
+          "requiredQuantity": 130
+        },
+        {
+          "name": "Hành lá tươi",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Tỏi củ tươi",
+          "unit": "g",
+          "requiredQuantity": 20
+        },
+        {
+          "name": "Gừng tươi",
+          "unit": "g",
+          "requiredQuantity": 15
+        },
+        {
+          "name": "Nước dùng bò hầm",
+          "unit": "ml",
+          "requiredQuantity": 380
+        }
+      ]
+    },
+    {
+      "name": "Bún ốc sườn sụn chuối đậu tía tô",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Ốc mít béo giòn ninh cùng sườn sụn giòn sần sật, chuối xanh bùi, đậu hũ rán ngấm nước canh nghệ sánh vàng thơm phức.",
+      "imageUrl": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=800&q=80",
+      "price": 70000,
+      "caloriesKcal": 710,
+      "proteinG": 38.2,
+      "carbohydrateG": 76.3,
+      "fatG": 28.0,
+      "fiberG": 4.5,
+      "sugarG": 3.0,
+      "sodiumMg": 760.0,
+      "potassiumMg": 560.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bún tươi",
+          "unit": "g",
+          "requiredQuantity": 220
+        },
+        {
+          "name": "Ốc mít tươi làm sạch",
+          "unit": "g",
+          "requiredQuantity": 100
+        },
+        {
+          "name": "Sườn heo sụn non",
+          "unit": "g",
+          "requiredQuantity": 90
+        },
+        {
+          "name": "Đậu phụ non",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Chuối tiêu xanh",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Rau tía tô",
+          "unit": "g",
+          "requiredQuantity": 25
+        }
+      ]
+    },
+    {
+      "name": "Bánh đa đỏ trộn bò giò chả",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Bánh đa Hải Phòng trộn xì dầu tương ớt tỏi phi, thịt bò mềm ngọt, giò lụa thái sợi và đậu phộng rang giòn thơm.",
+      "imageUrl": "https://images.unsplash.com/photo-1594998893017-36147cbcae05?auto=format&fit=crop&w=800&q=80",
+      "price": 65000,
+      "caloriesKcal": 680,
+      "proteinG": 39.0,
+      "carbohydrateG": 71.4,
+      "fatG": 26.5,
+      "fiberG": 4.0,
+      "sugarG": 3.6,
+      "sodiumMg": 750.0,
+      "potassiumMg": 480.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bánh đa đỏ Hải Phòng",
+          "unit": "g",
+          "requiredQuantity": 200
+        },
+        {
+          "name": "Thịt bò thăn",
+          "unit": "g",
+          "requiredQuantity": 90
+        },
+        {
+          "name": "Giò lụa nạc",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Đậu phộng rang (lạc)",
+          "unit": "g",
+          "requiredQuantity": 15
+        },
+        {
+          "name": "Rau muống chẻ",
+          "unit": "g",
+          "requiredQuantity": 40
+        }
+      ]
+    },
+    {
+      "name": "Mì vằn thắn sủi cảo thập cẩm xá xíu",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Sợi mì trứng tươi vàng óng, sủi cảo tôm thịt béo ngậy, thịt xá xíu đỏ mềm, trứng luộc và lá hẹ tươi chan nước xương ngọt đậm.",
+      "imageUrl": "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=800&q=80",
+      "price": 65000,
+      "caloriesKcal": 670,
+      "proteinG": 37.8,
+      "carbohydrateG": 73.5,
+      "fatG": 25.0,
+      "fiberG": 3.8,
+      "sugarG": 3.5,
+      "sodiumMg": 770.0,
+      "potassiumMg": 490.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Mì trứng tươi sợi",
+          "unit": "g",
+          "requiredQuantity": 160
+        },
+        {
+          "name": "Thịt heo xá xíu",
+          "unit": "g",
+          "requiredQuantity": 70
+        },
+        {
+          "name": "Sủi cảo tôm thịt",
+          "unit": "g",
+          "requiredQuantity": 80
+        },
+        {
+          "name": "Trứng gà ta",
+          "unit": "quả",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Hẹ lá tươi",
+          "unit": "g",
+          "requiredQuantity": 25
+        },
+        {
+          "name": "Nước dùng gà hầm",
+          "unit": "ml",
+          "requiredQuantity": 350
+        }
+      ]
+    },
+    {
+      "name": "Bánh cuốn chả quế nóng hành phi",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Bánh cuốn tráng tay nóng hổi nhân thịt băm mộc nhĩ giòn sựt, phủ ngập hành phi tự phi vàng ươm ăn cùng chả quế thơm lừng.",
+      "imageUrl": "https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=800&q=80",
+      "price": 50000,
+      "caloriesKcal": 761,
+      "proteinG": 35.9,
+      "carbohydrateG": 83.2,
+      "fatG": 31.7,
+      "fiberG": 3.9,
+      "sugarG": 4.1,
+      "sodiumMg": 840.0,
+      "potassiumMg": 510.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bột gạo tẻ làm bánh",
+          "unit": "g",
+          "requiredQuantity": 150
+        },
+        {
+          "name": "Thịt heo nạc xay",
+          "unit": "g",
+          "requiredQuantity": 80
+        },
+        {
+          "name": "Chả quế nướng thơm",
+          "unit": "g",
+          "requiredQuantity": 70
+        },
+        {
+          "name": "Nấm mèo (mộc nhĩ)",
+          "unit": "g",
+          "requiredQuantity": 25
+        },
+        {
+          "name": "Hành khô (hành tím)",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Nước mắm chua ngọt",
+          "unit": "ml",
+          "requiredQuantity": 40
+        }
+      ]
+    },
+    {
+      "name": "Hủ tiếu Nam Vang đặc biệt tôm thịt",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Sợi hủ tiếu dai dai hòa quyện thịt bằm béo ngọt, tôm sú luộc nõn, trứng cút, gan heo luộc và cần tây thơm nồng.",
+      "imageUrl": "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=800&q=80",
+      "price": 75000,
+      "caloriesKcal": 730,
+      "proteinG": 42.0,
+      "carbohydrateG": 81.0,
+      "fatG": 26.5,
+      "fiberG": 3.7,
+      "sugarG": 3.9,
+      "sodiumMg": 790.0,
+      "potassiumMg": 530.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Hủ tiếu dai Sa Đéc",
+          "unit": "g",
+          "requiredQuantity": 200
+        },
+        {
+          "name": "Thịt heo nạc băm",
+          "unit": "g",
+          "requiredQuantity": 70
+        },
+        {
+          "name": "Tôm sú tươi nõn",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Gan heo tươi làm sạch",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Trứng cút luộc",
+          "unit": "quả",
+          "requiredQuantity": 3
+        },
+        {
+          "name": "Rau cần tây",
+          "unit": "g",
+          "requiredQuantity": 30
+        }
+      ]
+    },
+    {
+      "name": "Hủ tiếu hải sản tôm mực nước ngọt",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Tô hủ tiếu thơm lừng mùi biển với tôm sú to, mực ống tươi giòn ngọt, nước hầm xương ống và mực khô thanh đượm.",
+      "imageUrl": "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80",
+      "price": 75000,
+      "caloriesKcal": 640,
+      "proteinG": 40.5,
+      "carbohydrateG": 72.2,
+      "fatG": 21.0,
+      "fiberG": 3.5,
+      "sugarG": 3.2,
+      "sodiumMg": 740.0,
+      "potassiumMg": 570.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Hủ tiếu dai Sa Đéc",
+          "unit": "g",
+          "requiredQuantity": 200
+        },
+        {
+          "name": "Tôm sú tươi nõn",
+          "unit": "g",
+          "requiredQuantity": 80
+        },
+        {
+          "name": "Mực ống tươi cắt khoanh",
+          "unit": "g",
+          "requiredQuantity": 80
+        },
+        {
+          "name": "Hành lá tươi",
+          "unit": "g",
+          "requiredQuantity": 20
+        },
+        {
+          "name": "Nước dùng hải sản hầm",
+          "unit": "ml",
+          "requiredQuantity": 350
+        }
+      ]
+    },
+    {
+      "name": "Hủ tiếu sườn cọng thịt bằm xá xíu",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Dẻ sườn heo ninh mềm tan trong miệng kết hợp thịt xá xíu mềm đậm đà và thịt bằm xào tỏi thơm quyến rũ.",
+      "imageUrl": "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=800&q=80",
+      "price": 75000,
+      "caloriesKcal": 695,
+      "proteinG": 39.5,
+      "carbohydrateG": 76.2,
+      "fatG": 25.8,
+      "fiberG": 3.6,
+      "sugarG": 3.8,
+      "sodiumMg": 760.0,
+      "potassiumMg": 500.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Hủ tiếu dai Sa Đéc",
+          "unit": "g",
+          "requiredQuantity": 200
+        },
+        {
+          "name": "Sườn heo non nạc",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Thịt heo xá xíu",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Thịt heo nạc băm",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Hành lá tươi",
+          "unit": "g",
+          "requiredQuantity": 20
+        }
+      ]
+    },
+    {
+      "name": "Nem nướng Nha Trang cuốn ram giòn",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Nem lụi nướng than hoa thơm lừng cuốn cùng ram chiên vàng giòn, xoài non chua, dưa leo và chấm tương đậu bùi ngậy.",
+      "imageUrl": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80",
+      "price": 65000,
+      "caloriesKcal": 630,
+      "proteinG": 36.0,
+      "carbohydrateG": 65.2,
+      "fatG": 25.0,
+      "fiberG": 4.2,
+      "sugarG": 4.6,
+      "sodiumMg": 690.0,
+      "potassiumMg": 460.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Nem nướng thịt heo",
+          "unit": "g",
+          "requiredQuantity": 140
+        },
+        {
+          "name": "Bánh tráng cuốn mè",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Ram tôm chiên giòn",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Xoài xanh bào sợi",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Tương nếp chấm nem nướng",
+          "unit": "ml",
+          "requiredQuantity": 40
+        }
+      ]
+    },
+    {
+      "name": "Bánh mì thập cẩm đặc biệt giò chả pate",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Ổ bánh mì siêu to nạp năng lượng: pate gan béo ngậy, bơ trứng, thịt xíu mềm ngọt, chả lụa, dăm bông và đồ chua giòn.",
+      "imageUrl": "https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=800&q=80",
+      "price": 45000,
+      "caloriesKcal": 620,
+      "proteinG": 33.5,
+      "carbohydrateG": 63.0,
+      "fatG": 26.0,
+      "fiberG": 3.5,
+      "sugarG": 3.8,
+      "sodiumMg": 740.0,
+      "potassiumMg": 420.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bánh mì truyền thống",
+          "unit": "cái",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Pate gan heo",
+          "unit": "g",
+          "requiredQuantity": 35
+        },
+        {
+          "name": "Thịt heo xá xíu",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Giò lụa nạc",
+          "unit": "g",
+          "requiredQuantity": 40
+        },
+        {
+          "name": "Bơ trứng sốt mayo",
+          "unit": "g",
+          "requiredQuantity": 20
+        },
+        {
+          "name": "Dưa leo (dưa chuột)",
+          "unit": "g",
+          "requiredQuantity": 30
+        }
+      ]
+    },
+    {
+      "name": "Bún riêu bò bắp hoa giò gân",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Tô bún riêu đậm vị Bắc với giò gân sần sật, bắp bò hoa thơm mềm, riêu cua đồng và huyết heo bổ máu giàu sắt.",
+      "imageUrl": "https://images.unsplash.com/photo-1594998893017-36147cbcae05?auto=format&fit=crop&w=800&q=80",
+      "price": 75000,
+      "caloriesKcal": 735,
+      "proteinG": 45.0,
+      "carbohydrateG": 76.9,
+      "fatG": 27.5,
+      "fiberG": 4.2,
+      "sugarG": 3.7,
+      "sodiumMg": 810.0,
+      "potassiumMg": 560.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Bún tươi",
+          "unit": "g",
+          "requiredQuantity": 220
+        },
+        {
+          "name": "Cua đồng xay lọc nước",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Bắp bò hoa",
+          "unit": "g",
+          "requiredQuantity": 80
+        },
+        {
+          "name": "Giò gân heo",
+          "unit": "g",
+          "requiredQuantity": 70
+        },
+        {
+          "name": "Đậu phụ non",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Cà chua chín",
+          "unit": "g",
+          "requiredQuantity": 50
+        }
+      ]
+    },
+    {
+      "name": "Cơm rang dưa bò giòn hạt Hà Nội",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Cơm hạt đảo vàng giòn tơi xốp quyện trứng gà, xào cùng thịt bò thăn mềm ngọt và dưa cải chua giòn ngấu đậm đà.",
+      "imageUrl": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80",
+      "price": 70000,
+      "caloriesKcal": 795,
+      "proteinG": 41.0,
+      "carbohydrateG": 86.0,
+      "fatG": 32.0,
+      "fiberG": 4.5,
+      "sugarG": 3.6,
+      "sodiumMg": 830.0,
+      "potassiumMg": 520.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Gạo tẻ thơm",
+          "unit": "g",
+          "requiredQuantity": 160
+        },
+        {
+          "name": "Thịt bò thăn",
+          "unit": "g",
+          "requiredQuantity": 120
+        },
+        {
+          "name": "Dưa cải muối chua",
+          "unit": "g",
+          "requiredQuantity": 70
+        },
+        {
+          "name": "Trứng gà ta",
+          "unit": "quả",
+          "requiredQuantity": 2
+        },
+        {
+          "name": "Hành khô (hành tím)",
+          "unit": "g",
+          "requiredQuantity": 20
+        }
+      ]
+    },
+    {
+      "name": "Xôi xéo thịt kho trứng béo ngậy",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Xôi nếp óng vàng hạt đỗ xanh bào tơi xốp, rưới mỡ hành, ăn cùng miếng thịt ba chỉ kho tàu ngấm gia vị và trứng luộc béo ngậy.",
+      "imageUrl": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80",
+      "price": 60000,
+      "caloriesKcal": 840,
+      "proteinG": 38.0,
+      "carbohydrateG": 77.5,
+      "fatG": 42.0,
+      "fiberG": 4.8,
+      "sugarG": 4.5,
+      "sodiumMg": 790.0,
+      "potassiumMg": 510.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Gạo nếp cái hoa vàng",
+          "unit": "g",
+          "requiredQuantity": 130
+        },
+        {
+          "name": "Đậu xanh bóc vỏ",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Thịt heo ba chỉ",
+          "unit": "g",
+          "requiredQuantity": 100
+        },
+        {
+          "name": "Trứng gà ta",
+          "unit": "quả",
+          "requiredQuantity": 1
+        },
+        {
+          "name": "Hành khô (hành tím)",
+          "unit": "g",
+          "requiredQuantity": 25
+        }
+      ]
+    },
+    {
+      "name": "Xôi gà xé mỡ hành lạp xưởng Mai Quế Lộ",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Xôi nếp dẻo thơm hạt dẻo quyện mỡ hành tươi, lạp xưởng Mai Quế Lộ ngọt đậm thơm mùi rượu và đùi gà luộc xé béo ngậy.",
+      "imageUrl": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80",
+      "price": 65000,
+      "caloriesKcal": 780,
+      "proteinG": 41.5,
+      "carbohydrateG": 74.8,
+      "fatG": 35.0,
+      "fiberG": 3.8,
+      "sugarG": 4.8,
+      "sodiumMg": 770.0,
+      "potassiumMg": 480.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Gạo nếp cái hoa vàng",
+          "unit": "g",
+          "requiredQuantity": 130
+        },
+        {
+          "name": "Thịt đùi gà tươi",
+          "unit": "g",
+          "requiredQuantity": 110
+        },
+        {
+          "name": "Lạp xưởng Mai Quế Lộ",
+          "unit": "g",
+          "requiredQuantity": 50
+        },
+        {
+          "name": "Hành lá tươi",
+          "unit": "g",
+          "requiredQuantity": 30
+        },
+        {
+          "name": "Dầu ăn thực vật",
+          "unit": "ml",
+          "requiredQuantity": 15
+        }
+      ]
+    },
+    {
+      "name": "Cơm tấm sườn bì chả trứng Sài Gòn",
+      "category": "Thực đơn Tăng Cân & Tăng Cơ",
+      "description": "Đĩa cơm tấm sườn nướng mật ong than hoa đậm đà, chả trứng chưng vàng ươm, bì heo trộn thính thơm và chén nước mắm kẹo.",
+      "imageUrl": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=800&q=80",
+      "price": 75000,
+      "caloriesKcal": 850,
+      "proteinG": 46.0,
+      "carbohydrateG": 81.0,
+      "fatG": 38.0,
+      "fiberG": 4.2,
+      "sugarG": 5.0,
+      "sodiumMg": 820.0,
+      "potassiumMg": 540.0,
+      "status": "AVAILABLE",
+      "ingredients": [
+        {
+          "name": "Gạo tấm thơm",
+          "unit": "g",
+          "requiredQuantity": 150
+        },
+        {
+          "name": "Sườn heo cốt lết",
+          "unit": "g",
+          "requiredQuantity": 140
+        },
+        {
+          "name": "Chả trứng hấp thịt băm",
+          "unit": "g",
+          "requiredQuantity": 60
+        },
+        {
+          "name": "Bì heo trộn thính",
+          "unit": "g",
+          "requiredQuantity": 35
+        },
+        {
+          "name": "Mỡ hành lá",
+          "unit": "ml",
+          "requiredQuantity": 15
+        },
+        {
+          "name": "Nước mắm kẹo chua ngọt",
+          "unit": "ml",
+          "requiredQuantity": 30
+        }
+      ]
+    }
+  ]
+}

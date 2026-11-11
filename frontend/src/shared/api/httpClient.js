@@ -1,8 +1,11 @@
 import axios from "axios";
-import { getTokenRevision, loadToken, saveToken } from "./tokenStorage.js";
+import { clearToken, getTokenRevision, loadToken, saveToken } from "./tokenStorage.js";
+
+const rawBaseUrl = import.meta.env?.VITE_API_BASE_URL || "http://localhost:8080";
+const normalizedBaseUrl = rawBaseUrl.replace(/\/api\/?$/, "").replace(/\/+$/, "");
 
 const clientOptions = {
-  baseURL: import.meta.env?.VITE_API_BASE_URL || "http://localhost:8080",
+  baseURL: normalizedBaseUrl || "http://localhost:8080",
   withCredentials: true,
 };
 
@@ -39,7 +42,12 @@ httpClient.interceptors.response.use((response) => response, async (error) => {
   request._retried = true;
   const currentToken = loadToken();
   if (!currentToken || request.headers.Authorization === `Bearer ${currentToken}`) {
-    await refreshSession();
+    try {
+      await refreshSession();
+    } catch (refreshErr) {
+      clearToken();
+      throw refreshErr;
+    }
   }
   return httpClient(request);
 });

@@ -1,8 +1,9 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Badge, Button, Card, Form } from "react-bootstrap";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../../../app/provider/useAuth";
 import { useCart } from "../../cart/hooks/useCart";
+import { CartIcon } from "../../../shared/components/Icons";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { DeliveryForm } from "../components/DeliveryForm";
 import { OrderPageHeader } from "../components/OrderPageHeader";
@@ -12,13 +13,17 @@ import "../styles/orders.css";
 
 export function CheckoutPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { items, totalItems, totalPrice, refreshCart, isCartLoading,
     pendingGuestItems, cartError } = useCart();
-  const [promoCode, setPromoCode] = useState("");
+  const suggestedPromoCode = new URLSearchParams(location.search).get("promo")
+    ?? location.state?.suggestedPromoCode ?? "";
+  const [promoCode, setPromoCode] = useState(() => suggestedPromoCode);
   const [promoQuote, setPromoQuote] = useState(null);
   const [applyingPromo, setApplyingPromo] = useState(false);
   const promoVersion = useRef(0);
+  const autoAppliedPromoKey = useRef("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const requestId = useRef(null);
@@ -38,9 +43,9 @@ export function CheckoutPage() {
     city: "",
   }), [user]);
 
-  async function applyPromo() {
+  const applyPromo = useCallback(async (codeInput) => {
     const version = ++promoVersion.current;
-    const code = promoCode.trim().toUpperCase();
+    const code = codeInput.trim().toUpperCase();
     setPromoQuote(null);
     setApplyingPromo(true);
     const result = await orderStore.previewPromotion(code);
@@ -53,10 +58,24 @@ export function CheckoutPage() {
     }
     setPromoQuote({ ...result.data, cartKey });
     setError("");
-  }
+  }, [cartKey, totalPrice, refreshCart]);
+
+  useEffect(() => {
+    const code = suggestedPromoCode.trim().toUpperCase();
+    if (!code || isCartLoading || pendingGuestItems > 0 || !items.length ||
+        promoCode.trim().toUpperCase() !== code) return;
+    const key = `${code}:${cartKey}`;
+    if (autoAppliedPromoKey.current === key) return;
+    autoAppliedPromoKey.current = key;
+    void applyPromo(code);
+  }, [suggestedPromoCode, isCartLoading, pendingGuestItems, items.length, promoCode, cartKey, applyPromo]);
 
   async function placeOrder(delivery) {
     if (submitting.current || applyingPromo) return;
+    if (promoCode.trim() && !promoApplied) {
+      setError("Vui lòng áp dụng hoặc xóa mã giảm giá trước khi đặt hàng.");
+      return;
+    }
     submitting.current = true;
     setError("");
     setIsSubmitting(true);
@@ -93,7 +112,7 @@ export function CheckoutPage() {
 
   if (!items.length) {
     return <Card body className="order-empty text-center">
-      <span>🛒</span><h1 className="h4 mt-3">Giỏ hàng đang trống</h1>
+      <div className="mb-2 text-secondary"><CartIcon size={48} /></div><h1 className="h4 mt-2">Giỏ hàng đang trống</h1>
       <p className="text-muted">{cartError || "Thêm món trước khi thanh toán nhé."}</p>
       <Button as={Link} to="/menu" className="align-self-center">Khám phá thực đơn</Button>
     </Card>;
@@ -133,7 +152,7 @@ export function CheckoutPage() {
             </div>)}</div>
             <Form.Group className="mt-3"><Form.Label className="small fw-semibold">Mã giảm giá</Form.Label>
               <div className="d-flex gap-2"><Form.Control maxLength={30} value={promoCode} onChange={(event) => { setPromoCode(event.target.value); setPromoQuote(null); promoVersion.current += 1; setApplyingPromo(false); }} placeholder="Nhập mã ưu đãi" disabled={isSubmitting} />
-                <Button variant="outline-primary" disabled={applyingPromo || isSubmitting || !promoCode.trim()} onClick={applyPromo}>{applyingPromo ? "Đang kiểm tra..." : "Áp dụng"}</Button></div>
+                <Button variant="outline-primary" disabled={applyingPromo || isSubmitting || !promoCode.trim()} onClick={() => applyPromo(promoCode)}>{applyingPromo ? "Đang kiểm tra..." : "Áp dụng"}</Button></div>
             </Form.Group>
             {promoApplied && <Alert variant="success" className="small mt-3 mb-0">Đã áp dụng {promoQuote.code} · {promoQuote.name}. Giảm cho {promoQuote.eligibleItems} món thuộc chương trình.</Alert>}
             <div className="cart-totals mt-3"><div><span>Tạm tính</span><span>{formatCurrency(totalPrice)}</span></div>

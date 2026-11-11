@@ -1,9 +1,18 @@
 .manager-area { max-width: 1200px; margin: auto; }
-.manager-banner { padding: 28px; border-radius: 20px; background: linear-gradient(120deg, #14532d, #15803d); color: white; }
-.manager-banner p { color: #dcfce7; }
-.manager-nav { display: flex; gap: 8px; flex-wrap: wrap; }
-.manager-nav a { padding: 10px 20px; border-radius: 12px; text-decoration: none; font-weight: 600; }
-.manager-nav a.active { background: #dcfce7; color: #14532d; }
+.manager-banner { position: relative; display: flex; align-items: center; gap: 24px; min-height: 156px; margin-bottom: 16px; padding: 28px 34px; overflow: hidden; border-radius: 22px; background: linear-gradient(110deg, #15824c 0%, #106d3f 63%, #209759 100%); box-shadow: 0 12px 30px #1d704022; color: white; }
+.manager-banner::before { position: absolute; right: 10%; bottom: -120px; width: 300px; height: 300px; border: 1px solid #ffffff24; border-radius: 50%; content: ''; }
+.manager-banner-icon { position: relative; z-index: 1; display: grid; place-items: center; width: 82px; height: 82px; flex: none; border: 1px solid #ffffff26; border-radius: 20px; background: #ffffff24; box-shadow: 0 12px 25px #0d3e2840; }
+.manager-banner-copy { position: relative; z-index: 1; max-width: 630px; }
+.manager-banner-eyebrow { margin-bottom: 5px; font-size: .82rem; font-weight: 800; text-transform: uppercase; }
+.manager-banner h1 { margin: 0 0 4px; font-size: clamp(1.75rem, 3vw, 2.3rem); font-weight: 800; }
+.manager-banner p { margin: 0; color: #f0fff4; }
+.manager-banner-food { position: absolute; top: 0; right: 0; width: 31%; height: 100%; object-fit: cover; object-position: center; opacity: .92; mask-image: linear-gradient(to right, transparent, #000 28%); }
+.manager-nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin-bottom: 22px; padding: 8px; border: 1px solid #e1ebe5; border-radius: 16px; background: #fff; box-shadow: 0 4px 16px #17452b0e; }
+.manager-nav a { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 8px 12px; border-radius: 9px; color: #253240; text-decoration: none; font-size: .91rem; font-weight: 700; white-space: nowrap; }
+.manager-nav a svg { flex: none; color: #687887; }
+.manager-nav a:hover { background: #edf7ef; color: #136d3a; }
+.manager-nav a.active { background: linear-gradient(120deg, #17864c, #08703b); box-shadow: 0 3px 8px #0f703b2b; color: white; }
+.manager-nav a.active svg { color: white; }
 .manager-area .card { background: white; border-radius: 16px; border-color: #e1ebdf; }
 .manager-area .form-control, .manager-area .form-select { background-color: white; }
 .manager-thumbnail { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
@@ -13,6 +22,66 @@
 .manager-stat { font-size: 1.8rem; font-weight: 700; color: #15803d; }
 .manager-area td { padding-top: 16px; padding-bottom: 16px; }
 .manager-area .table { min-width: 720px; }
+.manager-breadcrumb { display: flex; align-items: center; gap: 12px; margin: 0 4px 17px; color: #657384; font-size: .88rem; }
+.manager-breadcrumb a { display: inline-flex; align-items: center; color: inherit; text-decoration: none; }
+.manager-breadcrumb a:hover, .manager-breadcrumb [aria-current="page"] { color: #08753c; font-weight: 700; }
+.manager-breadcrumb > span[aria-hidden] { color: #94a3a8; font-size: 1.2rem; }
+.manager-product-title { display: flex; align-items: center; gap: 18px; margin: 0 4px 20px; }
+.manager-product-title > span { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: #e1f5e7; color: #078241; }
+.manager-product-title h2 { margin: 0; font-size: clamp(1.55rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -.025em; }
+.manager-product-form .manager-product-columns > .col-lg-7 { display: flex; }
+.manager-product-form .manager-product-card { width: 100%; overflow: hidden; border: 1px solid #dce8e4; border-radius: 16px; box-shadow: 0 6px 20px #163d2c0d; }
+.manager-product-form .card-header { display: flex; align-items: center; gap: 14px; min-height: 66px; padding: 13px 22px; border-bottom: 1px solid #e4ebe8; background: #fff; }
+.manager-product-form .card-header h3 { margin: 0; font-size: 1.15rem; font-weight: 800; }
+.manager-card-icon { display: grid; place-items: center; width: 38px; height: 38px; flex: none; border-radius: 10px; background: #e3f6e9; color: #078741; }
+.manager-product-form .card-body { padding: 22px 24px; }
+.manager-product-form .form-label { margin-bottom: 8px; color: #192b32; font-size: .88rem; font-weight: 700; }
+.manager-required { color: #e32636; }
+.manager-product-form .form-control, .manager-product-form .form-select { min-height: 42px; border-color: #bfcbd0; border-radius: 7px; color: #132534; background-color: #fff; }
+.manager-product-form .form-control:focus, .manager-product-form .form-select:focus { border-color: #22a05a; box-shadow: 0 0 0 3px #168c4422; }
+.manager-product-form .form-control::placeholder { color: #748390; }
+.manager-product-form textarea.form-control { min-height: 80px; }
+.manager-nutrition-heading { display: flex; align-items: center; gap: 14px; margin: 26px 0 18px; padding: 12px 16px; border-radius: 11px; background: linear-gradient(90deg, #e7f8ec, #ddf6e6); color: #132d22; font-size: 1.05rem; font-weight: 800; }
+.manager-nutrition-heading svg { color: #12834a; }
+.manager-product-image-card .card-body { padding: 14px 18px 16px; }
+.manager-product-image-card .manager-image-preview { height: clamp(156px, 18vw, 185px); object-fit: contain; border: 1px solid #e1e8e5; border-radius: 12px; background: #f8faf8; }
+.manager-product-image-card .manager-image-upload { margin-top: 10px !important; }
+.manager-product-image-card .form-text { display: block; margin-top: 6px; font-size: .78rem; line-height: 1.45; }
+.manager-product-form .manager-image-file-input { position: absolute; width: 1px; height: 1px; min-height: 0; padding: 0; opacity: 0; overflow: hidden; }
+.manager-image-upload-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; margin: 0; padding: 8px 16px; border: 1px solid #b5d8c2; border-radius: 8px; background: #e9f8ee; color: #08763a; font-size: .86rem; font-weight: 700; cursor: pointer; }
+.manager-image-upload-button.is-invalid { border-color: #dc3545; }
+.manager-image-upload-button:hover { background: #d9f2e1; }
+.manager-image-file-input:focus-visible + .manager-image-upload-button { outline: 3px solid #168c4466; outline-offset: 2px; }
+.manager-recipe-hint { margin: 0 0 8px; color: #586875; font-size: .86rem; }
+.manager-recipe-toolbar { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+.manager-recipe-toolbar .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; border-radius: 7px; font-size: .83rem; font-weight: 700; }
+.manager-recipe-lines { max-height: min(58vh, 460px); overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding-right: 4px; }
+.manager-recipe-line { margin-bottom: 7px; padding: 7px 10px; border: 1px solid #d5e0df; border-radius: 9px; background: #fbfdfc; }
+.manager-recipe-line:last-child { margin-bottom: 0; }
+.manager-recipe-line .form-control, .manager-recipe-line .form-select { min-height: 34px; padding: 5px 10px; font-size: .82rem; }
+.manager-recipe-line .btn { display: inline-flex; align-items: center; gap: 4px; min-height: 34px; padding: 5px 9px; white-space: nowrap; }
+.manager-recipe-line .small { font-size: .75rem; }
+.manager-product-recipe .alert { padding: 10px 12px; border-radius: 8px; font-size: .86rem; }
+.manager-product-recipe .alert-warning { border-color: #f8c841; background: #fff2c6; color: #614100; }
+.manager-product-actions { display: flex; justify-content: flex-end; gap: 14px; margin-top: 22px; }
+.manager-product-actions .btn { min-width: 100px; min-height: 44px; padding: 9px 20px; border-radius: 8px; font-weight: 700; }
+.manager-product-actions .btn-primary { min-width: 170px; }
+@media (max-width: 991.98px) {
+  .manager-topnav { align-items: stretch; margin: 12px 0 0; padding: 0; border: 0; }
+  .manager-nav { display: flex; overflow-x: auto; }
+  .manager-nav a { flex: none; }
+  .manager-banner-food { width: 38%; }
+}
+@media (max-width: 575.98px) {
+  .manager-banner { gap: 14px; min-height: 150px; padding: 20px; }
+  .manager-banner-icon { width: 54px; height: 54px; border-radius: 13px; }
+  .manager-banner-icon svg { width: 29px; }
+  .manager-banner-food { opacity: .23; width: 62%; }
+  .manager-breadcrumb { flex-wrap: wrap; gap: 7px; }
+  .manager-product-form .card-body { padding: 18px; }
+  .manager-product-form .manager-product-image-card .card-body { padding: 14px 16px; }
+  .manager-product-actions .btn { flex: 1; }
+}
 @media (max-width: 575px) { .manager-banner { padding: 20px; } .manager-image-preview { height: 190px; } }
 .manager-order-code { overflow-wrap: anywhere; font-size: .85rem; }
 .manager-order-totals { display: grid; grid-template-columns: 1fr auto; gap: .75rem 1.5rem; max-width: 420px; }

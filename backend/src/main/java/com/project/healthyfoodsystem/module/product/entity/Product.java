@@ -29,11 +29,6 @@ public class Product {
     private String cloudinaryPublicId;
     @Column(nullable = false, precision = 12, scale = 0)
     private BigDecimal price;
-    @Column(name = "stock_quantity")
-    private Integer stockQuantity;
-    @Nationalized
-    @Column(name = "ingredients_text", columnDefinition = "NVARCHAR(MAX)")
-    private String ingredientsText;
     @Column(name = "calories_kcal", nullable = false)
     private Integer caloriesKcal;
     @Column(name = "protein_g", nullable = false, precision = 6, scale = 1)
@@ -48,6 +43,8 @@ public class Product {
     private BigDecimal sugarG;
     @Column(name = "sodium_mg", precision = 8, scale = 1)
     private BigDecimal sodiumMg;
+    @Column(name = "potassium_mg", precision = 8, scale = 1)
+    private BigDecimal potassiumMg;
     @Column(nullable = false, length = 20)
     private String status;
     @Column(name = "created_at", nullable = false)
@@ -59,17 +56,15 @@ public class Product {
     }
 
     public Product(Category category, String name, String description, String imageUrl, String cloudinaryPublicId,
-                   BigDecimal price, Integer stockQuantity, String ingredientsText, Integer caloriesKcal, BigDecimal proteinG,
+                   BigDecimal price, Integer caloriesKcal, BigDecimal proteinG,
                    BigDecimal carbohydrateG, BigDecimal fatG, BigDecimal fiberG, BigDecimal sugarG,
-                   BigDecimal sodiumMg, String status) {
+                   BigDecimal sodiumMg, BigDecimal potassiumMg, String status) {
         this.category = category;
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
         this.cloudinaryPublicId = cloudinaryPublicId;
         this.price = price;
-        this.stockQuantity = stockQuantity;
-        this.ingredientsText = ingredientsText;
         this.caloriesKcal = caloriesKcal;
         this.proteinG = proteinG;
         this.carbohydrateG = carbohydrateG;
@@ -77,6 +72,7 @@ public class Product {
         this.fiberG = fiberG;
         this.sugarG = sugarG;
         this.sodiumMg = sodiumMg;
+        this.potassiumMg = potassiumMg;
         this.status = status;
         this.createdAt = OffsetDateTime.now();
         this.updatedAt = this.createdAt;
@@ -87,17 +83,15 @@ public class Product {
     }
 
     public void update(Category category, String name, String description, String imageUrl, String cloudinaryPublicId,
-                       BigDecimal price, Integer stockQuantity, String ingredientsText, Integer caloriesKcal,
+                       BigDecimal price, Integer caloriesKcal,
                        BigDecimal proteinG, BigDecimal carbohydrateG, BigDecimal fatG, BigDecimal fiberG,
-                       BigDecimal sugarG, BigDecimal sodiumMg, String status) {
+                       BigDecimal sugarG, BigDecimal sodiumMg, BigDecimal potassiumMg, String status) {
         this.category = category;
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
         this.cloudinaryPublicId = cloudinaryPublicId;
         this.price = price;
-        this.stockQuantity = stockQuantity;
-        this.ingredientsText = ingredientsText;
         this.caloriesKcal = caloriesKcal;
         this.proteinG = proteinG;
         this.carbohydrateG = carbohydrateG;
@@ -105,6 +99,7 @@ public class Product {
         this.fiberG = fiberG;
         this.sugarG = sugarG;
         this.sodiumMg = sodiumMg;
+        this.potassiumMg = potassiumMg;
         this.status = status;
         this.updatedAt = OffsetDateTime.now();
     }
@@ -133,14 +128,6 @@ public class Product {
         return price;
     }
 
-    public Integer getStockQuantity() {
-        return stockQuantity;
-    }
-
-    public String getIngredientsText() {
-        return ingredientsText;
-    }
-
     public Integer getCaloriesKcal() {
         return caloriesKcal;
     }
@@ -167,6 +154,10 @@ public class Product {
 
     public BigDecimal getSodiumMg() {
         return sodiumMg;
+    }
+
+    public BigDecimal getPotassiumMg() {
+        return potassiumMg;
     }
 
     public String getStatus() {

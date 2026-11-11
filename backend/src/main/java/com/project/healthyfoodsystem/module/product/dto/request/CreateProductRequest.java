@@ -8,12 +8,15 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
+import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
@@ -29,11 +32,10 @@ public class CreateProductRequest {
     private MultipartFile imageFile;
     @NotNull @Positive @Digits(integer = 12, fraction = 0)
     private BigDecimal price;
-    @NotNull @PositiveOrZero
-    private Integer stockQuantity;
+    @NotEmpty @Valid
+    private List<ProductIngredientRequest> ingredientLines;
     @NotNull @Pattern(regexp = "AVAILABLE|UNAVAILABLE")
     private String status;
-    private String ingredientsText;
     @NotNull @PositiveOrZero
     private Integer caloriesKcal;
     @NotNull @DecimalMin("0") @Digits(integer = 5, fraction = 1)
@@ -48,4 +50,6 @@ public class CreateProductRequest {
     private BigDecimal sugarG;
     @DecimalMin("0") @Digits(integer = 7, fraction = 1)
     private BigDecimal sodiumMg;
+    @DecimalMin("0") @Digits(integer = 7, fraction = 1)
+    private BigDecimal potassiumMg;
 }

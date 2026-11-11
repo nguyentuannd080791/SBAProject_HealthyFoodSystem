@@ -4,6 +4,7 @@ import { Alert, Spinner } from 'react-bootstrap';
 import { AddProductForm } from '../components/AddProductForm';
 import { productApi } from '../api/productApi';
 import { categoryApi } from '../../category/api/categoryApi';
+import { PlusIcon, ShoppingBagIcon } from '../../../shared/components/Icons';
 
 export function AddProductPage() {
   const [categories, setCategories] = useState([]);
@@ -33,8 +34,17 @@ export function AddProductPage() {
   }
   if (loading) return <Spinner animation="border" role="status" />;
   if (loadError) return <Alert variant="danger">{loadError}</Alert>;
-  return <><Link to="/manager/products" className="d-inline-block mb-3">← Danh sách sản phẩm</Link>
-    <h2 className="h4 mb-4">Thêm sản phẩm mới</h2>
-    <AddProductForm categories={categories} onSave={save} busy={busy} submitError={submitError} serverErrors={serverErrors} />
-  </>;
+  return (
+    <div className="manager-product-editor">
+      <nav className="manager-breadcrumb" aria-label="Đường dẫn">
+        <Link to="/manager" aria-label="Trang quản lý"><ShoppingBagIcon size={18} /></Link>
+        <span aria-hidden="true">›</span>
+        <Link to="/manager/products">Sản phẩm</Link>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page">Thêm sản phẩm</span>
+      </nav>
+      <div className="manager-product-title"><span><PlusIcon size={27} /></span><h2>Thêm sản phẩm mới</h2></div>
+      <AddProductForm categories={categories} onSave={save} busy={busy} submitError={submitError} serverErrors={serverErrors} />
+    </div>
+  );
 }

@@ -10,7 +10,7 @@ export function bestActivePromotion(product, promotions, now = Date.now()) {
     const value = Number(promotion.value);
     if (!Number.isFinite(value) || value <= 0) continue;
     const discountedPrice = promotion.type === 'percentage'
-      ? originalPrice * (1 - value / 100)
+      ? originalPrice - Math.round(originalPrice * value / 100)
       : promotion.type === 'fixed' ? originalPrice - value : null;
     if (discountedPrice === null) continue;
     const price = Math.max(0, discountedPrice);

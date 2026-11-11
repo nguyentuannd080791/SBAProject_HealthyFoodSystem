@@ -17,14 +17,17 @@ import {
   formatOrderDate,
 } from "../../orders/utils/orderFormatting";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
+import { ConfirmDialog } from "../../../shared/components/ConfirmDialog";
 import { OrderPageHeader } from "../../orders/components/OrderPageHeader";
 import "../../orders/styles/orders.css";
 
 const steps = {
-  processing: { next: "preparing", action: "Bắt đầu chuẩn bị" },
-  preparing: { next: "shipping", action: "Đánh dấu đang giao" },
-  shipping: { next: "delivered", action: "Xác nhận đã giao" },
+  processing: { next: "shipping", action: "Xác nhận đang giao hàng" },
 };
+const statusLabel = (status) =>
+  status === "shipping"
+    ? "Đơn hàng đang được giao đến cho khách"
+    : orderStatuses[status]?.label;
 
 const handoverStatusMeta = {
   WAITING_PICKUP: { label: "Chờ tài xế đến nhận", variant: "warning" },
@@ -47,6 +50,7 @@ export function StaffOrdersPage() {
   const [refresh, setRefresh] = useState(0);
   const [order, setOrder] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [confirmAdvance, setConfirmAdvance] = useState(false);
 
   const [dispatchPartnerId, setDispatchPartnerId] = useState("");
   const [dispatchNote, setDispatchNote] = useState("");
@@ -124,13 +128,13 @@ export function StaffOrdersPage() {
     }
   }
 
-  async function advance() {
+  async function handleConfirmAdvance() {
     const step = steps[order?.status];
     if (!step || busy) return;
-    if (!window.confirm(`${step.action} cho đơn #${order.id.slice(-8)}?`)) return;
     setBusy(true);
     const result = await staffOrderApi.update(order.id, order.status, step.next);
     setBusy(false);
+    setConfirmAdvance(false);
     setRefresh((value) => value + 1);
     if (result.error) {
       setOrder(null);
@@ -138,7 +142,7 @@ export function StaffOrdersPage() {
     } else {
       setOrder(null);
       setError("");
-      setNotice(`Đơn #${result.data.id.slice(-8)}: ${orderStatuses[result.data.status].label}.`);
+      setNotice(`Đơn #${result.data.id.slice(-8)}: ${statusLabel(result.data.status)}.`);
     }
   }
 
@@ -209,7 +213,7 @@ export function StaffOrdersPage() {
       <OrderPageHeader
         eyebrow="KHU VỰC NHÂN VIÊN"
         title="Xử lý đơn hàng"
-        description="Chuẩn bị, gửi yêu cầu giao hàng, xác nhận bàn giao cho đối tác và theo dõi các đơn đã thanh toán."
+        description="Tiếp nhận đơn đã thanh toán, gửi yêu cầu cho đối tác giao hàng và Confirm bàn giao khi tài xế đến nhận."
       >
         <Button
           variant="outline-primary"
@@ -282,7 +286,7 @@ export function StaffOrdersPage() {
       )}
 
       <nav aria-label="Lọc trạng thái đơn" className="d-flex flex-wrap gap-2 mb-4">
-        {["processing", "preparing", "shipping", "delivered"].map((key) => (
+        {["processing", "shipping"].map((key) => (
           <Button
             key={key}
             variant={status === key ? "primary" : "outline-secondary"}
@@ -291,7 +295,7 @@ export function StaffOrdersPage() {
               setPage(0);
             }}
           >
-            {key === "processing" ? "Chờ chuẩn bị" : orderStatuses[key].label}
+            {statusLabel(key)}
           </Button>
         ))}
       </nav>
@@ -398,7 +402,7 @@ export function StaffOrdersPage() {
           {order && (
             <>
               <Badge bg={orderStatuses[order.status]?.variant}>
-                {orderStatuses[order.status]?.label}
+                {statusLabel(order.status)}
               </Badge>
               <Badge bg="success" className="ms-2">
                 Đã thanh toán
@@ -425,7 +429,7 @@ export function StaffOrdersPage() {
                 {formatOrderAddress(order.delivery)}
               </p>
 
-              {order.status === "preparing" && !currentHandover && (
+              {order.status === "processing" && !currentHandover && (
                 <Card body className="bg-light border mt-3">
                   <h4 className="h6 mb-2">Gửi yêu cầu giao hàng</h4>
                   <Form.Group className="mb-2">
@@ -514,7 +518,7 @@ export function StaffOrdersPage() {
               )}
 
               <small className="text-secondary d-block mt-2">
-                Chỉ Confirm bàn giao sau khi kiểm tra đúng đơn và đối tác giao hàng đã tới nhận.
+                Chỉ Confirm bàn giao khi đối tác giao hàng đã đến nhận đơn.
               </small>
             </>
           )}
@@ -555,20 +559,31 @@ export function StaffOrdersPage() {
               </Button>
             </>
           )}
-          {steps[order?.status] && order?.status === "processing" && (
-            <Button disabled={busy} onClick={advance}>
+          {steps[order?.status] && !currentHandover && (
+            <Button
+              variant="outline-primary"
+              disabled={busy}
+              onClick={() => setConfirmAdvance(true)}
+            >
               {busy ? "Đang cập nhật..." : steps[order.status].action}
             </Button>
           )}
-          {steps[order?.status] &&
-            order?.status !== "processing" &&
-            !currentHandover && (
-              <Button variant="outline-primary" disabled={busy} onClick={advance}>
-                {busy ? "Đang cập nhật..." : steps[order.status].action}
-              </Button>
-            )}
         </Modal.Footer>
       </Modal>
+
+      <ConfirmDialog
+        show={confirmAdvance}
+        title="Xác nhận giao hàng"
+        message={
+          order
+            ? `${steps[order.status]?.action} cho đơn #${order.id.slice(-8)}?`
+            : ""
+        }
+        confirmLabel="Xác nhận"
+        isBusy={busy}
+        onConfirm={handleConfirmAdvance}
+        onCancel={() => setConfirmAdvance(false)}
+      />
     </div>
   );
 }

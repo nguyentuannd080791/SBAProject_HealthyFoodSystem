@@ -200,8 +200,8 @@ public class DeliveryHandoverServiceImpl implements DeliveryHandoverService {
 
         CustomerOrder order = orders.findById(orderId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn hàng."));
-        if (!"preparing".equalsIgnoreCase(order.getStatus())) {
-            throw new ApiException(HttpStatus.CONFLICT, "Chỉ đơn hàng ở trạng thái Đang chuẩn bị mới được chuyển cho bên giao hàng.");
+        if (!"processing".equalsIgnoreCase(order.getStatus())) {
+            throw new ApiException(HttpStatus.CONFLICT, "Chỉ đơn hàng ở trạng thái Đã tiếp nhận mới được chuyển cho bên giao hàng.");
         }
 
         if (handovers.findByOrderId(orderId).isPresent()) {
@@ -257,7 +257,7 @@ public class DeliveryHandoverServiceImpl implements DeliveryHandoverService {
 
         CustomerOrder order = orders.findById(orderId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn hàng."));
-        if (!"preparing".equalsIgnoreCase(order.getStatus())) {
+        if (!"processing".equalsIgnoreCase(order.getStatus())) {
             throw new ApiException(HttpStatus.CONFLICT, "Trạng thái đơn hàng đã thay đổi. Hãy tải lại trang.");
         }
 
@@ -390,7 +390,7 @@ public class DeliveryHandoverServiceImpl implements DeliveryHandoverService {
 
         CustomerOrder order = orders.findById(orderId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn hàng."));
-        if (!"preparing".equalsIgnoreCase(order.getStatus())) {
+        if (!"processing".equalsIgnoreCase(order.getStatus())) {
             throw new ApiException(HttpStatus.CONFLICT, "Đơn hàng không còn ở trạng thái chờ bàn giao.");
         }
 

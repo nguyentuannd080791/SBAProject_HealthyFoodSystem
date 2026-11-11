@@ -3,9 +3,8 @@ package com.project.healthyfoodsystem.module.payment.service;
 import com.project.healthyfoodsystem.module.order.repository.OrderRepository;
 import com.project.healthyfoodsystem.module.payment.entity.Payment;
 import com.project.healthyfoodsystem.module.payment.repository.PaymentRepository;
-import com.project.healthyfoodsystem.module.product.repository.ProductRepository;
+import com.project.healthyfoodsystem.module.ingredient.service.InventoryService;
 import java.time.Instant;
-import java.util.Comparator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -15,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentExpiryService {
     private final PaymentRepository payments;
     private final OrderRepository orders;
-    private final ProductRepository products;
+    private final InventoryService inventory;
 
     @Transactional
     public void expire(String orderId) {
@@ -30,11 +29,7 @@ public class PaymentExpiryService {
         var order = orders.findById(payment.getOrderId()).orElseThrow();
         if (!"pending_payment".equals(order.getStatus())) return false;
         if (Boolean.TRUE.equals(order.getInventoryReserved())) {
-            for (var item : order.getItems().stream().sorted(Comparator.comparing(i -> i.getId())).toList()) {
-                if (products.restoreStock(item.getId(), item.getQuantity()) != 1)
-                    throw new IllegalStateException("Không thể hoàn kho cho đơn " + order.getId());
-            }
-            order.setInventoryReserved(false);
+            inventory.restore(order);
         }
         payment.setStatus("expired");
         order.setStatus("cancelled");

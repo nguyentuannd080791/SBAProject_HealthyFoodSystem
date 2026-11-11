@@ -9,6 +9,8 @@ import { CreatePromotionPage } from '../../../modules/promotion/pages/CreateProm
 import { ManagerOrderListPage } from '../../../modules/manager/pages/ManagerOrderListPage';
 import { ManagerOrderDetailPage } from '../../../modules/manager/pages/ManagerOrderDetailPage';
 import { CategoryManagementPage } from '../../../modules/category/pages/CategoryManagementPage';
+import { IngredientListPage } from '../../../modules/ingredient/pages/IngredientListPage';
+import { IngredientEditorPage } from '../../../modules/ingredient/pages/IngredientEditorPage';
 
 import { ReconciliationPage } from '../../../modules/manager/pages/ReconciliationPage';
 
@@ -20,6 +22,9 @@ export const managerRoutes = [{
     { path: 'products', element: <DatabaseProductListPage /> },
     { path: 'products/new', element: <AddProductPage /> },
     { path: 'products/:productId/edit', element: <ProductEditorPage /> },
+    { path: 'ingredients', element: <IngredientListPage /> },
+    { path: 'ingredients/new', element: <IngredientEditorPage /> },
+    { path: 'ingredients/:ingredientId/edit', element: <IngredientEditorPage /> },
     { path: 'categories', element: <CategoryManagementPage /> },
     { path: 'promotions', element: <PromotionsPage /> },
     { path: 'promotions/new', element: <CreatePromotionPage /> },

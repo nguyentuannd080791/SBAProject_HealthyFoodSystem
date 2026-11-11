@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Alert, Badge, Button, Card, Form, Spinner } from "react-bootstrap";
 import { Link } from "react-router";
 import { useAuth } from "../../../app/provider/useAuth";
+import { MapPinIcon, ShoppingBagIcon } from "../../../shared/components/Icons";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { orderStore } from "../api/orderStore";
 import { OrderPageHeader } from "../components/OrderPageHeader";
@@ -26,7 +27,6 @@ export function OrderHistoryPage() {
 
   const visibleOrders = (orders ?? []).filter((order) => {
     if (filter === "all") return true;
-    if (filter === "active") return !["delivered", "cancelled"].includes(order.status);
     return order.status === filter;
   });
 
@@ -38,19 +38,22 @@ export function OrderHistoryPage() {
       </OrderPageHeader>
       {orders && <div className="order-stats">
         <div><span>Tất cả đơn hàng</span><strong>{orders.length}</strong></div>
-        <div><span>Đang xử lý</span><strong>{orders.filter((item) => !["delivered", "cancelled"].includes(item.status)).length}</strong></div>
-        <div><span>Đã giao đến bạn</span><strong>{orders.filter((item) => item.status === "delivered").length}</strong></div>
+        <div><span>Đã tiếp nhận</span><strong>{orders.filter((item) => item.status === "processing").length}</strong></div>
+        <div><span>Đang giao đến bạn</span><strong>{orders.filter((item) => item.status === "shipping").length}</strong></div>
       </div>}
       <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
         <span className="text-secondary small">{orders?.length ?? 0} đơn hàng</span>
         <Form.Select aria-label="Lọc đơn hàng" value={filter} onChange={(event) => setFilter(event.target.value)} className="history-filter">
-          <option value="all">Tất cả đơn</option><option value="active">Đang xử lý</option>
-          <option value="delivered">Đã giao</option><option value="cancelled">Đã hủy</option>
+          <option value="all">Tất cả đơn</option><option value="pending_payment">Chờ thanh toán</option>
+          <option value="processing">Đã tiếp nhận</option><option value="shipping">Đang giao đến bạn</option>
+          {orders?.some((item) => item.status === "delivered") && <option value="delivered">Đã giao</option>}
+          <option value="cancelled">Đã hủy / hết hạn</option>
         </Form.Select>
       </div>
       {error && <Alert variant="danger">{error}</Alert>}
       {!orders && !error && <div className="text-center py-5"><Spinner animation="border" /><span className="visually-hidden">Đang tải đơn hàng...</span></div>}
-      {orders?.length === 0 && <Card body className="order-empty text-center"><span>🍱</span><h2 className="h5 mt-3">Bạn chưa có đơn hàng nào</h2>
+      {orders?.length === 0 && <Card body className="order-empty text-center">
+        <div className="mb-2 text-secondary"><ShoppingBagIcon size={48} /></div><h2 className="h5 mt-2">Bạn chưa có đơn hàng nào</h2>
         <p className="text-secondary">Đơn đã đặt sẽ xuất hiện tại đây.</p><Button as={Link} to="/menu">Xem thực đơn</Button></Card>}
       {orders?.length > 0 && visibleOrders.length === 0 && <Card body className="text-center text-secondary">Không có đơn hàng ở trạng thái này.</Card>}
       {visibleOrders.length > 0 && <div className="d-grid gap-3">{visibleOrders.map((order) => {
@@ -65,7 +68,10 @@ export function OrderHistoryPage() {
             <img src={item.image} alt="" loading="lazy" /><div><strong>{item.name}</strong><small>Số lượng: {item.quantity}</small></div>
           </div>)}</div>
           <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 border-top mt-3 pt-3">
-            <span className="small text-secondary">📍 {order.delivery.city}, {order.delivery.district}</span>
+            <span className="small text-secondary d-inline-flex align-items-center gap-1">
+              <MapPinIcon size={14} className="text-secondary" />
+              <span>{order.delivery.city}, {order.delivery.district}</span>
+            </span>
             <Button as={Link} to={`/orders/${encodeURIComponent(order.id)}`} size="sm" variant="outline-primary">Chi tiết đơn hàng →</Button>
           </div>
         </Card.Body></Card>;

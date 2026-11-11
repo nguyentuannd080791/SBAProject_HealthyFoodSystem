@@ -64,6 +64,7 @@ export function AddressList({
                 size="sm"
                 className="rounded-3 p-2 text-secondary"
                 title="Sửa địa chỉ"
+                aria-label={`Sửa địa chỉ ${address.recipientName}`}
                 disabled={isBusy}
                 onClick={() => onEdit(address)}
               >
@@ -74,6 +75,7 @@ export function AddressList({
                 size="sm"
                 className="rounded-3 p-2 text-danger"
                 title="Xóa địa chỉ"
+                aria-label={`Xóa địa chỉ ${address.recipientName}`}
                 disabled={isBusy}
                 onClick={() => onRemove(address)}
               >

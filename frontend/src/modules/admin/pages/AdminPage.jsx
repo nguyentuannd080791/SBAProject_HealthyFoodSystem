@@ -14,6 +14,7 @@ import {
 } from "react-bootstrap";
 import { useAuth } from "../../../app/provider/useAuth";
 import { ConfirmDialog } from "../../../shared/components/ConfirmDialog";
+import { SearchIcon, XIcon } from "../../../shared/components/Icons";
 import { adminApi } from "../api/adminApi";
 import { CreateAccountForm } from "../components/CreateAccountForm";
 import { EditAccountForm } from "../components/EditAccountForm";
@@ -97,7 +98,7 @@ export function AdminPage() {
 
   const roleFilterOptions = rolesData.length > 0 ? rolesData : ROLES;
 
-  // Xem chi tiết tài khoản (kèm thống kê đơn hàng nếu là khách hàng)
+  // Xem chi tiết tài khoản (kèm thống kê đơn hàng / giao nhận)
   async function handleViewDetail(user) {
     setShowDetailModal(true);
     setDetailUser(null);
@@ -303,12 +304,13 @@ export function AdminPage() {
             <Col md={1} className="d-flex">
               <Button
                 variant="outline-secondary"
-                className="w-100"
+                className="w-100 d-flex align-items-center justify-content-center"
                 title="Xóa bộ lọc"
+                aria-label="Xóa bộ lọc"
                 onClick={() => setFilters({ search: "", role: "", status: "" })}
                 disabled={!filters.search && !filters.role && !filters.status}
               >
-                ✕
+                <XIcon size={16} />
               </Button>
             </Col>
           </Row>
@@ -323,7 +325,7 @@ export function AdminPage() {
             <Alert variant="danger">{error}</Alert>
           ) : users.length === 0 ? (
             <div className="text-center py-5 text-muted">
-              <div className="fs-1 mb-2">🔍</div>
+              <div className="mb-2 text-secondary"><SearchIcon size={44} /></div>
               <div>Không tìm thấy tài khoản nào khớp với bộ lọc.</div>
             </div>
           ) : (

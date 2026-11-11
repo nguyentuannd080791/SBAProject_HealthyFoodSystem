@@ -40,7 +40,7 @@ public class User {
     private Integer id;
 
     @Nationalized
-    @Column(name = "full_name", nullable = false, length = 100, columnDefinition = "NVARCHAR(100)")
+    @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
 
     @Column(name = "email", nullable = false, unique = true, length = 150)

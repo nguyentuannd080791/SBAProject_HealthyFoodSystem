@@ -51,34 +51,44 @@ class StaffOrderServiceTest {
     }
 
     @Test
-    void staffCompletesPaidOrderInSequenceAndAuditsEachStep() {
-        service.updateStatus("staff", "o1", request("processing", "preparing"));
-        service.updateStatus("staff", "o1", request("preparing", "shipping"));
-        service.updateStatus("staff", "o1", request("shipping", "delivered"));
-        assertEquals("delivered", order.getStatus());
+    void staffMovesAcceptedPaidOrderDirectlyToShippingAndAuditsOnce() {
+        service.updateStatus("staff", "o1", request("processing", "shipping"));
+        assertEquals("shipping", order.getStatus());
         assertEquals("paid", payment.getStatus());
-        verify(history, times(3))
-                .save(argThat(h -> h.getStaffId() == 9 && h.getChangedAt() != null));
+        verify(history, times(1))
+                .save(argThat(h -> h.getStaffId() == 9 && h.getChangedAt() != null
+                        && "processing".equals(h.getFromStatus()) && "shipping".equals(h.getToStatus())));
     }
 
     @Test
-    void cannotSkipStepsOrMoveBackAfterDelivery() {
+    void cannotCreatePreparationOrDeliveredStepsOrMoveBackAfterShipping() {
+        assertThrows(ApiException.class,
+                () -> service.updateStatus("staff", "o1", request("processing", "preparing")));
         assertThrows(
                 ApiException.class,
                 () -> service.updateStatus("staff", "o1", request("processing", "delivered")));
-        order.setStatus("delivered");
+        order.setStatus("shipping");
         assertThrows(
                 ApiException.class,
-                () -> service.updateStatus("staff", "o1", request("delivered", "shipping")));
+                () -> service.updateStatus("staff", "o1", request("shipping", "processing")));
+        assertThrows(ApiException.class,
+                () -> service.updateStatus("staff", "o1", request("shipping", "delivered")));
         verifyNoInteractions(history);
     }
 
     @Test
+    void staffQueueOnlySupportsAcceptedAndShipping() {
+        assertThrows(ApiException.class, () -> service.list("staff", "preparing", 0));
+        assertThrows(ApiException.class, () -> service.list("staff", "delivered", 0));
+        verifyNoInteractions(queue);
+    }
+
+    @Test
     void staleStaffRequestDoesNotRepeatUpdate() {
-        service.updateStatus("staff", "o1", request("processing", "preparing"));
+        service.updateStatus("staff", "o1", request("processing", "shipping"));
         assertThrows(
                 ApiException.class,
-                () -> service.updateStatus("staff", "o1", request("processing", "preparing")));
+                () -> service.updateStatus("staff", "o1", request("processing", "shipping")));
         verify(history, times(1)).save(any());
     }
 
@@ -87,7 +97,7 @@ class StaffOrderServiceTest {
         payment.setStatus("pending");
         assertThrows(
                 ApiException.class,
-                () -> service.updateStatus("staff", "o1", request("processing", "preparing")));
+                () -> service.updateStatus("staff", "o1", request("processing", "shipping")));
         assertEquals("processing", order.getStatus());
         verifyNoInteractions(history);
     }
@@ -98,7 +108,7 @@ class StaffOrderServiceTest {
             when(staff.getRoleName()).thenReturn(role);
             assertThrows(
                     ApiException.class,
-                    () -> service.updateStatus("staff", "o1", request("processing", "preparing")));
+                    () -> service.updateStatus("staff", "o1", request("processing", "shipping")));
         }
         when(staff.getRoleName()).thenReturn("STAFF");
         when(staff.getStatus()).thenReturn("locked");

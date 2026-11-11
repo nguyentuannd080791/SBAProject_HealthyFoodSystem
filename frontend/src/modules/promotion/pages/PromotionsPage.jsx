@@ -7,6 +7,7 @@ import { categoryApi } from '../../category/api/categoryApi';
 import { PromotionForm } from '../components/PromotionForm';
 import { promotionStatus } from '../utils/format';
 import { formatCurrency as money } from '../../../shared/utils/formatCurrency';
+import { RotateCcwIcon } from '../../../shared/components/Icons';
 
 const dateOnly = value => new Date(value).toLocaleDateString('vi-VN');
 
@@ -40,7 +41,7 @@ export function PromotionsPage() {
       setCategories(categoryList.data || []);
       setLoading(false);
     });
-    const timer = setInterval(() => setNow(Date.now()), 1000);
+    const timer = setInterval(() => setNow(Date.now()), 60_000);
     return () => { active = false; clearInterval(timer); };
   }, []);
 
@@ -87,7 +88,7 @@ export function PromotionsPage() {
       <Row className="g-3 mb-4">
         <Col md={7}><Form.Control aria-label="Tìm tên khuyến mãi" placeholder="Tìm tên chương trình..." value={search} onChange={event => setSearch(event.target.value)} /></Col>
         <Col md={4}><Form.Select aria-label="Lọc trạng thái khuyến mãi" value={status} onChange={event => setStatus(event.target.value)}><option value="">Tất cả trạng thái</option><option value="active">Đang áp dụng</option><option value="scheduled">Sắp diễn ra</option><option value="expired">Đã kết thúc</option><option value="disabled">Tạm tắt</option></Form.Select></Col>
-        <Col md={1}><Button variant="outline-secondary" aria-label="Xóa bộ lọc" title="Xóa bộ lọc" onClick={() => { setSearch(''); setStatus(''); }}>↺</Button></Col>
+        <Col md={1}><Button variant="outline-secondary" className="w-100 d-flex align-items-center justify-content-center" aria-label="Xóa bộ lọc" title="Xóa bộ lọc" onClick={() => { setSearch(''); setStatus(''); }}><RotateCcwIcon size={16} /></Button></Col>
       </Row>
       {loading ? <Spinner animation="border" role="status"><span className="visually-hidden">Đang tải...</span></Spinner>
         : !filtered.length ? <div className="text-center py-5"><h3 className="h5">Chưa có chương trình phù hợp</h3><p className="text-muted mb-0">Tạo ưu đãi đầu tiên hoặc thay đổi bộ lọc tìm kiếm.</p></div>
@@ -107,7 +108,7 @@ export function PromotionsPage() {
     </Card>
     <Modal show={!!editor} onHide={() => { if (!busy) setEditor(null); }} centered size="lg" backdrop={busy ? 'static' : true} keyboard={!busy}>
       <Modal.Header closeButton={!busy}><Modal.Title as="h2" className="h5">Chỉnh sửa khuyến mãi</Modal.Title></Modal.Header>
-      <Modal.Body>{editor && <PromotionForm promotion={editor.promotion} products={products} categories={categories} onSave={save} onCancel={() => setEditor(null)} busy={busy} submitError={error} />}</Modal.Body>
+      <Modal.Body>{editor && <PromotionForm promotion={editor.promotion} products={products} categories={categories} promotions={promotions} onSave={save} onCancel={() => setEditor(null)} busy={busy} submitError={error} />}</Modal.Body>
     </Modal>
   </>;
 }

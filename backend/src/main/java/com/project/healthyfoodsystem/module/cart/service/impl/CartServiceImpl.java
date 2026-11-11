@@ -11,6 +11,7 @@ import com.project.healthyfoodsystem.module.cart.service.CartService;
 import com.project.healthyfoodsystem.module.exception.ApiException;
 import com.project.healthyfoodsystem.module.product.entity.Product;
 import com.project.healthyfoodsystem.module.product.repository.ProductRepository;
+import com.project.healthyfoodsystem.module.ingredient.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
+    private final InventoryService inventory;
 
     @Override
     @Transactional
@@ -64,7 +66,7 @@ public class CartServiceImpl implements CartService {
         } catch (ArithmeticException ex) {
             throw new ApiException(HttpStatus.CONFLICT, "Cart quantity is too large");
         }
-        requireAvailableStock(product, requestedQuantity);
+        requireAvailableStock(cart, product, requestedQuantity);
         item.setQuantity(requestedQuantity);
         cartItemRepository.saveAndFlush(item);
         return responseFor(cart);
@@ -89,7 +91,7 @@ public class CartServiceImpl implements CartService {
             if (!"AVAILABLE".equals(product.getStatus())) {
                 throw new ApiException(HttpStatus.CONFLICT, "Product is not available for sale");
             }
-            requireAvailableStock(product, quantity);
+            requireAvailableStock(cart, product, quantity);
         }
         item.setQuantity(quantity);
         cartItemRepository.saveAndFlush(item);
@@ -134,12 +136,16 @@ public class CartServiceImpl implements CartService {
                 .orElseGet(() -> new CartResponse(List.of(), 0, BigDecimal.ZERO));
     }
 
-    private void requireAvailableStock(Product product, int requestedQuantity) {
-        Integer stockQuantity = product.getStockQuantity();
-        if (stockQuantity != null && requestedQuantity > stockQuantity) {
+    private void requireAvailableStock(Cart cart, Product product, int requestedQuantity) {
+        int availableQuantity = inventory.availableQuantity(product);
+        if (requestedQuantity > availableQuantity) {
             throw new ApiException(HttpStatus.CONFLICT,
-                    "Sản phẩm " + product.getName() + " chỉ còn " + stockQuantity + " trong kho.");
+                    "Sản phẩm " + product.getName() + " chỉ còn " + availableQuantity + " combo trong kho.");
         }
+        Map<Integer, Integer> quantities = cartItemRepository.findByCartIdOrderByIdAsc(cart.getId()).stream()
+                .collect(Collectors.toMap(CartItem::getProductId, CartItem::getQuantity));
+        quantities.put(product.getId(), requestedQuantity);
+        inventory.checkCart(quantities);
     }
 
     private CartResponse responseFor(Cart cart) {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { Alert, Badge, Button, Card, Form, Modal, Spinner, Table } from 'react-bootstrap';
+import { RotateCcwIcon } from '../../../shared/components/Icons';
 import { categoryApi } from '../api/categoryApi';
 import { validateCategoryName } from '../validators/categoryValidation';
 
@@ -98,13 +99,19 @@ export function CategoryManagementPage() {
     {loadError && <Alert variant="danger">{loadError}</Alert>}
     {error && !showForm && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
     <Card body>
-      <div className="d-flex gap-3 mb-4 flex-wrap">
+      <div className="d-flex gap-3 mb-4 flex-wrap align-items-center">
         <Form.Control style={{ maxWidth: 360 }} aria-label="Tìm tên danh mục" placeholder="Tìm tên danh mục..." value={search} onChange={event => setSearch(event.target.value)} />
         <Form.Select style={{ maxWidth: 260 }} aria-label="Lọc trạng thái danh mục" value={statusFilter} onChange={event => setStatusFilter(event.target.value)}>
           <option value="">Tất cả trạng thái</option>
           <option value="active">Đang hoạt động</option>
           <option value="inactive">Ngừng hoạt động</option>
         </Form.Select>
+        {(search || statusFilter) && (
+          <Button variant="outline-secondary" size="sm" aria-label="Xóa bộ lọc" title="Xóa bộ lọc"
+            onClick={() => { setSearch(''); setStatusFilter(''); }}>
+            <RotateCcwIcon size={16} />
+          </Button>
+        )}
       </div>
       {loading ? <Spinner animation="border" role="status"><span className="visually-hidden">Đang tải...</span></Spinner>
         : loadError ? null
@@ -129,7 +136,13 @@ export function CategoryManagementPage() {
           <Form.Group controlId="categoryName">
             <Form.Label>Tên danh mục *</Form.Label>
             <Form.Control value={name} maxLength={100} required placeholder="Ví dụ: Đồ ăn nhẹ" isInvalid={!!fieldError} autoFocus disabled={busy}
-              onChange={event => { setName(event.target.value); setFieldError(''); setError(''); }} />
+              onChange={event => {
+                const nextName = event.target.value;
+                setName(nextName);
+                setFieldError(validateCategoryName(nextName, categories, editingCategory?.id).error);
+                setError('');
+              }}
+              onBlur={() => setFieldError(validateCategoryName(name, categories, editingCategory?.id).error)} />
             <Form.Control.Feedback type="invalid">{fieldError}</Form.Control.Feedback>
           </Form.Group>
         </Modal.Body>
