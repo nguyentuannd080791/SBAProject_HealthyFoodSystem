@@ -1,0 +1,185 @@
+package com.project.healthyfoodsystem.module.nutrition.service.impl;
+
+import com.project.healthyfoodsystem.module.nutrition.dto.request.BodyMetricsRequest;
+import com.project.healthyfoodsystem.module.nutrition.dto.response.BodyMetricsCalculationResponse;
+import com.project.healthyfoodsystem.module.nutrition.dto.response.MacroBreakdown;
+import com.project.healthyfoodsystem.module.nutrition.dto.response.MealCaloriesBreakdown;
+import com.project.healthyfoodsystem.module.nutrition.dto.response.NutritionOptionsResponse;
+import com.project.healthyfoodsystem.module.nutrition.enums.ActivityLevel;
+import com.project.healthyfoodsystem.module.nutrition.enums.Gender;
+import com.project.healthyfoodsystem.module.nutrition.enums.NutritionGoal;
+import com.project.healthyfoodsystem.module.nutrition.service.NutritionCalculationService;
+import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.List;
+
+@Service
+public class NutritionCalculationServiceImpl implements NutritionCalculationService {
+
+    @Override
+    public BodyMetricsCalculationResponse calculateMetrics(BodyMetricsRequest request) {
+        int age = request.getAge();
+        double heightM = request.getHeightCm() / 100.0;
+        double weightKg = request.getWeightKg();
+
+        double bmiRaw = weightKg / (heightM * heightM);
+        double bmi = Math.round(bmiRaw * 10.0) / 10.0;
+
+        String bmiCategory;
+        String bmiCategoryLabel;
+        String bmiAdvice;
+
+        if (bmi < 18.5) {
+            bmiCategory = "UNDERWEIGHT";
+            bmiCategoryLabel = "Thiếu cân (Gầy)";
+            bmiAdvice = "Cân nặng hiện tại thấp hơn tiêu chuẩn khuyến nghị. Nên tăng cường bổ sung dinh dưỡng hợp lý để cải thiện thể trạng.";
+        } else if (bmi < 23.0) {
+            bmiCategory = "NORMAL";
+            bmiCategoryLabel = "Bình thường (Lý tưởng)";
+            bmiAdvice = "Chỉ số khối cơ thể ở mức lý tưởng và khỏe mạnh. Hãy duy trì chế độ dinh dưỡng cân đối và lối sống năng động.";
+        } else if (bmi < 25.0) {
+            bmiCategory = "OVERWEIGHT";
+            bmiCategoryLabel = "Thừa cân (Tiền béo phì)";
+            bmiAdvice = "Cân nặng đang ở ngưỡng thừa cân. Nên chủ động điều chỉnh lượng calo nạp vào hàng ngày và tăng cường hoạt động thể chất.";
+        } else {
+            bmiCategory = "OBESE";
+            bmiCategoryLabel = "Béo phì";
+            bmiAdvice = "Chỉ số BMI ở ngưỡng béo phì. Cần có kế hoạch kiểm soát thâm hụt calo khoa học kết hợp rèn luyện thể thao đều đặn.";
+        }
+
+        double minIdealWeightKg = Math.round(18.5 * heightM * heightM * 10.0) / 10.0;
+        double maxIdealWeightKg = Math.round(22.9 * heightM * heightM * 10.0) / 10.0;
+
+        double rawBmr;
+        if (request.getGender() == Gender.MALE) {
+            rawBmr = (10.0 * weightKg) + (6.25 * request.getHeightCm()) - (5.0 * age) + 5.0;
+        } else {
+            rawBmr = (10.0 * weightKg) + (6.25 * request.getHeightCm()) - (5.0 * age) - 161.0;
+        }
+        int bmrKcal = (int) Math.round(rawBmr);
+
+        double rawTdee = rawBmr * request.getActivityLevel().getMultiplier();
+        int tdeeKcal = (int) Math.round(rawTdee);
+
+        int targetCaloriesKcal;
+        int calorieAdjustmentKcal;
+
+        if (request.getGoal() == NutritionGoal.LOSE_WEIGHT) {
+            calorieAdjustmentKcal = -500;
+            double safeFloor = (request.getGender() == Gender.MALE)
+                    ? Math.max(rawBmr, 1500.0)
+                    : Math.max(rawBmr, 1200.0);
+            targetCaloriesKcal = (int) Math.round(Math.max(safeFloor, rawTdee - 500.0));
+        } else if (request.getGoal() == NutritionGoal.GAIN_WEIGHT) {
+            calorieAdjustmentKcal = 500;
+            targetCaloriesKcal = (int) Math.round(rawTdee + 500.0);
+        } else {
+            calorieAdjustmentKcal = 0;
+            targetCaloriesKcal = tdeeKcal;
+        }
+
+        int proteinPercent;
+        int carbPercent;
+        int fatPercent;
+
+        if (request.getGoal() == NutritionGoal.LOSE_WEIGHT) {
+            proteinPercent = 30;
+            carbPercent = 40;
+            fatPercent = 30;
+        } else if (request.getGoal() == NutritionGoal.GAIN_WEIGHT) {
+            proteinPercent = 25;
+            carbPercent = 55;
+            fatPercent = 20;
+        } else {
+            proteinPercent = 25;
+            carbPercent = 50;
+            fatPercent = 25;
+        }
+
+        int proteinKcal = (int) Math.round(targetCaloriesKcal * (proteinPercent / 100.0));
+        int carbKcal = (int) Math.round(targetCaloriesKcal * (carbPercent / 100.0));
+        int fatKcal = targetCaloriesKcal - proteinKcal - carbKcal;
+
+        MacroBreakdown macroBreakdown = MacroBreakdown.builder()
+                .proteinG(Math.round((proteinKcal / 4.0) * 10.0) / 10.0)
+                .carbohydrateG(Math.round((carbKcal / 4.0) * 10.0) / 10.0)
+                .fatG(Math.round((fatKcal / 9.0) * 10.0) / 10.0)
+                .proteinCaloriesKcal(proteinKcal)
+                .carbohydrateCaloriesKcal(carbKcal)
+                .fatCaloriesKcal(fatKcal)
+                .proteinPercent(proteinPercent)
+                .carbohydratePercent(carbPercent)
+                .fatPercent(fatPercent)
+                .build();
+
+        int breakfastKcal = (int) Math.round(targetCaloriesKcal * 0.30);
+        int lunchKcal = (int) Math.round(targetCaloriesKcal * 0.40);
+        int dinnerKcal = targetCaloriesKcal - breakfastKcal - lunchKcal;
+
+        MealCaloriesBreakdown mealBreakdown = MealCaloriesBreakdown.builder()
+                .breakfastKcal(breakfastKcal)
+                .lunchKcal(lunchKcal)
+                .dinnerKcal(dinnerKcal)
+                .breakfastPercent(30)
+                .lunchPercent(40)
+                .dinnerPercent(30)
+                .build();
+
+        return BodyMetricsCalculationResponse.builder()
+                .heightCm(request.getHeightCm())
+                .weightKg(request.getWeightKg())
+                .age(age)
+                .gender(request.getGender())
+                .genderLabel(request.getGender().getVietnameseLabel())
+                .activityLevel(request.getActivityLevel())
+                .activityLevelLabel(request.getActivityLevel().getLabel())
+                .goal(request.getGoal())
+                .goalLabel(request.getGoal().getLabel())
+                .bmi(bmi)
+                .bmiCategory(bmiCategory)
+                .bmiCategoryLabel(bmiCategoryLabel)
+                .bmiAdvice(bmiAdvice)
+                .minIdealWeightKg(minIdealWeightKg)
+                .maxIdealWeightKg(maxIdealWeightKg)
+                .bmrKcal(bmrKcal)
+                .tdeeKcal(tdeeKcal)
+                .targetCaloriesKcal(targetCaloriesKcal)
+                .calorieAdjustmentKcal(calorieAdjustmentKcal)
+                .macroBreakdown(macroBreakdown)
+                .mealBreakdown(mealBreakdown)
+                .standardNote("Chỉ số BMI phân loại theo chuẩn WHO khu vực Tây Thái Bình Dương; BMR và TDEE tính theo công thức khoa học Mifflin - St Jeor.")
+                .build();
+    }
+
+    @Override
+    public NutritionOptionsResponse getNutritionOptions() {
+        List<NutritionOptionsResponse.OptionItem> genders = Arrays.stream(Gender.values())
+                .map(g -> new NutritionOptionsResponse.OptionItem(g.name(), g.getVietnameseLabel()))
+                .toList();
+
+        List<NutritionOptionsResponse.ActivityOptionItem> activityLevels = Arrays.stream(ActivityLevel.values())
+                .map(a -> new NutritionOptionsResponse.ActivityOptionItem(
+                        a.name(),
+                        a.getLabel(),
+                        a.getDescription(),
+                        a.getMultiplier()
+                ))
+                .toList();
+
+        List<NutritionOptionsResponse.GoalOptionItem> goals = Arrays.stream(NutritionGoal.values())
+                .map(g -> new NutritionOptionsResponse.GoalOptionItem(
+                        g.name(),
+                        g.getLabel(),
+                        g.getDescription(),
+                        g.getCalorieOffset()
+                ))
+                .toList();
+
+        return NutritionOptionsResponse.builder()
+                .genders(genders)
+                .activityLevels(activityLevels)
+                .goals(goals)
+                .build();
+    }
+}
