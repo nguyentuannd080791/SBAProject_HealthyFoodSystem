@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation } from "react-router";
 import { FloatingCartLink } from "../../modules/cart/components/FloatingCartLink";
 import { HomeFooter } from "../../modules/home/components/HomeFooter";
 import { PaymentNotificationWatcher } from "../../modules/orders/components/PaymentNotificationWatcher";
+import { StaffHandoverNotificationWatcher } from "../../modules/staff/components/StaffHandoverNotificationWatcher";
 import { LeafIcon } from "../../shared/components/Icons";
 import { NotificationProvider } from "../../shared/notifications/NotificationProvider";
 import { useAuth } from "../provider/useAuth";
@@ -27,12 +28,13 @@ export function MainLayout() {
   const isOffersPage = isMenuPage && new URLSearchParams(search).get("offers") === "1";
   const isMenuOrProduct = isMenuPage || pathname.startsWith("/products/");
   const isCustomer = !user?.role || user.role.toLowerCase() === "customer";
-  const isCustomerPage = !/^\/(manager|staff|admin)(\/|$)/.test(pathname);
+  const isCustomerPage = !/^\/(manager|staff|admin|delivery)(\/|$)/.test(pathname);
   const showFloatingCart = isCustomer && (pathname === "/" || isMenuPage || pathname.startsWith("/products/"));
 
   return (
     <NotificationProvider key={user?.id ?? "guest"}>
       <PaymentNotificationWatcher />
+      <StaffHandoverNotificationWatcher />
       <div className="menu-layout">
         <Navbar expand="lg" className="menu-navbar">
           <Container fluid className="menu-shell menu-navbar-inner">

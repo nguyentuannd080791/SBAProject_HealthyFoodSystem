@@ -2,6 +2,7 @@ package com.project.healthyfoodsystem.module.auth.service.impl;
 
 import com.project.healthyfoodsystem.module.auth.entity.RefreshToken;
 import com.project.healthyfoodsystem.module.auth.entity.User;
+import com.project.healthyfoodsystem.module.auth.entity.UserStatus;
 import com.project.healthyfoodsystem.module.auth.repository.RefreshTokenRepository;
 import com.project.healthyfoodsystem.module.auth.repository.UserRepository;
 import com.project.healthyfoodsystem.module.auth.service.RefreshTokenService;
@@ -76,6 +77,12 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         if (oldToken.getExpiryDate().isBefore(Instant.now())) {
             refreshTokenRepository.delete(oldToken);
             throw new TokenException("Refresh token has expired. Please sign in again.");
+        }
+
+        String userStatus = oldToken.getUser().getStatus();
+        if (UserStatus.INACTIVE.getValue().equalsIgnoreCase(userStatus)
+                || UserStatus.LOCKED.getValue().equalsIgnoreCase(userStatus)) {
+            throw new TokenException("Tài khoản đã bị tạm khóa.");
         }
 
         oldToken.setRevoked(true);

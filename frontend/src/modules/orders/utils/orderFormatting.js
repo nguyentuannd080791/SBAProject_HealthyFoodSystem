@@ -2,7 +2,7 @@ export const orderStatuses = {
   pending_payment: { label: "Chờ thanh toán", variant: "warning" },
   processing: { label: "Đã tiếp nhận", variant: "primary" },
   shipping: { label: "Đơn hàng đang được giao đến cho bạn", variant: "success" },
-  delivered: { label: "Đã giao (đơn cũ)", variant: "success" },
+  delivered: { label: "Đã giao", variant: "success" },
   cancelled: { label: "Đã hủy", variant: "secondary" },
 };
 

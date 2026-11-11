@@ -104,6 +104,11 @@ export function UserMenu({ showCart = true }) {
               <CartIcon size={19} /> Xử lý đơn hàng
             </Dropdown.Item>
           )}
+          {role === "delivery_partner" && (
+            <Dropdown.Item as={Link} to="/delivery">
+              <ShoppingBagIcon size={19} /> Đơn giao hàng
+            </Dropdown.Item>
+          )}
           {role === "administrator" && (
             <Dropdown.Item as={Link} to="/admin">
               <ShieldCheckIcon size={19} /> Quản trị hệ thống

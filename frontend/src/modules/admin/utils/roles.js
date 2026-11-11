@@ -38,6 +38,28 @@ export const ROLES = [
 
 export const INTERNAL_ROLES = ROLES.filter((r) => r.value !== "customer");
 
+export const PERMISSION_LABELS = {
+  MANAGE_USERS: "Quản lý tài khoản người dùng",
+  CREATE_INTERNAL_ACCOUNT: "Tạo tài khoản nội bộ",
+  ASSIGN_ROLES: "Phân quyền & đổi vai trò",
+  VIEW_STATS: "Xem thống kê hệ thống",
+  SYSTEM_CONFIG: "Cấu hình hệ thống",
+  VIEW_REPORTS: "Xem báo cáo & đối soát",
+  MANAGE_MENU: "Quản lý thực đơn & khuyến mãi",
+  MANAGE_ORDERS: "Quản lý tất cả đơn hàng",
+  VIEW_ORDERS: "Xem đơn hàng cần xử lý",
+  PROCESS_ORDERS: "Xử lý & in hóa đơn đơn hàng",
+  VIEW_DELIVERIES: "Xem đơn cần giao",
+  UPDATE_DELIVERY_STATUS: "Cập nhật trạng thái giao hàng",
+  BROWSE_MENU: "Xem thực đơn & sản phẩm",
+  CREATE_ORDER: "Đặt hàng & thanh toán",
+  MANAGE_PROFILE: "Quản lý hồ sơ & địa chỉ cá nhân",
+};
+
+export function getPermissionLabel(code) {
+  return PERMISSION_LABELS[code] || code;
+}
+
 export function getRoleLabel(role) {
   const found = ROLES.find((r) => r.value === role);
   return found ? found.label : role;

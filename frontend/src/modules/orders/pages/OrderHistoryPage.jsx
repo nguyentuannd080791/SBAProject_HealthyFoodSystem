@@ -46,7 +46,7 @@ export function OrderHistoryPage() {
         <Form.Select aria-label="Lọc đơn hàng" value={filter} onChange={(event) => setFilter(event.target.value)} className="history-filter">
           <option value="all">Tất cả đơn</option><option value="pending_payment">Chờ thanh toán</option>
           <option value="processing">Đã tiếp nhận</option><option value="shipping">Đang giao đến bạn</option>
-          {orders?.some((item) => item.status === "delivered") && <option value="delivered">Đã giao (đơn cũ)</option>}
+          {orders?.some((item) => item.status === "delivered") && <option value="delivered">Đã giao</option>}
           <option value="cancelled">Đã hủy / hết hạn</option>
         </Form.Select>
       </div>
