@@ -18,6 +18,12 @@ export function mapProduct(product, categoryNames = new Map()) {
     status: product.status,
     ingredients: (product.ingredientLines ?? []).map(line =>
       line.requiredQuantity == null ? line.name : `${line.name} (${line.requiredQuantity} ${line.unit})`),
+    ingredientLines: (product.ingredientLines ?? []).map(line => ({
+      id: line.ingredientId,
+      name: line.name,
+      unit: line.unit,
+      quantity: line.requiredQuantity,
+    })),
     tags: [],
     nutrition: {
       calories: product.caloriesKcal ?? 0,

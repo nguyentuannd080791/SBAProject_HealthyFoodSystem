@@ -23,7 +23,13 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-    driver-class-name: ${DB_DRIVER_CLASS_NAME:com.microsoft.sqlserver.jdbc.SQLServerDriver}
+    driver-class-name: ${DB_DRIVER_CLASS_NAME:org.postgresql.Driver}
+    hikari:
+      connection-timeout: 30000
+      data-source-properties:
+        prepareThreshold: 0
+        preparedStatementCacheQueries: 0
+        preparedStatementCacheSizeMiB: 0
   flyway:
     enabled: ${FLYWAY_ENABLED:false}
     locations: ${FLYWAY_LOCATIONS:classpath:db/migration}
@@ -40,7 +46,7 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
-        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.SQLServerDialect}
+        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
         format_sql: true
       show-sql: ${SHOW_SQL:true}
 
