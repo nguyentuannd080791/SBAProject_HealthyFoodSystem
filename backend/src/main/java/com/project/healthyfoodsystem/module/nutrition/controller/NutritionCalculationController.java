@@ -7,7 +7,13 @@ import com.project.healthyfoodsystem.module.nutrition.service.NutritionCalculati
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/nutrition")
@@ -18,9 +24,23 @@ public class NutritionCalculationController {
 
     @PostMapping("/calculate")
     public ResponseEntity<BodyMetricsCalculationResponse> calculateMetrics(
-            @Valid @RequestBody BodyMetricsRequest request
+            @Valid @RequestBody BodyMetricsRequest request,
+            Principal principal
     ) {
-        return ResponseEntity.ok(nutritionCalculationService.calculateMetrics(request));
+        String email = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(nutritionCalculationService.calculateMetrics(request, email));
+    }
+
+    @GetMapping({"/me", "/profile"})
+    public ResponseEntity<BodyMetricsCalculationResponse> getCurrentUserProfile(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.noContent().build();
+        }
+        BodyMetricsCalculationResponse profile = nutritionCalculationService.getUserProfile(principal.getName());
+        if (profile == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(profile);
     }
 
     @GetMapping("/options")
@@ -28,4 +48,3 @@ public class NutritionCalculationController {
         return ResponseEntity.ok(nutritionCalculationService.getNutritionOptions());
     }
 }
-

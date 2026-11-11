@@ -1,24 +1,113 @@
 package com.project.healthyfoodsystem.module.nutrition.service.impl;
 
+import com.project.healthyfoodsystem.module.auth.entity.User;
+import com.project.healthyfoodsystem.module.auth.repository.UserRepository;
 import com.project.healthyfoodsystem.module.nutrition.dto.request.BodyMetricsRequest;
 import com.project.healthyfoodsystem.module.nutrition.dto.response.BodyMetricsCalculationResponse;
 import com.project.healthyfoodsystem.module.nutrition.dto.response.MacroBreakdown;
 import com.project.healthyfoodsystem.module.nutrition.dto.response.MealCaloriesBreakdown;
 import com.project.healthyfoodsystem.module.nutrition.dto.response.NutritionOptionsResponse;
+import com.project.healthyfoodsystem.module.nutrition.entity.UserBodyMetrics;
 import com.project.healthyfoodsystem.module.nutrition.enums.ActivityLevel;
 import com.project.healthyfoodsystem.module.nutrition.enums.Gender;
 import com.project.healthyfoodsystem.module.nutrition.enums.NutritionGoal;
+import com.project.healthyfoodsystem.module.nutrition.repository.UserBodyMetricsRepository;
 import com.project.healthyfoodsystem.module.nutrition.service.NutritionCalculationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class NutritionCalculationServiceImpl implements NutritionCalculationService {
+
+    private final UserRepository userRepository;
+    private final UserBodyMetricsRepository userBodyMetricsRepository;
 
     @Override
     public BodyMetricsCalculationResponse calculateMetrics(BodyMetricsRequest request) {
+        return calculateMetrics(request, null);
+    }
+
+    @Override
+    @Transactional
+    public BodyMetricsCalculationResponse calculateMetrics(BodyMetricsRequest request, String userEmail) {
+        BodyMetricsCalculationResponse response = computeMetrics(request);
+
+        if (userEmail != null && !userEmail.isBlank()) {
+            Optional<User> userOpt = userRepository.findByEmail(userEmail);
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                Optional<UserBodyMetrics> existingOpt = userBodyMetricsRepository.findByUser_Email(userEmail);
+                if (existingOpt.isPresent()) {
+                    UserBodyMetrics existing = existingOpt.get();
+                    if (existing.getGender() != request.getGender()
+                            || Math.abs(existing.getHeightCm().doubleValue() - request.getHeightCm()) > 0.01
+                            || !existing.getAge().equals(request.getAge())) {
+                        throw new IllegalArgumentException("Không thể thay đổi giới tính, chiều cao và tuổi sau khi đã khai báo lần đầu.");
+                    }
+                    existing.setWeightKg(BigDecimal.valueOf(request.getWeightKg()));
+                    existing.setActivityLevel(request.getActivityLevel());
+                    existing.setGoal(request.getGoal());
+                    existing.setUpdatedAt(OffsetDateTime.now());
+                    userBodyMetricsRepository.save(existing);
+                } else {
+                    UserBodyMetrics newProfile = UserBodyMetrics.builder()
+                            .user(user)
+                            .gender(request.getGender())
+                            .heightCm(BigDecimal.valueOf(request.getHeightCm()))
+                            .age(request.getAge())
+                            .weightKg(BigDecimal.valueOf(request.getWeightKg()))
+                            .activityLevel(request.getActivityLevel())
+                            .goal(request.getGoal())
+                            .createdAt(OffsetDateTime.now())
+                            .updatedAt(OffsetDateTime.now())
+                            .build();
+                    userBodyMetricsRepository.save(newProfile);
+                }
+                response.setIsProfileLocked(true);
+                return response;
+            }
+        }
+
+        response.setIsProfileLocked(false);
+        return response;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BodyMetricsCalculationResponse getUserProfile(String userEmail) {
+        if (userEmail == null || userEmail.isBlank()) {
+            return null;
+        }
+
+        Optional<UserBodyMetrics> profileOpt = userBodyMetricsRepository.findByUser_Email(userEmail);
+        if (profileOpt.isEmpty()) {
+            return null;
+        }
+
+        UserBodyMetrics profile = profileOpt.get();
+        BodyMetricsRequest request = BodyMetricsRequest.builder()
+                .gender(profile.getGender())
+                .heightCm(profile.getHeightCm().doubleValue())
+                .age(profile.getAge())
+                .weightKg(profile.getWeightKg().doubleValue())
+                .activityLevel(profile.getActivityLevel())
+                .goal(profile.getGoal())
+                .build();
+
+        BodyMetricsCalculationResponse response = computeMetrics(request);
+        response.setIsProfileLocked(true);
+        return response;
+    }
+
+    private BodyMetricsCalculationResponse computeMetrics(BodyMetricsRequest request) {
         int age = request.getAge();
         double heightM = request.getHeightCm() / 100.0;
         double weightKg = request.getWeightKg();

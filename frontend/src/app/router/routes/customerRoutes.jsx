@@ -7,9 +7,18 @@ import { ProductDetailPage } from "../../../modules/menu/pages/ProductDetailPage
 import { CheckoutPage } from "../../../modules/orders/pages/CheckoutPage";
 import { OrderHistoryPage } from "../../../modules/orders/pages/OrderHistoryPage";
 import { OrderDetailPage } from "../../../modules/orders/pages/OrderDetailPage";
+import { NutritionMetricsPage } from "../../../modules/nutrition/pages/NutritionMetricsPage";
 
 export const customerRoutes = [
   { path: "menu", element: <RequireAuth><MenuPage /></RequireAuth> },
+  {
+    path: "nutrition",
+    element: (
+      <RequireAuth>
+        <NutritionMetricsPage />
+      </RequireAuth>
+    ),
+  },
   { path: "products/:id", element: <ProductDetailPage /> },
   { path: "cart", element: <CartPage /> },
   {

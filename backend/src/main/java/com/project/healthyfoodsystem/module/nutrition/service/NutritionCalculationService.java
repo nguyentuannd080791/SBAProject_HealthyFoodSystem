@@ -8,6 +8,9 @@ public interface NutritionCalculationService {
 
     BodyMetricsCalculationResponse calculateMetrics(BodyMetricsRequest request);
 
+    BodyMetricsCalculationResponse calculateMetrics(BodyMetricsRequest request, String userEmail);
+
+    BodyMetricsCalculationResponse getUserProfile(String userEmail);
+
     NutritionOptionsResponse getNutritionOptions();
 }
-

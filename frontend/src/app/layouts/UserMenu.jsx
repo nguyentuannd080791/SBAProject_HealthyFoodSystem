@@ -3,6 +3,7 @@ import { Dropdown } from "react-bootstrap";
 import { authApi } from "../../modules/auth/api/authApi";
 import { useCart } from "../../modules/cart/hooks/useCart";
 import {
+  ActivityIcon,
   CartIcon,
   ChevronDownIcon,
   LockIcon,
@@ -83,6 +84,9 @@ export function UserMenu({ showCart = true }) {
             <>
               <Dropdown.Item as={Link} to="/profile">
                 <UserIcon size={19} /> Hồ sơ cá nhân
+              </Dropdown.Item>
+              <Dropdown.Item as={Link} to="/nutrition">
+                <ActivityIcon size={19} /> Chỉ số dinh dưỡng
               </Dropdown.Item>
               <Dropdown.Item as={Link} to="/orders">
                 <ShoppingBagIcon size={19} /> Đơn hàng của tôi

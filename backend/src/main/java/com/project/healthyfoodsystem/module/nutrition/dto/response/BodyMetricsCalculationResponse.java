@@ -42,4 +42,5 @@ public class BodyMetricsCalculationResponse {
     private MealCaloriesBreakdown mealBreakdown;
 
     private String standardNote;
+    private Boolean isProfileLocked;
 }

@@ -16,6 +16,7 @@ function HeaderIcon({ type }) {
     home: <><path d="m2 11 10-8 10 8" /><path d="M5 10v11h14V10M10 21v-7h4v7" /></>,
     menu: <><path d="M4 3v8M7 3v8M10 3v8M7 11v10M17 3c-3 3-3 7 0 10h2V3M18 13v8" /></>,
     offer: <><path d="M20 13 13 20a2 2 0 0 1-2.8 0L3 12.8V4a1 1 0 0 1 1-1h8.8L20 10.2a2 2 0 0 1 0 2.8Z" /><circle cx="8" cy="8" r="1" /></>,
+    nutrition: <path d="M22 12h-4l-3 9L9 3l-3 9H2" />,
   };
   return <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor"
     strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[type]}</svg>;
@@ -66,6 +67,13 @@ export function MainLayout() {
                       className={isOffersPage ? "is-current" : undefined}
                     >
                       <HeaderIcon type="offer" /><span>Khuyến mãi</span>
+                    </Nav.Link>
+                    <Nav.Link
+                      as={Link}
+                      to="/nutrition"
+                      className={pathname === "/nutrition" ? "is-current" : undefined}
+                    >
+                      <HeaderIcon type="nutrition" /><span>Đo chỉ số</span>
                     </Nav.Link>
                   </>
                 )}
