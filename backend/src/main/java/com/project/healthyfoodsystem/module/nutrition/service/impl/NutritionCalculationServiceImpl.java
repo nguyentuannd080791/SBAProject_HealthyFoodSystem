@@ -117,24 +117,19 @@ public class NutritionCalculationServiceImpl implements NutritionCalculationServ
 
         String bmiCategory;
         String bmiCategoryLabel;
-        String bmiAdvice;
 
         if (bmi < 18.5) {
             bmiCategory = "UNDERWEIGHT";
             bmiCategoryLabel = "Thiếu cân (Gầy)";
-            bmiAdvice = "Cân nặng hiện tại thấp hơn tiêu chuẩn khuyến nghị. Nên tăng cường bổ sung dinh dưỡng hợp lý để cải thiện thể trạng.";
         } else if (bmi < 23.0) {
             bmiCategory = "NORMAL";
             bmiCategoryLabel = "Bình thường (Lý tưởng)";
-            bmiAdvice = "Chỉ số khối cơ thể ở mức lý tưởng và khỏe mạnh. Hãy duy trì chế độ dinh dưỡng cân đối và lối sống năng động.";
         } else if (bmi < 25.0) {
             bmiCategory = "OVERWEIGHT";
             bmiCategoryLabel = "Thừa cân (Tiền béo phì)";
-            bmiAdvice = "Cân nặng đang ở ngưỡng thừa cân. Nên chủ động điều chỉnh lượng calo nạp vào hàng ngày và tăng cường hoạt động thể chất.";
         } else {
             bmiCategory = "OBESE";
             bmiCategoryLabel = "Béo phì";
-            bmiAdvice = "Chỉ số BMI ở ngưỡng béo phì. Cần có kế hoạch kiểm soát thâm hụt calo khoa học kết hợp rèn luyện thể thao đều đặn.";
         }
 
         double minIdealWeightKg = Math.round(18.5 * heightM * heightM * 10.0) / 10.0;
@@ -228,7 +223,6 @@ public class NutritionCalculationServiceImpl implements NutritionCalculationServ
                 .bmi(bmi)
                 .bmiCategory(bmiCategory)
                 .bmiCategoryLabel(bmiCategoryLabel)
-                .bmiAdvice(bmiAdvice)
                 .minIdealWeightKg(minIdealWeightKg)
                 .maxIdealWeightKg(maxIdealWeightKg)
                 .bmrKcal(bmrKcal)
@@ -237,7 +231,6 @@ public class NutritionCalculationServiceImpl implements NutritionCalculationServ
                 .calorieAdjustmentKcal(calorieAdjustmentKcal)
                 .macroBreakdown(macroBreakdown)
                 .mealBreakdown(mealBreakdown)
-                .standardNote("Chỉ số BMI phân loại theo chuẩn WHO khu vực Tây Thái Bình Dương; BMR và TDEE tính theo công thức khoa học Mifflin - St Jeor.")
                 .build();
     }
 

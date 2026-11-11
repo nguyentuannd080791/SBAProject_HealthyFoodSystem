@@ -443,10 +443,6 @@
   flex-shrink: 0;
 }
 
-.meal-plan-highlights-box {
-  background: #fafcfb;
-  border: 1px solid #eef2ec;
-}
 
 @media (max-width: 767.98px) {
   .nutrition-page {

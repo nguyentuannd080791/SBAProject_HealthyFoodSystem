@@ -4,9 +4,7 @@ import { Link } from "react-router";
 import {
   CheckIcon,
   FlameIcon,
-  LeafIcon,
   RotateCcwIcon,
-  ShieldCheckIcon,
   SparklesIcon,
 } from "../../../shared/components/Icons";
 import { nutritionApi } from "../api/nutritionApi";
@@ -52,8 +50,7 @@ export function MealPlanModal({ show, onHide, results }) {
               Đang tối ưu thực đơn 3 bữa cho bạn...
             </h6>
             <p className="text-muted small mb-0">
-              Sàng lọc bệnh nền, dị ứng và chạy thuật toán Beam Search để phân bổ
-              chuẩn calo &amp; đa lượng chất.
+              Sàng lọc bệnh nền, dị ứng và phân bổ chuẩn calo &amp; đa lượng chất.
             </p>
           </div>
         )}
@@ -68,17 +65,9 @@ export function MealPlanModal({ show, onHide, results }) {
           <div>
             <div className="meal-plan-overview-box mb-3">
               <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
-                <div className="d-flex align-items-center gap-2">
-                  <Badge bg="success" className="px-2 py-1">
-                    {mealPlan.goalLabel}
-                  </Badge>
-                  <span className="small text-muted">
-                    Thuật toán:{" "}
-                    <strong className="text-dark">
-                      {mealPlan.algorithmUsed}
-                    </strong>
-                  </span>
-                </div>
+                <Badge bg="success" className="px-2 py-1">
+                  {mealPlan.goalLabel}
+                </Badge>
                 <div className="text-success fw-bold small d-flex align-items-center gap-1">
                   <CheckIcon size={14} /> Độ khớp calo:{" "}
                   {mealPlan.accuracyPercentage}%
@@ -108,16 +97,6 @@ export function MealPlanModal({ show, onHide, results }) {
                   </div>
                 </div>
               </div>
-
-              {mealPlan.screenedConditionsCount > 0 && (
-                <div className="mt-2 pt-2 border-top small text-success d-flex align-items-center gap-1">
-                  <ShieldCheckIcon size={14} />
-                  <span>
-                    Đã kiểm duyệt an toàn bệnh nền: bảo đảm 0 vi phạm chất cấm/dị
-                    ứng.
-                  </span>
-                </div>
-              )}
             </div>
 
             <div className="meal-plan-slots-list d-flex flex-column gap-3 mb-3">
@@ -168,11 +147,6 @@ export function MealPlanModal({ show, onHide, results }) {
                             {dish.fatG}g Fat
                           </span>
                         </div>
-                        {dish.expertReason && (
-                          <div className="small text-muted fst-italic">
-                            💡 {dish.expertReason}
-                          </div>
-                        )}
                       </div>
 
                       <div className="text-end ps-2">
@@ -185,20 +159,6 @@ export function MealPlanModal({ show, onHide, results }) {
                 );
               })}
             </div>
-
-            {mealPlan.nutritionalHighlights?.length > 0 && (
-              <div className="meal-plan-highlights-box mb-2 p-3 rounded">
-                <div className="small fw-bold text-dark mb-1 d-flex align-items-center gap-1">
-                  <LeafIcon size={14} className="text-success" /> Điểm nổi bật
-                  của thực đơn:
-                </div>
-                <ul className="mb-0 ps-3 small text-muted">
-                  {mealPlan.nutritionalHighlights.map((hl, idx) => (
-                    <li key={idx}>{hl}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
         )}
       </Modal.Body>

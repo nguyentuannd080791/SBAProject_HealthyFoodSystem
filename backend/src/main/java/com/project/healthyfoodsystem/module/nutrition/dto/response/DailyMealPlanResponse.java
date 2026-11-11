@@ -28,11 +28,5 @@ public class DailyMealPlanResponse {
     private Double actualFatG;
     private BigDecimal totalPrice;
     private Double accuracyPercentage;
-    private String algorithmUsed;
-    private Integer screenedConditionsCount;
-    private Integer excludedDishesCount;
-    private Integer candidatePoolSize;
     private List<MealSlotResponse> meals;
-    private List<String> nutritionalHighlights;
 }
-

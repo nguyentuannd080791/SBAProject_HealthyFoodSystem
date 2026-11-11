@@ -22,10 +22,4 @@ public class MealPlanDishResponse {
     private Double proteinG;
     private Double carbohydrateG;
     private Double fatG;
-    private Double fiberG;
-    private Double sugarG;
-    private Double sodiumMg;
-    private Double potassiumMg;
-    private String expertReason;
 }
-

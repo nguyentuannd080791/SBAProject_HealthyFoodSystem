@@ -27,7 +27,6 @@ public class BodyMetricsCalculationResponse {
     private Double bmi;
     private String bmiCategory;
     private String bmiCategoryLabel;
-    private String bmiAdvice;
     private Double minIdealWeightKg;
     private Double maxIdealWeightKg;
 
@@ -41,6 +40,5 @@ public class BodyMetricsCalculationResponse {
 
     private MealCaloriesBreakdown mealBreakdown;
 
-    private String standardNote;
     private Boolean isProfileLocked;
 }

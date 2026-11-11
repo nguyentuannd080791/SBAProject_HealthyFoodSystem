@@ -13,7 +13,6 @@ import com.project.healthyfoodsystem.module.nutrition.service.NutritionCalculati
 import com.project.healthyfoodsystem.module.product.entity.Product;
 import com.project.healthyfoodsystem.module.product.repository.ProductRepository;
 import com.project.healthyfoodsystem.module.screening.dto.response.ProductScreeningResult;
-import com.project.healthyfoodsystem.module.screening.dto.response.UserClinicalProfileResponse;
 import com.project.healthyfoodsystem.module.screening.service.ClinicalScreeningService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -74,18 +73,11 @@ public class MealPlanServiceImpl implements MealPlanService {
                 .toList();
 
         Set<Integer> unsafeProductIds = new HashSet<>();
-        int screenedConditionsCount = 0;
-
         List<ProductScreeningResult> screeningResults = clinicalScreeningService.evaluateCatalog(userEmail);
         for (ProductScreeningResult sr : screeningResults) {
             if (!sr.isSafe() || sr.isHasAllergy() || sr.isHasForbiddenIngredients() || sr.isExceedsNutrientLimits()) {
                 unsafeProductIds.add(sr.getProductId());
             }
-        }
-
-        UserClinicalProfileResponse profile = clinicalScreeningService.getUserClinicalProfile(userEmail);
-        if (profile != null && profile.getConditions() != null) {
-            screenedConditionsCount = profile.getConditions().size();
         }
 
         List<Product> candidatePool = availableProducts.stream()
@@ -141,7 +133,7 @@ public class MealPlanServiceImpl implements MealPlanService {
                 .targetCaloriesKcal(targetBreakfastKcal)
                 .actualCaloriesKcal(actualBreakfastCal)
                 .calorieDifferenceKcal(actualBreakfastCal - targetBreakfastKcal)
-                .dish(mapToDishResponse(breakfastDish, goal))
+                .dish(mapToDishResponse(breakfastDish))
                 .build();
 
         MealSlotResponse lunchSlot = MealSlotResponse.builder()
@@ -150,7 +142,7 @@ public class MealPlanServiceImpl implements MealPlanService {
                 .targetCaloriesKcal(targetLunchKcal)
                 .actualCaloriesKcal(actualLunchCal)
                 .calorieDifferenceKcal(actualLunchCal - targetLunchKcal)
-                .dish(mapToDishResponse(lunchDish, goal))
+                .dish(mapToDishResponse(lunchDish))
                 .build();
 
         MealSlotResponse dinnerSlot = MealSlotResponse.builder()
@@ -159,17 +151,8 @@ public class MealPlanServiceImpl implements MealPlanService {
                 .targetCaloriesKcal(targetDinnerKcal)
                 .actualCaloriesKcal(actualDinnerCal)
                 .calorieDifferenceKcal(actualDinnerCal - targetDinnerKcal)
-                .dish(mapToDishResponse(dinnerDish, goal))
+                .dish(mapToDishResponse(dinnerDish))
                 .build();
-
-        List<String> highlights = buildHighlights(
-                goal,
-                targetCalories,
-                totalActualCal,
-                accuracyPercentage,
-                screenedConditionsCount,
-                unsafeProductIds.size()
-        );
 
         return DailyMealPlanResponse.builder()
                 .goal(goal)
@@ -185,12 +168,7 @@ public class MealPlanServiceImpl implements MealPlanService {
                 .actualFatG(actualFatG)
                 .totalPrice(totalPrice)
                 .accuracyPercentage(accuracyPercentage)
-                .algorithmUsed("BEAM_SEARCH")
-                .screenedConditionsCount(screenedConditionsCount)
-                .excludedDishesCount(unsafeProductIds.size())
-                .candidatePoolSize(candidatePool.size())
                 .meals(List.of(breakfastSlot, lunchSlot, dinnerSlot))
-                .nutritionalHighlights(highlights)
                 .build();
     }
 
@@ -293,7 +271,7 @@ public class MealPlanServiceImpl implements MealPlanService {
         return 100.0 - (balanceDev * 80.0);
     }
 
-    private MealPlanDishResponse mapToDishResponse(Product p, NutritionGoal goal) {
+    private MealPlanDishResponse mapToDishResponse(Product p) {
         return MealPlanDishResponse.builder()
                 .productId(p.getId())
                 .productName(p.getName())
@@ -304,53 +282,7 @@ public class MealPlanServiceImpl implements MealPlanService {
                 .proteinG(roundOneDecimal(getDouble(p.getProteinG())))
                 .carbohydrateG(roundOneDecimal(getDouble(p.getCarbohydrateG())))
                 .fatG(roundOneDecimal(getDouble(p.getFatG())))
-                .fiberG(roundOneDecimal(getDouble(p.getFiberG())))
-                .sugarG(roundOneDecimal(getDouble(p.getSugarG())))
-                .sodiumMg(roundOneDecimal(getDouble(p.getSodiumMg())))
-                .potassiumMg(roundOneDecimal(getDouble(p.getPotassiumMg())))
-                .expertReason(buildExpertReason(p, goal))
                 .build();
-    }
-
-    private String buildExpertReason(Product p, NutritionGoal goal) {
-        double protein = getDouble(p.getProteinG());
-        int cal = p.getCaloriesKcal();
-
-        if (goal == NutritionGoal.LOSE_WEIGHT) {
-            return String.format("Hàm lượng đạm cao (%.1fg), calo tối ưu (%d kcal) giúp tạo cảm giác no lâu và giữ cơ bắp khi thâm hụt calo.", protein, cal);
-        }
-        if (goal == NutritionGoal.GAIN_WEIGHT) {
-            return String.format("Năng lượng đậm đặc (%d kcal), giàu protein (%.1fg) và tinh bột phức lành mạnh hỗ trợ tăng cân và phát triển mô cơ.", cal, protein);
-        }
-        return String.format("Tỷ lệ phân bổ dinh dưỡng cân bằng (%d kcal, %.1fg đạm), cung cấp năng lượng ổn định suốt ngày dài.", cal, protein);
-    }
-
-    private List<String> buildHighlights(
-            NutritionGoal goal,
-            int targetCal,
-            int actualCal,
-            double accuracy,
-            int screenedConditionsCount,
-            int excludedDishesCount
-    ) {
-        List<String> list = new ArrayList<>();
-        list.add(String.format("Thuật toán Beam Search tối ưu độ khớp năng lượng đạt %.1f%% (thực tế %d kcal so với mục tiêu %d kcal).", accuracy, actualCal, targetCal));
-
-        if (goal == NutritionGoal.LOSE_WEIGHT) {
-            list.add("Ưu tiên các món có mật độ đạm cao, giàu chất xơ và hạn chế đường đơn để kiểm soát mỡ thừa hiệu quả.");
-        } else if (goal == NutritionGoal.GAIN_WEIGHT) {
-            list.add("Tập trung năng lượng sạch đậm đặc, bổ sung lượng protein và carbs phức dồi dào kích thích đồng hóa cơ thể.");
-        } else {
-            list.add("Cân đối hoàn hảo tỷ lệ 3 chất đa lượng (đạm, tinh bột, chất béo) chuẩn khoa học giúp duy trì vóc dáng lý tưởng.");
-        }
-
-        if (screenedConditionsCount > 0) {
-            list.add(String.format("Đã sàng lọc an toàn dựa trên %d tình trạng bệnh nền/dị ứng (loại trừ %d món có nguy cơ).", screenedConditionsCount, excludedDishesCount));
-        } else {
-            list.add("Toàn bộ món ăn trong thực đơn đều đạt chuẩn vệ sinh an toàn và dinh dưỡng kiểm nghiệm.");
-        }
-
-        return list;
     }
 
     private double getDouble(BigDecimal val) {

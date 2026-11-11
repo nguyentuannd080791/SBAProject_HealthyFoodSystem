@@ -107,15 +107,11 @@ class MealPlanServiceTest {
         when(userBodyMetricsRepository.findByUser_Email(email)).thenReturn(Optional.of(userMetrics));
         when(productRepository.findAll()).thenReturn(products);
         when(clinicalScreeningService.evaluateCatalog(email)).thenReturn(Collections.emptyList());
-        when(clinicalScreeningService.getUserClinicalProfile(email)).thenReturn(
-                UserClinicalProfileResponse.builder().conditions(Collections.emptyList()).build()
-        );
 
         DailyMealPlanResponse response = mealPlanService.generateMealPlan(email);
 
         assertThat(response).isNotNull();
         assertThat(response.getGoal()).isEqualTo(NutritionGoal.LOSE_WEIGHT);
-        assertThat(response.getAlgorithmUsed()).isEqualTo("BEAM_SEARCH");
         assertThat(response.getMeals()).hasSize(3);
         assertThat(response.getMeals().get(0).getMealType()).isEqualTo("BREAKFAST");
         assertThat(response.getMeals().get(1).getMealType()).isEqualTo("LUNCH");
@@ -128,7 +124,6 @@ class MealPlanServiceTest {
         assertThat(distinctDishIds).isEqualTo(3);
 
         assertThat(response.getAccuracyPercentage()).isGreaterThan(70.0);
-        assertThat(response.getNutritionalHighlights()).isNotEmpty();
     }
 
     @Test
@@ -162,15 +157,10 @@ class MealPlanServiceTest {
         when(userBodyMetricsRepository.findByUser_Email(email)).thenReturn(Optional.of(userMetrics));
         when(productRepository.findAll()).thenReturn(products);
         when(clinicalScreeningService.evaluateCatalog(email)).thenReturn(List.of(unsafeResult));
-        when(clinicalScreeningService.getUserClinicalProfile(email)).thenReturn(
-                UserClinicalProfileResponse.builder().conditions(Collections.emptyList()).build()
-        );
 
         DailyMealPlanResponse response = mealPlanService.generateMealPlan(email);
 
         assertThat(response).isNotNull();
-        assertThat(response.getExcludedDishesCount()).isEqualTo(1);
-        assertThat(response.getCandidatePoolSize()).isEqualTo(3);
 
         boolean containsUnsafe = response.getMeals().stream()
                 .anyMatch(m -> m.getDish().getProductId() == 2);
@@ -198,7 +188,6 @@ class MealPlanServiceTest {
         when(userBodyMetricsRepository.findByUser_Email(email)).thenReturn(Optional.of(userMetrics));
         when(productRepository.findAll()).thenReturn(products);
         when(clinicalScreeningService.evaluateCatalog(email)).thenReturn(Collections.emptyList());
-        when(clinicalScreeningService.getUserClinicalProfile(email)).thenReturn(null);
 
         assertThatThrownBy(() -> mealPlanService.generateMealPlan(email))
                 .isInstanceOf(ResponseStatusException.class)
