@@ -4,10 +4,14 @@ import { Alert, Badge, Button, Card, Form, Modal, Spinner, Table } from 'react-b
 import { RotateCcwIcon } from '../../../shared/components/Icons';
 import { categoryApi } from '../api/categoryApi';
 import { validateCategoryName } from '../validators/categoryValidation';
+import { ManagerSummaryStats } from '../../manager/components/ManagerSummaryStats';
+import { ManagerPagination } from '../../manager/components/ManagerPagination';
+import { useManagerPagination } from '../../manager/hooks/useManagerPagination';
 
 export function CategoryManagementPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [statsReady, setStatsReady] = useState(false);
   const [loadError, setLoadError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
@@ -24,6 +28,7 @@ export function CategoryManagementPage() {
     categoryApi.listAllForManager().then(result => {
       if (!active) return;
       setCategories(result.data || []);
+      setStatsReady(Array.isArray(result.data));
       setLoadError(result.error || '');
       setLoading(false);
     });
@@ -67,6 +72,7 @@ export function CategoryManagementPage() {
     if (!editingCategory) {
       setSearch('');
       setStatusFilter('');
+      resetPage();
     }
     setNotice(editingCategory ? 'Đã sửa danh mục.' : 'Đã thêm danh mục. Bạn có thể chọn danh mục này khi thêm sản phẩm.');
   }
@@ -89,26 +95,33 @@ export function CategoryManagementPage() {
   const filtered = categories.filter(category =>
     category.name.toLocaleLowerCase('vi').includes(search.trim().toLocaleLowerCase('vi'))
     && (!statusFilter || (statusFilter === 'active' ? category.isActive : !category.isActive)));
+  const { items: pageItems, page, totalPages, start, end, total, setPage, resetPage } = useManagerPagination(filtered);
 
   return <>
     <div className="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
       <div><h2 className="h4 mb-1">Danh mục sản phẩm</h2><p className="text-muted mb-0">Quản lý danh mục dùng cho sản phẩm và khuyến mại.</p></div>
       <Button onClick={() => openForm()} disabled={loading || !!loadError}>+ Thêm danh mục</Button>
     </div>
+    <ManagerSummaryStats ready={statsReady} selected={statusFilter || (search ? null : '')}
+      onSelect={value => { setSearch(''); setStatusFilter(value); resetPage(); }} stats={[
+        ['Tổng danh mục', categories.length, ''],
+        ['Đang hoạt động', categories.filter(category => category.isActive).length, 'active'],
+        ['Ngừng hoạt động', categories.filter(category => !category.isActive).length, 'inactive'],
+      ]} />
     {notice && <Alert variant="success" dismissible onClose={() => setNotice('')}>{notice}</Alert>}
     {loadError && <Alert variant="danger">{loadError}</Alert>}
     {error && !showForm && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
     <Card body>
       <div className="d-flex gap-3 mb-4 flex-wrap align-items-center">
-        <Form.Control style={{ maxWidth: 360 }} aria-label="Tìm tên danh mục" placeholder="Tìm tên danh mục..." value={search} onChange={event => setSearch(event.target.value)} />
-        <Form.Select style={{ maxWidth: 260 }} aria-label="Lọc trạng thái danh mục" value={statusFilter} onChange={event => setStatusFilter(event.target.value)}>
+        <Form.Control style={{ maxWidth: 360 }} aria-label="Tìm tên danh mục" placeholder="Tìm tên danh mục..." value={search} onChange={event => { setSearch(event.target.value); resetPage(); }} />
+        <Form.Select style={{ maxWidth: 260 }} aria-label="Lọc trạng thái danh mục" value={statusFilter} onChange={event => { setStatusFilter(event.target.value); resetPage(); }}>
           <option value="">Tất cả trạng thái</option>
           <option value="active">Đang hoạt động</option>
           <option value="inactive">Ngừng hoạt động</option>
         </Form.Select>
         {(search || statusFilter) && (
           <Button variant="outline-secondary" size="sm" aria-label="Xóa bộ lọc" title="Xóa bộ lọc"
-            onClick={() => { setSearch(''); setStatusFilter(''); }}>
+            onClick={() => { setSearch(''); setStatusFilter(''); resetPage(); }}>
             <RotateCcwIcon size={16} />
           </Button>
         )}
@@ -118,7 +131,7 @@ export function CategoryManagementPage() {
           : !filtered.length ? <p className="text-muted mb-0 py-4 text-center">{categories.length ? 'Không tìm thấy danh mục phù hợp.' : 'Chưa có danh mục. Hãy thêm danh mục đầu tiên.'}</p>
           : <Table responsive hover className="align-middle mb-0">
             <thead><tr><th>Tên danh mục</th><th>Số sản phẩm</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
-            <tbody>{filtered.map(category => <tr key={category.id}>
+            <tbody>{pageItems.map(category => <tr key={category.id}>
               <td><strong>{category.name}</strong></td>
               <td><Link to={`/manager/products?categoryId=${category.id}`} aria-label={`Xem sản phẩm thuộc danh mục ${category.name}`}>{category.productCount ?? 0}</Link></td>
               <td><Badge bg={category.isActive ? 'success' : 'secondary'}>{category.isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'}</Badge></td>
@@ -126,6 +139,7 @@ export function CategoryManagementPage() {
                 <Button size="sm" variant={category.isActive ? 'outline-secondary' : 'outline-success'} disabled={busy} onClick={() => toggleActive(category)}>{category.isActive ? 'Ngừng hoạt động' : 'Bật lại'}</Button></div></td>
             </tr>)}</tbody>
           </Table>}
+      {!loading && !loadError && <ManagerPagination page={page} totalPages={totalPages} start={start} end={end} total={total} onPageChange={setPage} />}
     </Card>
 
     <Modal show={showForm} onHide={() => { if (!busy) setShowForm(false); }} centered backdrop={busy ? 'static' : true} keyboard={!busy}>

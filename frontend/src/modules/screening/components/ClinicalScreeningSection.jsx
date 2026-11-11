@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Alert, Badge, Button, Card, Spinner } from "react-bootstrap";
+import { HeartPulseIcon, PlusIcon } from "../../../shared/components/Icons";
 import { useScreening } from "../hooks/useScreening";
 import { ScreeningEditModal } from "./ScreeningEditModal";
 
@@ -21,7 +22,6 @@ export function ClinicalScreeningSection() {
 
   const activeConditions = userProfile?.conditions || [];
   const activeAllergies = userProfile?.allergicIngredients || [];
-  const activeNote = userProfile?.note || "";
 
   function handleOpenModal() {
     setError("");
@@ -33,8 +33,8 @@ export function ClinicalScreeningSection() {
     setShowModal(false);
   }
 
-  async function handleSaveModal(condIds, allergyIds, note) {
-    const result = await saveProfile(condIds, allergyIds, note);
+  async function handleSaveModal(condIds, allergyIds) {
+    const result = await saveProfile(condIds, allergyIds, "");
     if (result.success) {
       setShowModal(false);
     }
@@ -45,7 +45,7 @@ export function ClinicalScreeningSection() {
       .map((c) => c.id)
       .filter((id) => id !== conditionId);
     const allergyIds = activeAllergies.map((i) => i.id);
-    await saveProfile(nextConditions, allergyIds, activeNote);
+    await saveProfile(nextConditions, allergyIds, "");
   }
 
   async function handleDeleteAllergy(ingredientId) {
@@ -53,50 +53,40 @@ export function ClinicalScreeningSection() {
     const nextAllergies = activeAllergies
       .map((i) => i.id)
       .filter((id) => id !== ingredientId);
-    await saveProfile(conditionIds, nextAllergies, activeNote);
+    await saveProfile(conditionIds, nextAllergies, "");
   }
 
   async function handleClearAllAllergies() {
     const conditionIds = activeConditions.map((c) => c.id);
-    await saveProfile(conditionIds, [], activeNote);
-  }
-
-  if (loading) {
-    return (
-      <Card className="border-0 shadow-sm p-4 text-center">
-        <div className="py-5">
-          <Spinner animation="border" variant="success" className="mb-2" />
-          <p className="text-muted small mb-0">
-            Đang tải dữ liệu hồ sơ lâm sàng...
-          </p>
-        </div>
-      </Card>
-    );
+    await saveProfile(conditionIds, [], "");
   }
 
   const hasAnyScreening = activeConditions.length > 0 || activeAllergies.length > 0;
 
   return (
     <>
-      <Card className="border-0 shadow-sm">
-        <Card.Body className="p-4">
-          <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+      <Card className="profile-content-card">
+        <Card.Body className="p-4 p-sm-5">
+          <div className="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+            <div
+              className="rounded-circle d-flex align-items-center justify-content-center"
+              style={{
+                width: 44,
+                height: 44,
+                backgroundColor: "#f0fdf4",
+                color: "var(--hf-primary)",
+              }}
+            >
+              <HeartPulseIcon size={22} />
+            </div>
             <div>
-              <h2 className="h5 fw-bold mb-1">
-                Hồ sơ Sàng lọc Sức khỏe & Dị ứng
+              <h2 className="h5 mb-1 fw-bold text-dark">
+                Hồ sơ sàng lọc sức khỏe & dị ứng
               </h2>
               <p className="text-muted small mb-0">
-                Các chỉ số lâm sàng và nguyên liệu kiêng kỵ để hệ thống tự động cảnh báo khi bạn chọn món.
+                Chỉ số bệnh lý và nguyên liệu dị ứng để hệ thống kiểm soát và cảnh báo món ăn an toàn.
               </p>
             </div>
-            <Button
-              variant="success"
-              size="sm"
-              className="fw-semibold px-3 py-2"
-              onClick={handleOpenModal}
-            >
-              + Thêm mới / Cập nhật
-            </Button>
           </div>
 
           {error && (
@@ -104,7 +94,7 @@ export function ClinicalScreeningSection() {
               variant="danger"
               dismissible
               onClose={() => setError("")}
-              className="py-2 small"
+              className="py-2 small mb-3"
             >
               {error}
             </Alert>
@@ -115,33 +105,62 @@ export function ClinicalScreeningSection() {
               variant="success"
               dismissible
               onClose={() => setSuccess("")}
-              className="py-2 small"
+              className="py-2 small mb-3"
             >
               {success}
             </Alert>
           )}
 
-          {!hasAnyScreening ? (
-            <div className="p-4 rounded border bg-light text-center my-3">
-              <h3 className="h6 fw-bold text-dark mb-2">
+          {loading && (
+            <div className="text-center py-5">
+              <Spinner animation="border" size="sm" role="status" variant="success">
+                <span className="visually-hidden">Đang tải...</span>
+              </Spinner>
+            </div>
+          )}
+
+          {!loading && !hasAnyScreening && (
+            <div className="text-center py-5 px-3 border rounded-4 bg-light-subtle">
+              <div
+                className="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                style={{
+                  width: 56,
+                  height: 56,
+                  backgroundColor: "#f0fdf4",
+                  color: "var(--hf-primary)",
+                }}
+              >
+                <HeartPulseIcon size={28} />
+              </div>
+              <h3 className="h6 fw-bold text-dark mb-1">
                 Chưa có thiết lập sàng lọc lâm sàng
               </h3>
-              <p className="text-muted small mb-3" style={{ maxWidth: 500, margin: "0 auto" }}>
-                Bạn chưa lưu thông tin bệnh lý nền hoặc nguyên liệu dị ứng. Bấm nút dưới đây để thiết lập và giúp hệ thống lọc món ăn phù hợp với sức khỏe của bạn.
+              <p
+                className="text-muted small mb-3"
+                style={{ maxWidth: 460, margin: "0 auto" }}
+              >
+                Bạn chưa lưu thông tin bệnh lý nền hoặc nguyên liệu dị ứng. Thiết lập hồ sơ để hệ thống tự động loại trừ và cảnh báo món ăn không an toàn.
               </p>
               <Button
-                variant="outline-success"
+                variant="primary"
                 size="sm"
-                className="fw-semibold px-4"
+                className="rounded-pill px-4 py-2 fw-semibold d-inline-flex align-items-center gap-2"
                 onClick={handleOpenModal}
+                style={{
+                  backgroundColor: "var(--hf-primary)",
+                  borderColor: "var(--hf-primary)",
+                }}
               >
-                Thiết lập hồ sơ sức khỏe
+                <PlusIcon size={16} />
+                <span>Thiết lập hồ sơ ngay</span>
               </Button>
             </div>
-          ) : (
-            <div className="mt-3">
+          )}
+
+          {!loading && hasAnyScreening && (
+            <div>
               <div className="mb-4">
-                <div className="d-flex align-items-center justify-content-between mb-2">
+                <div className="d-flex align-items-center justify-content-between mb-3">
                   <h3 className="h6 fw-bold text-dark mb-0">
                     Bệnh lý nền đang áp dụng ({activeConditions.length})
                   </h3>
@@ -156,7 +175,7 @@ export function ClinicalScreeningSection() {
                     {activeConditions.map((cond) => (
                       <div
                         key={cond.id}
-                        className="p-3 rounded border bg-white shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3"
+                        className="p-3 rounded-3 border bg-white shadow-sm d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3"
                       >
                         <div style={{ flex: 1 }}>
                           <div className="d-flex align-items-center gap-2 mb-1">
@@ -224,7 +243,7 @@ export function ClinicalScreeningSection() {
                             size="sm"
                             disabled={saving}
                             onClick={() => handleDeleteCondition(cond.id)}
-                            className="px-3"
+                            className="px-3 rounded-pill"
                           >
                             Xóa
                           </Button>
@@ -238,7 +257,7 @@ export function ClinicalScreeningSection() {
               <hr className="my-4" />
 
               <div className="mb-4">
-                <div className="d-flex align-items-center justify-content-between mb-2">
+                <div className="d-flex align-items-center justify-content-between mb-3">
                   <h3 className="h6 fw-bold text-dark mb-0">
                     Nguyên liệu dị ứng & kiêng ({activeAllergies.length})
                   </h3>
@@ -260,11 +279,11 @@ export function ClinicalScreeningSection() {
                     Chưa chọn nguyên liệu dị ứng nào.
                   </p>
                 ) : (
-                  <div className="d-flex flex-wrap gap-2 p-3 bg-light rounded border">
+                  <div className="d-flex flex-wrap gap-2 p-3 bg-light-subtle rounded-3 border">
                     {activeAllergies.map((ing) => (
                       <span
                         key={ing.id}
-                        className="badge bg-white text-danger border border-danger-subtle d-inline-flex align-items-center gap-2 py-2 px-3 small"
+                        className="badge bg-white text-danger border border-danger-subtle d-inline-flex align-items-center gap-2 py-2 px-3 small rounded-pill shadow-xs"
                       >
                         <span className="fw-semibold">{ing.name}</span>
                         <button
@@ -281,25 +300,11 @@ export function ClinicalScreeningSection() {
                 )}
               </div>
 
-              {activeNote && (
-                <>
-                  <hr className="my-4" />
-                  <div className="mb-3">
-                    <h3 className="h6 fw-bold text-dark mb-1">
-                      Ghi chú dặn dò thêm
-                    </h3>
-                    <p className="text-muted small mb-0 bg-light p-3 rounded border">
-                      {activeNote}
-                    </p>
-                  </div>
-                </>
-              )}
-
-              <div className="d-flex justify-content-end gap-2 mt-4 pt-2 border-top">
+              <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
                 <Button
-                  variant="outline-primary"
+                  variant="outline-success"
                   size="sm"
-                  className="fw-semibold px-3"
+                  className="fw-semibold px-4 py-2 rounded-pill"
                   onClick={handleOpenModal}
                 >
                   Điều chỉnh hồ sơ
@@ -317,7 +322,6 @@ export function ClinicalScreeningSection() {
         ingredients={ingredients}
         activeConditions={activeConditions}
         activeAllergies={activeAllergies}
-        activeNote={activeNote}
         onSave={handleSaveModal}
         saving={saving}
       />

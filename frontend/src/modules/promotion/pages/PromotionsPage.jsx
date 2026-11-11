@@ -8,6 +8,9 @@ import { PromotionForm } from '../components/PromotionForm';
 import { promotionStatus } from '../utils/format';
 import { formatCurrency as money } from '../../../shared/utils/formatCurrency';
 import { RotateCcwIcon } from '../../../shared/components/Icons';
+import { ManagerPagination } from '../../manager/components/ManagerPagination';
+import { useManagerPagination } from '../../manager/hooks/useManagerPagination';
+import { ManagerSummaryStats } from '../../manager/components/ManagerSummaryStats';
 
 const dateOnly = value => new Date(value).toLocaleDateString('vi-VN');
 
@@ -48,6 +51,7 @@ export function PromotionsPage() {
   const filtered = promotions.filter(item =>
     `${item.name} ${item.code ?? ''}`.toLocaleLowerCase('vi').includes(search.trim().toLocaleLowerCase('vi'))
     && (!status || promotionStatus(item, now).key === status));
+  const { items: pageItems, page, totalPages, start, end, total, setPage, resetPage } = useManagerPagination(filtered);
 
   function open(promotion) { setError(''); setEditor({ promotion }); }
 
@@ -77,24 +81,25 @@ export function PromotionsPage() {
       <div><h2 className="h4 mb-1">Chương trình khuyến mãi</h2><p className="text-muted mb-0">Lên lịch ưu đãi cho những món ăn được yêu thích.</p></div>
       <Button as={Link} to="/manager/promotions/new" disabled={loading || !!loadError}>+ Tạo khuyến mãi</Button>
     </div>
-    <Row className="g-3 mb-4">{[
-      ['Tổng chương trình', promotions.length],
-      ['Đang áp dụng', promotions.filter(item => promotionStatus(item, now).key === 'active').length],
-      ['Sắp diễn ra', promotions.filter(item => promotionStatus(item, now).key === 'scheduled').length],
-    ].map(([label, count]) => <Col xs={12} sm={4} key={label}><Card body><span className="text-muted">{label}</span><div className="manager-stat">{count}</div></Card></Col>)}</Row>
+    <ManagerSummaryStats ready={!loading && !loadError} selected={status || (search ? null : '')}
+      onSelect={value => { setSearch(''); setStatus(value); resetPage(); }} stats={[
+        ['Tổng chương trình', promotions.length, ''],
+        ['Đang áp dụng', promotions.filter(item => promotionStatus(item, now).key === 'active').length, 'active'],
+        ['Sắp diễn ra', promotions.filter(item => promotionStatus(item, now).key === 'scheduled').length, 'scheduled'],
+      ]} />
     {notice && <Alert variant="success" dismissible onClose={() => setNotice('')}>{notice}</Alert>}
     {(loadError || (!editor && error)) && <Alert variant="danger">{loadError || error}</Alert>}
     <Card body>
       <Row className="g-3 mb-4">
-        <Col md={7}><Form.Control aria-label="Tìm tên khuyến mãi" placeholder="Tìm tên chương trình..." value={search} onChange={event => setSearch(event.target.value)} /></Col>
-        <Col md={4}><Form.Select aria-label="Lọc trạng thái khuyến mãi" value={status} onChange={event => setStatus(event.target.value)}><option value="">Tất cả trạng thái</option><option value="active">Đang áp dụng</option><option value="scheduled">Sắp diễn ra</option><option value="expired">Đã kết thúc</option><option value="disabled">Tạm tắt</option></Form.Select></Col>
-        <Col md={1}><Button variant="outline-secondary" className="w-100 d-flex align-items-center justify-content-center" aria-label="Xóa bộ lọc" title="Xóa bộ lọc" onClick={() => { setSearch(''); setStatus(''); }}><RotateCcwIcon size={16} /></Button></Col>
+        <Col md={7}><Form.Control aria-label="Tìm tên khuyến mãi" placeholder="Tìm tên chương trình..." value={search} onChange={event => { setSearch(event.target.value); resetPage(); }} /></Col>
+        <Col md={4}><Form.Select aria-label="Lọc trạng thái khuyến mãi" value={status} onChange={event => { setStatus(event.target.value); resetPage(); }}><option value="">Tất cả trạng thái</option><option value="active">Đang áp dụng</option><option value="scheduled">Sắp diễn ra</option><option value="expired">Đã kết thúc</option><option value="disabled">Tạm tắt</option></Form.Select></Col>
+        <Col md={1}><Button variant="outline-secondary" className="w-100 d-flex align-items-center justify-content-center" aria-label="Xóa bộ lọc" title="Xóa bộ lọc" onClick={() => { setSearch(''); setStatus(''); resetPage(); }}><RotateCcwIcon size={16} /></Button></Col>
       </Row>
       {loading ? <Spinner animation="border" role="status"><span className="visually-hidden">Đang tải...</span></Spinner>
         : !filtered.length ? <div className="text-center py-5"><h3 className="h5">Chưa có chương trình phù hợp</h3><p className="text-muted mb-0">Tạo ưu đãi đầu tiên hoặc thay đổi bộ lọc tìm kiếm.</p></div>
           : <Table responsive hover className="align-middle mb-0">
             <thead><tr><th>Chương trình</th><th>Mức giảm</th><th>Thời gian</th><th>Trạng thái</th><th className="text-end">Thao tác</th></tr></thead>
-            <tbody>{filtered.map(promotion => {
+            <tbody>{pageItems.map(promotion => {
               const current = promotionStatus(promotion, now);
               return <tr key={promotion.id}>
                 <td><strong className="text-break">{promotion.name}</strong><code className="d-block mt-1">{promotion.code}</code></td>
@@ -105,6 +110,7 @@ export function PromotionsPage() {
               </tr>;
             })}</tbody>
           </Table>}
+      {!loading && !loadError && <ManagerPagination page={page} totalPages={totalPages} start={start} end={end} total={total} onPageChange={setPage} />}
     </Card>
     <Modal show={!!editor} onHide={() => { if (!busy) setEditor(null); }} centered size="lg" backdrop={busy ? 'static' : true} keyboard={!busy}>
       <Modal.Header closeButton={!busy}><Modal.Title as="h2" className="h5">Chỉnh sửa khuyến mãi</Modal.Title></Modal.Header>

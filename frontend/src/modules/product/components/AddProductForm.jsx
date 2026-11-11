@@ -4,10 +4,11 @@ import { Alert, Button, Card, Col, Form, Row } from 'react-bootstrap';
 import { FormField } from '../../../shared/components/FormField';
 import { CheckIcon, ImageIcon, LeafIcon, PlusIcon, ShoppingBagIcon, TrashIcon } from '../../../shared/components/Icons';
 import { ProductImage } from './ProductImage';
+import { IngredientSearchField } from './IngredientSearchField';
 import { httpClient } from '../../../shared/api/httpClient';
 import { ingredientApi } from '../../ingredient/api/ingredientApi';
 import { productApi } from '../api/productApi';
-import { inputUnit, toIngredientUnit, weightUnitOptions } from '../../ingredient/utils/unitConversion';
+import { compatibleUnitOptions, inputUnit, quantityInputStep, toIngredientUnit } from '../../ingredient/utils/unitConversion';
 import { validateProduct } from '../validators/productValidation';
 
 const empty = {
@@ -16,6 +17,8 @@ const empty = {
   caloriesKcal: '', proteinG: '', carbohydrateG: '', fatG: '',
   fiberG: '', sugarG: '', sodiumMg: '', potassiumMg: '', imageFile: null,
 };
+
+let nextRecipeLineKey = 0;
 
 function RequiredLabel({ children }) {
   return <>{children} <span className="manager-required">*</span></>;
@@ -30,6 +33,7 @@ function initialValues(product) {
     ),
     imageFile: null,
     ingredientLines: (product.ingredientLines || []).map(line => ({
+      clientKey: ++nextRecipeLineKey,
       ingredientId: String(line.ingredientId),
       requiredQuantity: line.requiredQuantity == null ? '' : String(line.requiredQuantity),
       unit: inputUnit(line.unit),
@@ -55,7 +59,7 @@ export function AddProductForm({ categories, onSave, busy, submitError, serverEr
     const list = recipeLinesRef.current;
     if (list) {
       list.scrollTop = list.scrollHeight;
-      list.lastElementChild?.querySelector('select')?.focus();
+      list.lastElementChild?.querySelector('[role="combobox"]')?.focus();
     }
   }, [values.ingredientLines.length]);
 
@@ -215,7 +219,7 @@ export function AddProductForm({ categories, onSave, busy, submitError, serverEr
                   setValues(current => ({
                     ...current,
                     ingredientLines: [...current.ingredientLines, {
-                      ingredientId: '', requiredQuantity: '', unit: '',
+                      clientKey: ++nextRecipeLineKey, ingredientId: '', requiredQuantity: '', unit: '',
                     }],
                   }));
                   setTouched(current => ({ ...current, ingredientLines: false }));
@@ -232,24 +236,22 @@ export function AddProductForm({ categories, onSave, busy, submitError, serverEr
             {values.ingredientLines.map((line, index) => {
               const item = ingredients.find(ingredient =>
                 String(ingredient.id) === String(line.ingredientId));
-              return <div className="manager-recipe-line" key={index}>
+              return <div className="manager-recipe-line" key={line.clientKey}>
                 <div className="d-flex gap-2">
-                  <Form.Select name="ingredientLines" aria-label={`Nguyên liệu ${index + 1}`}
-                    value={line.ingredientId}
-                    onChange={event => {
-                      const selected = ingredients.find(ingredient => String(ingredient.id) === event.target.value);
+                  <IngredientSearchField index={index} ingredients={ingredients} selected={item}
+                    selectedIds={selectedIds}
+                    onSelect={selected => {
                       setValues(current => ({ ...current, ingredientLines: current.ingredientLines.map((entry, i) =>
-                        i === index ? { ingredientId: event.target.value, requiredQuantity: '', unit: inputUnit(selected?.unit) || '' } : entry) }));
+                        i === index && String(entry.ingredientId) !== String(selected.id)
+                          ? { ...entry, ingredientId: String(selected.id), requiredQuantity: '', unit: inputUnit(selected.unit) }
+                          : entry) }));
                       setEditedAfterServerError(current => ({ ...current, ingredientLines: true }));
-                    }}>
-                    <option value="">Chọn nguyên liệu</option>
-                    {ingredients.filter(ingredient =>
-                      ingredient.active &&
-                      (!selectedIds.has(String(ingredient.id)) ||
-                        String(ingredient.id) === String(line.ingredientId)))
-                      .map(ingredient =>
-                        <option key={ingredient.id} value={ingredient.id}>{ingredient.name}</option>)}
-                  </Form.Select>
+                    }}
+                    onClear={() => {
+                      setValues(current => ({ ...current, ingredientLines: current.ingredientLines.map((entry, i) =>
+                        i === index ? { ...entry, ingredientId: '', requiredQuantity: '', unit: '' } : entry) }));
+                      setEditedAfterServerError(current => ({ ...current, ingredientLines: true }));
+                    }} />
                   <Button variant="outline-danger" size="sm" type="button"
                     onClick={() => {
                       setValues(current => ({
@@ -262,14 +264,15 @@ export function AddProductForm({ categories, onSave, busy, submitError, serverEr
                 </div>
                 <div className="d-flex align-items-center gap-2 mt-2">
                   <Form.Control name="ingredientLines" aria-label={`Định lượng ${index + 1}`}
-                    type="number" min="0.001" step="0.001"
+                    type="number" min={quantityInputStep(line.unit, item?.unit)}
+                    step={quantityInputStep(line.unit, item?.unit)}
                     placeholder="Lượng cần cho 1 combo" value={line.requiredQuantity}
                     onChange={event => changeLine(index, 'requiredQuantity', event.target.value)} />
-                  {item && weightUnitOptions(item.unit).length > 1
+                  {item && compatibleUnitOptions(item.unit).length > 1
                     ? <Form.Select name="ingredientLines" aria-label={`Đơn vị định lượng ${index + 1}`}
                         style={{ maxWidth: 90 }} value={line.unit || inputUnit(item.unit)}
                         onChange={event => changeLine(index, 'unit', event.target.value)}>
-                        {weightUnitOptions(item.unit).map(unit => <option key={unit} value={unit}>{unit}</option>)}
+                        {compatibleUnitOptions(item.unit).map(unit => <option key={unit} value={unit}>{unit}</option>)}
                       </Form.Select>
                     : <span className="text-nowrap">{item?.unit || '—'}</span>}
                 </div>

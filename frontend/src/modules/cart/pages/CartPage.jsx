@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Alert, Button, Card, Col, Image, Row, Table } from "react-bootstrap";
 import { Link } from "react-router";
 import { useAuth } from "../../../app/provider/useAuth";
@@ -7,6 +7,8 @@ import { CartIcon } from "../../../shared/components/Icons";
 import { QuantityControl } from "../../../shared/components/QuantityControl";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { useCart } from "../hooks/useCart";
+import { screeningApi } from "../../screening/api/screeningApi";
+import { HealthWarningBadge } from "../../screening/components/HealthWarningBadge";
 import { OrderPageHeader } from "../../orders/components/OrderPageHeader";
 import "../../orders/styles/orders.css";
 
@@ -19,6 +21,21 @@ export function CartPage() {
   const [pendingIds, setPendingIds] = useState(new Set());
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [clearPending, setClearPending] = useState(false);
+  const [screeningMap, setScreeningMap] = useState(new Map());
+
+  useEffect(() => {
+    if (!user) return;
+    screeningApi.evaluateCatalog()
+      .then((results) => {
+        setScreeningMap(new Map((results || []).map((r) => [r.productId, r])));
+      })
+      .catch(() => {});
+  }, [user]);
+
+  const unsafeCount = items.filter((item) => {
+    const s = screeningMap.get(item.id);
+    return s && !s.isSafe && !s.safe;
+  }).length;
 
   async function runItemAction(itemId, action) {
     if (clearPending || pendingRef.current.has(itemId)) return;
@@ -58,6 +75,16 @@ export function CartPage() {
           <Button variant="outline-warning" size="sm" onClick={retryGuestCart}>Thử chuyển lại</Button>
         </Alert>
       )}
+      {unsafeCount > 0 && (
+        <Alert variant="danger" className="mb-3 shadow-sm border-danger">
+          <div className="d-flex align-items-center gap-2">
+            <strong className="text-danger">⚠️ Cảnh báo an toàn sức khỏe:</strong>
+            <span>
+              Có {unsafeCount} món trong giỏ hàng không phù hợp với hồ sơ bệnh nền / dị ứng của bạn. Vui lòng kiểm tra các món có nhãn cảnh báo đỏ bên dưới trước khi đặt hàng.
+            </span>
+          </div>
+        </Alert>
+      )}
       {items.length === 0 ? (
         <Card body className="text-center py-5 border-0 shadow-sm">
           <div className="mb-3 text-secondary" aria-hidden="true">
@@ -80,8 +107,11 @@ export function CartPage() {
                   <tr key={item.cartItemId}>
                     <td><div className="d-flex align-items-center gap-3">
                       <Image src={item.image} alt={item.name} rounded width={72} height={64} style={{ objectFit: "cover" }} />
-                      <Link to={`/products/${item.id}`} className="fw-semibold">{item.name}</Link>
-                      {user && item.pendingGuest && <span className="small text-warning">Chưa chuyển vào tài khoản</span>}
+                      <div>
+                        <Link to={`/products/${item.id}`} className="fw-semibold d-block">{item.name}</Link>
+                        {user && <HealthWarningBadge screeningResult={screeningMap.get(item.id)} />}
+                        {user && item.pendingGuest && <span className="small text-warning d-block">Chưa chuyển vào tài khoản</span>}
+                      </div>
                     </div></td>
                     <td className="text-nowrap">{formatCurrency(item.price)}</td>
                     <td><QuantityControl quantity={item.quantity} min={1} name={item.name}

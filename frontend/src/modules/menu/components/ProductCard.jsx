@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Alert } from "react-bootstrap";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { CheckIcon, FlameIcon, PlusIcon, TagIcon } from "../../../shared/components/Icons";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { useCart } from "../../cart/hooks/useCart";
@@ -8,6 +8,7 @@ import { HealthWarningBadge } from "../../screening/components/HealthWarningBadg
 
 export function ProductCard({ product, promotion, cartItem, screeningResult, onAdded }) {
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [pending, setPending] = useState(false);
   const [addError, setAddError] = useState("");
   const inCart = Boolean(cartItem);
@@ -35,8 +36,25 @@ export function ProductCard({ product, promotion, cartItem, screeningResult, onA
     }
   }
 
+  function handleCardClick(event) {
+    if (event.target.closest(".menu-product-add") || event.target.closest("button") || event.target.closest("a")) {
+      return;
+    }
+    navigate(`/products/${product.id}`);
+  }
+
   return (
-    <article className={`menu-product-card${inCart ? " is-in-cart" : ""}${soldOut ? " is-sold-out" : ""}${hasPromotion ? " has-promotion" : ""}`}>
+    <article
+      className={`menu-product-card${inCart ? " is-in-cart" : ""}${soldOut ? " is-sold-out" : ""}${hasPromotion ? " has-promotion" : ""}`}
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          handleCardClick(event);
+        }
+      }}
+    >
       <Link to={`/products/${product.id}`} className="menu-product-image-link" aria-label={`Xem chi tiết ${product.name}`}>
         {product.image ? <img src={product.image} alt={product.name} loading="lazy" className="menu-product-image" />
           : <span className="menu-product-image menu-product-image-empty">Chưa có ảnh</span>}

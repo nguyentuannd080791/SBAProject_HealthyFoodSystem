@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Badge, Button, Form, Modal, Spinner } from "react-bootstrap";
+import { HeartPulseIcon } from "../../../shared/components/Icons";
 
 export function ScreeningEditModal({
   show,
@@ -8,13 +9,11 @@ export function ScreeningEditModal({
   ingredients = [],
   activeConditions = [],
   activeAllergies = [],
-  activeNote = "",
   onSave,
   saving = false,
 }) {
   const [modalConditions, setModalConditions] = useState([]);
   const [modalAllergies, setModalAllergies] = useState([]);
-  const [modalNote, setModalNote] = useState("");
   const [ingredientSearch, setIngredientSearch] = useState("");
   const [selectedCondToAdd, setSelectedCondToAdd] = useState("");
 
@@ -22,11 +21,10 @@ export function ScreeningEditModal({
     if (show) {
       setModalConditions(activeConditions.map((c) => (typeof c === "object" ? c.id : c)));
       setModalAllergies(activeAllergies.map((i) => (typeof i === "object" ? i.id : i)));
-      setModalNote(activeNote || "");
       setIngredientSearch("");
       setSelectedCondToAdd("");
     }
-  }, [show, activeConditions, activeAllergies, activeNote]);
+  }, [show, activeConditions, activeAllergies]);
 
   function toggleCondition(id) {
     setModalConditions((prev) =>
@@ -41,7 +39,7 @@ export function ScreeningEditModal({
   }
 
   async function handleSave() {
-    await onSave(modalConditions, modalAllergies, modalNote);
+    await onSave(modalConditions, modalAllergies);
   }
 
   const filteredIngredients = ingredients.filter((ing) =>
@@ -49,21 +47,28 @@ export function ScreeningEditModal({
   );
 
   return (
-    <Modal show={show} onHide={onHide} size="lg" centered scrollable>
-      <Modal.Header closeButton>
-        <Modal.Title className="h5 fw-bold mb-0">
-          Thiết lập Sàng lọc Bệnh nền & Dị ứng
+    <Modal
+      show={show}
+      onHide={onHide}
+      size="lg"
+      centered
+      scrollable
+      backdrop="static"
+    >
+      <Modal.Header closeButton className="border-bottom pb-3">
+        <Modal.Title className="h6 fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+          <HeartPulseIcon size={20} className="text-success" />
+          <span>Thiết lập sàng lọc bệnh nền & dị ứng</span>
         </Modal.Title>
       </Modal.Header>
 
       <Modal.Body className="p-4">
-        {/* Phần 1: Bệnh lý nền */}
         <div className="mb-4">
           <div className="d-flex align-items-center justify-content-between mb-1">
-            <h4 className="h6 fw-bold text-dark mb-0">
-              Phần 1: Chọn bệnh lý nền ({modalConditions.length} đã chọn)
-            </h4>
-            <Badge bg="light" text="dark" className="border">
+            <h3 className="h6 fw-bold text-dark mb-0">
+              Bệnh lý nền ({modalConditions.length} đã chọn)
+            </h3>
+            <Badge bg="light" text="dark" className="border fw-normal">
               {conditions.length} bệnh trong danh mục
             </Badge>
           </div>
@@ -75,7 +80,7 @@ export function ScreeningEditModal({
             <Form.Select
               value={selectedCondToAdd}
               onChange={(e) => setSelectedCondToAdd(e.target.value)}
-              className="form-select-sm"
+              size="sm"
             >
               <option value="">-- Chọn bệnh lý nền từ danh sách --</option>
               {conditions
@@ -87,7 +92,7 @@ export function ScreeningEditModal({
                 ))}
             </Form.Select>
             <Button
-              variant="success"
+              variant="primary"
               size="sm"
               disabled={!selectedCondToAdd}
               onClick={() => {
@@ -96,14 +101,18 @@ export function ScreeningEditModal({
                   setSelectedCondToAdd("");
                 }
               }}
-              className="text-nowrap fw-semibold px-3"
+              className="text-nowrap fw-semibold px-3 rounded-pill"
+              style={{
+                backgroundColor: "var(--hf-primary)",
+                borderColor: "var(--hf-primary)",
+              }}
             >
               + Thêm bệnh
             </Button>
           </div>
 
           {modalConditions.length === 0 ? (
-            <div className="p-3 bg-light rounded border text-muted small text-center">
+            <div className="p-3 bg-light-subtle rounded-3 border text-muted small text-center">
               Chưa có bệnh lý nền nào được chọn. Chọn bệnh từ danh sách thả xuống trên và bấm "+ Thêm bệnh".
             </div>
           ) : (
@@ -113,7 +122,7 @@ export function ScreeningEditModal({
                 .map((cond) => (
                   <div
                     key={cond.id}
-                    className="p-3 rounded border bg-light d-flex justify-content-between align-items-start gap-2"
+                    className="p-3 rounded-3 border bg-light-subtle d-flex justify-content-between align-items-start gap-3"
                   >
                     <div>
                       <strong className="text-dark d-block mb-1">
@@ -170,7 +179,7 @@ export function ScreeningEditModal({
                       variant="outline-danger"
                       size="sm"
                       onClick={() => toggleCondition(cond.id)}
-                      className="text-nowrap px-2 py-1"
+                      className="text-nowrap px-3 py-1 rounded-pill"
                       style={{ fontSize: "0.8rem" }}
                     >
                       Bỏ chọn
@@ -183,12 +192,11 @@ export function ScreeningEditModal({
 
         <hr className="my-4" />
 
-        {/* Phần 2: Nguyên liệu dị ứng */}
-        <div className="mb-4">
+        <div>
           <div className="d-flex align-items-center justify-content-between mb-1">
-            <h4 className="h6 fw-bold text-dark mb-0">
-              Phần 2: Chọn nguyên liệu dị ứng / kiêng ({modalAllergies.length} đã chọn)
-            </h4>
+            <h3 className="h6 fw-bold text-dark mb-0">
+              Nguyên liệu dị ứng & kiêng kỵ ({modalAllergies.length} đã chọn)
+            </h3>
             {modalAllergies.length > 0 && (
               <Button
                 variant="link"
@@ -214,8 +222,8 @@ export function ScreeningEditModal({
           />
 
           <div
-            className="p-3 bg-light rounded border d-flex flex-wrap gap-2"
-            style={{ maxHeight: 220, overflowY: "auto" }}
+            className="p-3 bg-light-subtle rounded-3 border d-flex flex-wrap gap-2"
+            style={{ maxHeight: 240, overflowY: "auto" }}
           >
             {filteredIngredients.length === 0 ? (
               <span className="text-muted small">
@@ -229,14 +237,14 @@ export function ScreeningEditModal({
                     key={ing.id}
                     type="button"
                     onClick={() => toggleAllergy(ing.id)}
-                    className={`btn btn-sm ${
+                    className={`btn btn-sm rounded-pill ${
                       isSelected
-                        ? "btn-danger shadow-sm fw-semibold"
+                        ? "btn-danger shadow-xs fw-semibold"
                         : "btn-outline-secondary bg-white text-dark"
                     }`}
                     style={{ fontSize: "0.82rem" }}
                   >
-                    {isSelected ? "[x] " : ""}
+                    {isSelected ? "✕ " : ""}
                     {ing.name}
                   </button>
                 );
@@ -244,39 +252,32 @@ export function ScreeningEditModal({
             )}
           </div>
         </div>
-
-        <hr className="my-4" />
-
-        {/* Phần 3: Ghi chú */}
-        <div>
-          <Form.Label className="h6 fw-bold text-dark mb-1">
-            Phần 3: Ghi chú dặn dò thêm
-          </Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={2}
-            placeholder="Ví dụ: Bác sĩ khuyên giảm muối, dị ứng nặng với hải sản..."
-            value={modalNote}
-            onChange={(e) => setModalNote(e.target.value)}
-            className="small"
-          />
-        </div>
       </Modal.Body>
 
-      <Modal.Footer className="border-top py-2 px-4">
-        <Button variant="outline-secondary" size="sm" onClick={onHide} disabled={saving}>
-          Hủy
+      <Modal.Footer className="border-top py-3 px-4">
+        <Button
+          type="button"
+          variant="outline-secondary"
+          className="px-4 rounded-pill"
+          onClick={onHide}
+          disabled={saving}
+        >
+          Hủy bỏ
         </Button>
         <Button
-          variant="success"
-          size="sm"
+          type="button"
+          variant="primary"
+          className="px-4 fw-semibold rounded-pill d-inline-flex align-items-center gap-2"
           onClick={handleSave}
           disabled={saving}
-          className="fw-semibold px-4"
+          style={{
+            backgroundColor: "var(--hf-primary)",
+            borderColor: "var(--hf-primary)",
+          }}
         >
           {saving ? (
             <>
-              <Spinner animation="border" size="sm" className="me-1" />
+              <Spinner animation="border" size="sm" />
               <span>Đang lưu...</span>
             </>
           ) : (
@@ -287,4 +288,3 @@ export function ScreeningEditModal({
     </Modal>
   );
 }
-

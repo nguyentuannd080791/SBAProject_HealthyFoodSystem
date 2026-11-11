@@ -1,18 +1,33 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Button, Card, Modal, Spinner } from "react-bootstrap";
+import { useAuth } from "../../../app/provider/useAuth";
 import { ConfirmDialog } from "../../../shared/components/ConfirmDialog";
 import { MapPinIcon, PlusIcon } from "../../../shared/components/Icons";
+import { profileApi } from "../api/profileApi";
 import { useAddresses } from "../hooks/useAddresses";
 import { formatAddress } from "../utils/addressMapping";
 import { AddressForm } from "./AddressForm";
 import { AddressList } from "./AddressList";
 
 export function AddressSection() {
+  const { user } = useAuth();
   const state = useAddresses();
+  const [profile, setProfile] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [removingAddress, setRemovingAddress] = useState(null);
   const [notice, setNotice] = useState("");
+
+  useEffect(() => {
+    profileApi.get().then((result) => {
+      if (result.data) {
+        setProfile(result.data);
+      }
+    });
+  }, []);
+
+  const defaultRecipientName = profile?.fullName || user?.fullName || "";
+  const defaultRecipientPhone = profile?.phone || user?.phone || "";
 
   function openCreateModal() {
     setNotice("");
@@ -178,8 +193,14 @@ export function AddressSection() {
           </Modal.Header>
           <Modal.Body className="p-4">
             <AddressForm
-              key={editingAddress ? editingAddress.id : "new-address"}
+              key={
+                editingAddress
+                  ? editingAddress.id
+                  : `new-${defaultRecipientName}-${defaultRecipientPhone}`
+              }
               address={editingAddress}
+              defaultRecipientName={defaultRecipientName}
+              defaultRecipientPhone={defaultRecipientPhone}
               onSubmit={handleSave}
               onCancel={() => setIsModalOpen(false)}
               isSubmitting={state.isBusy}

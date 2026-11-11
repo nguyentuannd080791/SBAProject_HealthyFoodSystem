@@ -1,4 +1,5 @@
 import { Button, Col, Form, Row } from "react-bootstrap";
+import { useAuth } from "../../../app/provider/useAuth";
 import { FormField } from "../../../shared/components/FormField";
 import { useForm } from "../../../shared/hooks/useForm";
 import { validateAddressValues } from "../utils/addressValidators";
@@ -12,8 +13,31 @@ const emptyValues = {
   city: "",
 };
 
-export function AddressForm({ address, onSubmit, onCancel, isSubmitting }) {
-  const initialValues = address ? pickFields(address) : emptyValues;
+export function AddressForm({
+  address,
+  defaultRecipientName,
+  defaultRecipientPhone,
+  onSubmit,
+  onCancel,
+  isSubmitting,
+}) {
+  const { user } = useAuth();
+  const initialName =
+    defaultRecipientName !== undefined
+      ? defaultRecipientName
+      : user?.fullName || "";
+  const initialPhone =
+    defaultRecipientPhone !== undefined
+      ? defaultRecipientPhone
+      : user?.phone || "";
+
+  const initialValues = address
+    ? pickFields(address)
+    : {
+        ...emptyValues,
+        recipientName: initialName,
+        recipientPhone: initialPhone,
+      };
   const form = useForm(initialValues, validateAddressValues);
 
   return (

@@ -11,8 +11,8 @@ import { ManagerOrderDetailPage } from '../../../modules/manager/pages/ManagerOr
 import { CategoryManagementPage } from '../../../modules/category/pages/CategoryManagementPage';
 import { IngredientListPage } from '../../../modules/ingredient/pages/IngredientListPage';
 import { IngredientEditorPage } from '../../../modules/ingredient/pages/IngredientEditorPage';
-
 import { ReconciliationPage } from '../../../modules/manager/pages/ReconciliationPage';
+import { ChangePasswordPage } from '../../../modules/auth/pages/ChangePasswordPage';
 
 export const managerRoutes = [{
   path: 'manager',
@@ -31,6 +31,7 @@ export const managerRoutes = [{
     { path: 'reconciliation', element: <ReconciliationPage /> },
     { path: 'orders', element: <ManagerOrderListPage /> },
     { path: 'orders/:orderId', element: <ManagerOrderDetailPage /> },
+    { path: 'password', element: <ChangePasswordPage /> },
     { path: '*', element: <Navigate to="/manager/products" replace /> },
   ],
 }];
