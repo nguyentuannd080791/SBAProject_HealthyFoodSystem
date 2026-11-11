@@ -139,7 +139,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         log.error("Unhandled exception occurred: ", ex);
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Đã xảy ra lỗi máy chủ không mong muốn.");
+        String detailedMsg = ex.getClass().getSimpleName() + ": " + ex.getMessage();
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, detailedMsg);
     }
 
     private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message) {
