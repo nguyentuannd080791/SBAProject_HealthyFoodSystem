@@ -43,7 +43,7 @@ public class MealPlanServiceImpl implements MealPlanService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Vui lòng đăng nhập để xây dựng thực đơn.");
         }
 
-        UserBodyMetrics metrics = userBodyMetricsRepository.findByUser_Email(userEmail)
+        UserBodyMetrics metrics = userBodyMetricsRepository.findByUser_EmailIgnoreCase(userEmail.trim())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vui lòng nhập và lưu chỉ số cơ thể trước khi xây dựng thực đơn."));
 
         BodyMetricsRequest bodyRequest = BodyMetricsRequest.builder()

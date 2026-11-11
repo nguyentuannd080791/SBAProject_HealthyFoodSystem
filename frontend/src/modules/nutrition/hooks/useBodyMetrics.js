@@ -173,6 +173,7 @@ export function useBodyMetrics() {
         );
       } catch {}
     }
+    return res;
   }
 
   return {

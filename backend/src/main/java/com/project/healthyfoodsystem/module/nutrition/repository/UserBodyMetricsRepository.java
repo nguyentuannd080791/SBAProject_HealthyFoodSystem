@@ -11,6 +11,8 @@ public interface UserBodyMetricsRepository extends JpaRepository<UserBodyMetrics
 
     Optional<UserBodyMetrics> findByUser_Email(String email);
 
+    Optional<UserBodyMetrics> findByUser_EmailIgnoreCase(String email);
+
     Optional<UserBodyMetrics> findByUser_Id(Integer userId);
 }
 

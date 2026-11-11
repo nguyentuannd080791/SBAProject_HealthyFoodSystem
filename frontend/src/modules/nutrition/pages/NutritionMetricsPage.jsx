@@ -1,30 +1,34 @@
-import { useState } from "react";
 import { Alert, Col, Row } from "react-bootstrap";
-import { HeartPulseIcon } from "../../../shared/components/Icons";
+import { useNavigate } from "react-router";
+import { useAuth } from "../../../app/provider/useAuth";
 import { BodyMetricsForm } from "../components/BodyMetricsForm";
-import { MealPlanModal } from "../components/MealPlanModal";
 import { NutritionResultsView } from "../components/NutritionResultsView";
 import { useBodyMetrics } from "../hooks/useBodyMetrics";
 import "../styles/nutrition.css";
 
+const STORAGE_PREFIX = "healthy_food_meal_plan_";
+
 export function NutritionMetricsPage() {
   const { formState, status, results, calculate } = useBodyMetrics();
-  const [showMealModal, setShowMealModal] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const hasSavedPlan = Boolean(
+    user?.email &&
+      typeof window !== "undefined" &&
+      window.localStorage.getItem(`${STORAGE_PREFIX}${user.email}`)
+  );
+
+  async function handleGenerateMealPlan() {
+    const calcRes = await calculate();
+    if (calcRes?.error) return;
+    navigate("/nutrition/plan", {
+      state: { regenerate: true, results: calcRes?.data || results },
+    });
+  }
 
   return (
     <div className="nutrition-page">
-      <div className="nutrition-hero">
-        <span className="nutrition-hero-eyebrow">
-          <HeartPulseIcon size={14} /> Chăm sóc vóc dáng & Sức khỏe
-        </span>
-        <h1>Đo chỉ số cơ thể & Nhu cầu Calo</h1>
-        <p>
-          Tính toán chính xác chỉ số khối cơ thể (BMI), năng lượng tiêu hao
-          (TDEE) và lượng calo cần thiết để xây dựng bộ thực đơn dinh dưỡng cá
-          nhân hóa dành riêng cho bạn.
-        </p>
-      </div>
-
       {status.error && (
         <Alert
           variant="danger"
@@ -57,16 +61,11 @@ export function NutritionMetricsPage() {
         <Col lg={7}>
           <NutritionResultsView
             results={results}
-            onOpenMealModal={() => setShowMealModal(true)}
+            onGenerateMealPlan={handleGenerateMealPlan}
+            hasSavedPlan={hasSavedPlan}
           />
         </Col>
       </Row>
-
-      <MealPlanModal
-        show={showMealModal}
-        onHide={() => setShowMealModal(false)}
-        results={results}
-      />
     </div>
   );
 }

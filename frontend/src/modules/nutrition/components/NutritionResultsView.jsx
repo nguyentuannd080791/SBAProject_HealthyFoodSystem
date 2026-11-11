@@ -1,4 +1,5 @@
 import { Badge, Card } from "react-bootstrap";
+import { Link } from "react-router";
 import {
   ActivityIcon,
   LeafIcon,
@@ -61,7 +62,11 @@ function MealBox({ title, cal, desc }) {
   );
 }
 
-export function NutritionResultsView({ results, onOpenMealModal }) {
+export function NutritionResultsView({
+  results,
+  onGenerateMealPlan,
+  hasSavedPlan = false,
+}) {
   return (
     <Card className="nutrition-card">
       <div className="nutrition-card-header">
@@ -198,11 +203,23 @@ export function NutritionResultsView({ results, onOpenMealModal }) {
             <button
               type="button"
               className="nutrition-menu-cta"
-              onClick={onOpenMealModal}
+              onClick={onGenerateMealPlan}
             >
               <LeafIcon size={20} />
-              <span>Lên thực đơn phù hợp với chỉ số này</span>
+              <span>Lên thực đơn phù hợp với bộ chỉ số</span>
             </button>
+
+            {hasSavedPlan && (
+              <div className="text-center mt-2">
+                <Link
+                  to="/nutrition/plan"
+                  state={{ regenerate: false, results }}
+                  className="small text-muted text-decoration-none"
+                >
+                  Xem thực đơn đã lưu gần nhất →
+                </Link>
+              </div>
+            )}
           </>
         )}
       </div>

@@ -41,10 +41,11 @@ public class NutritionCalculationServiceImpl implements NutritionCalculationServ
         BodyMetricsCalculationResponse response = computeMetrics(request);
 
         if (userEmail != null && !userEmail.isBlank()) {
-            Optional<User> userOpt = userRepository.findByEmail(userEmail);
+            String trimmedEmail = userEmail.trim();
+            Optional<User> userOpt = userRepository.findByEmail(trimmedEmail);
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
-                Optional<UserBodyMetrics> existingOpt = userBodyMetricsRepository.findByUser_Email(userEmail);
+                Optional<UserBodyMetrics> existingOpt = userBodyMetricsRepository.findByUser_EmailIgnoreCase(trimmedEmail);
                 if (existingOpt.isPresent()) {
                     UserBodyMetrics existing = existingOpt.get();
                     if (existing.getGender() != request.getGender()
@@ -87,7 +88,7 @@ public class NutritionCalculationServiceImpl implements NutritionCalculationServ
             return null;
         }
 
-        Optional<UserBodyMetrics> profileOpt = userBodyMetricsRepository.findByUser_Email(userEmail);
+        Optional<UserBodyMetrics> profileOpt = userBodyMetricsRepository.findByUser_EmailIgnoreCase(userEmail.trim());
         if (profileOpt.isEmpty()) {
             return null;
         }

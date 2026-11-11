@@ -104,7 +104,7 @@ class MealPlanServiceTest {
         products.add(createDish(4, "Cháo yến mạch tôm tươi", 340, 26.0, 40.0, 4.0, 5.0, 1.0));
         products.add(createDish(5, "Cá hồi nướng măng tây", 420, 36.0, 15.0, 12.0, 4.5, 1.0));
 
-        when(userBodyMetricsRepository.findByUser_Email(email)).thenReturn(Optional.of(userMetrics));
+        when(userBodyMetricsRepository.findByUser_EmailIgnoreCase(email)).thenReturn(Optional.of(userMetrics));
         when(productRepository.findAll()).thenReturn(products);
         when(clinicalScreeningService.evaluateCatalog(email)).thenReturn(Collections.emptyList());
 
@@ -154,7 +154,7 @@ class MealPlanServiceTest {
                 .violations(List.of("Vượt mức Natri cho phép"))
                 .build();
 
-        when(userBodyMetricsRepository.findByUser_Email(email)).thenReturn(Optional.of(userMetrics));
+        when(userBodyMetricsRepository.findByUser_EmailIgnoreCase(email)).thenReturn(Optional.of(userMetrics));
         when(productRepository.findAll()).thenReturn(products);
         when(clinicalScreeningService.evaluateCatalog(email)).thenReturn(List.of(unsafeResult));
 
@@ -185,7 +185,7 @@ class MealPlanServiceTest {
                 createDish(2, "Món 2", 450, 28.0, 55.0, 7.0, 3.0, 1.0)
         );
 
-        when(userBodyMetricsRepository.findByUser_Email(email)).thenReturn(Optional.of(userMetrics));
+        when(userBodyMetricsRepository.findByUser_EmailIgnoreCase(email)).thenReturn(Optional.of(userMetrics));
         when(productRepository.findAll()).thenReturn(products);
         when(clinicalScreeningService.evaluateCatalog(email)).thenReturn(Collections.emptyList());
 

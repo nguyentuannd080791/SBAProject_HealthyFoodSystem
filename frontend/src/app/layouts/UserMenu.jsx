@@ -10,6 +10,7 @@ import {
   LogOutIcon,
   ShieldCheckIcon,
   ShoppingBagIcon,
+  SparklesIcon,
   UserIcon,
 } from "../../shared/components/Icons";
 import { getUserInitials } from "../../shared/utils/roleUtils";
@@ -24,7 +25,6 @@ export function UserMenu({ showCart = true }) {
     try {
       await authApi.logout();
     } catch {
-      // ignore server logout error
     } finally {
       logout();
       navigate("/login", { replace: true });
@@ -87,6 +87,9 @@ export function UserMenu({ showCart = true }) {
               </Dropdown.Item>
               <Dropdown.Item as={Link} to="/nutrition">
                 <ActivityIcon size={19} /> Chỉ số dinh dưỡng
+              </Dropdown.Item>
+              <Dropdown.Item as={Link} to="/nutrition/plan">
+                <SparklesIcon size={19} /> Thực đơn cá nhân
               </Dropdown.Item>
               <Dropdown.Item as={Link} to="/orders">
                 <ShoppingBagIcon size={19} /> Đơn hàng của tôi

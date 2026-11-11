@@ -8,6 +8,7 @@ import { CheckoutPage } from "../../../modules/orders/pages/CheckoutPage";
 import { OrderHistoryPage } from "../../../modules/orders/pages/OrderHistoryPage";
 import { OrderDetailPage } from "../../../modules/orders/pages/OrderDetailPage";
 import { NutritionMetricsPage } from "../../../modules/nutrition/pages/NutritionMetricsPage";
+import { MealPlanPage } from "../../../modules/nutrition/pages/MealPlanPage";
 
 export const customerRoutes = [
   { path: "menu", element: <RequireAuth><MenuPage /></RequireAuth> },
@@ -16,6 +17,14 @@ export const customerRoutes = [
     element: (
       <RequireAuth>
         <NutritionMetricsPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: "nutrition/plan",
+    element: (
+      <RequireAuth>
+        <MealPlanPage />
       </RequireAuth>
     ),
   },

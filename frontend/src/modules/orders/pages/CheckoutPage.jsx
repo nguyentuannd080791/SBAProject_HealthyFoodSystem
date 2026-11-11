@@ -4,11 +4,13 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../../../app/provider/useAuth";
 import { useCart } from "../../cart/hooks/useCart";
 import { CartIcon } from "../../../shared/components/Icons";
+import { ConfirmDialog } from "../../../shared/components/ConfirmDialog";
 import { formatCurrency } from "../../../shared/utils/formatCurrency";
 import { DeliveryForm } from "../components/DeliveryForm";
 import { OrderPageHeader } from "../components/OrderPageHeader";
 import { orderStore } from "../api/orderStore";
 import { rememberPendingPayment } from "../utils/paymentNotifications";
+import { screeningApi } from "../../screening/api/screeningApi";
 import "../styles/orders.css";
 
 export function CheckoutPage() {
@@ -26,8 +28,25 @@ export function CheckoutPage() {
   const autoAppliedPromoKey = useRef("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [screeningMap, setScreeningMap] = useState(new Map());
+  const [showUnsafeConfirm, setShowUnsafeConfirm] = useState(false);
+  const pendingDelivery = useRef(null);
   const requestId = useRef(null);
   const submitting = useRef(false);
+
+  useEffect(() => {
+    if (!user) return;
+    screeningApi.evaluateCatalog()
+      .then((results) => {
+        setScreeningMap(new Map((results || []).map((r) => [r.productId, r])));
+      })
+      .catch(() => {});
+  }, [user]);
+
+  const unsafeItems = items.filter((item) => {
+    const s = screeningMap.get(item.id);
+    return s && !s.isSafe && !s.safe;
+  });
 
   const cartKey = JSON.stringify(items.map((item) => [item.cartItemId, item.quantity, item.price]));
   const promoApplied = promoQuote?.cartKey === cartKey && promoQuote?.code === promoCode.trim().toUpperCase();
@@ -70,7 +89,7 @@ export function CheckoutPage() {
     void applyPromo(code);
   }, [suggestedPromoCode, isCartLoading, pendingGuestItems, items.length, promoCode, cartKey, applyPromo]);
 
-  async function placeOrder(delivery) {
+  async function doPlaceOrder(delivery) {
     if (submitting.current || applyingPromo) return;
     if (promoCode.trim() && !promoApplied) {
       setError("Vui lòng áp dụng hoặc xóa mã giảm giá trước khi đặt hàng.");
@@ -96,6 +115,15 @@ export function CheckoutPage() {
     rememberPendingPayment(user?.id, result.data);
     await refreshCart();
     navigate(`/orders/${encodeURIComponent(result.data.id)}`, { replace: true });
+  }
+
+  function placeOrder(delivery) {
+    if (unsafeItems.length > 0) {
+      pendingDelivery.current = delivery;
+      setShowUnsafeConfirm(true);
+      return;
+    }
+    doPlaceOrder(delivery);
   }
 
   if (isCartLoading) {
@@ -127,6 +155,16 @@ export function CheckoutPage() {
         <li className="is-done"><span>✓</span> Chọn món</li><li className="is-current" aria-current="step"><span>2</span> Thông tin & thanh toán</li><li><span>3</span> Theo dõi đơn</li>
       </ol>
       {error && <Alert variant="danger" dismissible onClose={() => setError("")}>{error}</Alert>}
+      {unsafeItems.length > 0 && (
+        <Alert variant="danger" className="mb-4 shadow-sm border-danger">
+          <div className="d-flex align-items-center gap-2">
+            <strong className="text-danger">⚠️ Cảnh báo an toàn:</strong>
+            <span>
+              Đơn hàng chứa {unsafeItems.length} món ăn vi phạm cảnh báo bệnh nền / dị ứng ({unsafeItems.map((i) => i.name).join(", ")}). Vui lòng cân nhắc trước khi hoàn tất đặt hàng!
+            </span>
+          </div>
+        </Alert>
+      )}
 
       <div className="row g-4 align-items-start">
         <div className="col-lg-7">
@@ -163,6 +201,25 @@ export function CheckoutPage() {
           </Card>
         </div>
       </div>
+
+      <ConfirmDialog
+        show={showUnsafeConfirm}
+        title="Xác nhận đặt món có cảnh báo sức khỏe"
+        message={`Đơn hàng của bạn có ${unsafeItems.length} món ăn vi phạm cảnh báo bệnh lý nền hoặc dị ứng (${unsafeItems.map((i) => i.name).join(", ")}). Bạn có chắc chắn vẫn muốn tiếp tục đặt hàng không?`}
+        confirmLabel="Tôi hiểu rủi ro & Tiếp tục đặt"
+        isBusy={isSubmitting}
+        onConfirm={() => {
+          setShowUnsafeConfirm(false);
+          const d = pendingDelivery.current;
+          if (d) {
+            doPlaceOrder(d);
+          }
+        }}
+        onCancel={() => {
+          setShowUnsafeConfirm(false);
+          pendingDelivery.current = null;
+        }}
+      />
     </div>
   );
 }

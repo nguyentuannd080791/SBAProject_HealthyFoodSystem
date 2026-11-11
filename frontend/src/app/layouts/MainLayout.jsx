@@ -71,7 +71,7 @@ export function MainLayout() {
                     <Nav.Link
                       as={Link}
                       to="/nutrition"
-                      className={pathname === "/nutrition" ? "is-current" : undefined}
+                      className={pathname.startsWith("/nutrition") ? "is-current" : undefined}
                     >
                       <HeaderIcon type="nutrition" /><span>Đo chỉ số</span>
                     </Nav.Link>

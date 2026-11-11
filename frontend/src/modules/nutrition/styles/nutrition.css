@@ -444,6 +444,178 @@
 }
 
 
+.nutrition-plan-page {
+  padding-bottom: 3rem;
+}
+
+.nutrition-plan-sticky-sidebar {
+  position: sticky;
+  top: 90px;
+}
+
+.nutrition-summary-card {
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.nutrition-summary-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #dcfce7;
+  color: #15803d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nutrition-summary-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.nutrition-summary-stat-cell {
+  background: #f8fafc;
+  border: 1px solid #eef2f6;
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.nutrition-summary-stat-cell .label {
+  font-size: 0.72rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.nutrition-summary-stat-cell .value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.nutrition-summary-bmi-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.nutrition-summary-target-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.nutrition-summary-macros .macro-cell {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.nutrition-summary-macros .macro-cell .label {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.nutrition-summary-macros .macro-cell .val {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.nutrition-summary-macros .macro-cell .pct {
+  font-size: 0.7rem;
+}
+
+.nutrition-summary-meals {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.meal-plan-summary-banner {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border: 1px solid #bbf7d0;
+}
+
+.plan-metric-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-metric-box .label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.plan-metric-box .value {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.meal-slot-item-card {
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.meal-slot-item-card:hover {
+  border-color: #86efac;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.meal-slot-thumb {
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.meal-slot-thumb-placeholder {
+  width: 84px;
+  height: 84px;
+  background: #f1f5f9;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.meal-dish-title {
+  font-size: 1.05rem;
+}
+
+.meal-dish-title:hover {
+  color: #15803d !important;
+}
+
+.meal-slot-cart-action {
+  min-width: 150px;
+}
+
+.meal-plan-bottom-actions {
+  border: 1px solid #e2e8f0;
+}
+
 @media (max-width: 767.98px) {
   .nutrition-page {
     padding: 1rem 0.75rem 3rem;
@@ -459,5 +631,24 @@
   }
   .nutrition-meals-row {
     grid-template-columns: 1fr;
+  }
+  .nutrition-plan-sticky-sidebar {
+    position: static;
+  }
+  .meal-slot-thumb {
+    width: 68px;
+    height: 68px;
+  }
+  .meal-slot-thumb-placeholder {
+    width: 68px;
+    height: 68px;
+  }
+  .meal-slot-cart-action {
+    width: 100%;
+    align-items: stretch !important;
+  }
+  .meal-slot-cart-action .btn {
+    width: 100%;
+    justify-content: center;
   }
 }

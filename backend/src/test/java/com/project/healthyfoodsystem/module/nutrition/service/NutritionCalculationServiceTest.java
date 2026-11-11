@@ -144,7 +144,7 @@ class NutritionCalculationServiceTest {
                 .build();
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-        when(userBodyMetricsRepository.findByUser_Email(email)).thenReturn(Optional.empty());
+        when(userBodyMetricsRepository.findByUser_EmailIgnoreCase(email)).thenReturn(Optional.empty());
 
         BodyMetricsCalculationResponse response = service.calculateMetrics(request, email);
 
@@ -185,7 +185,7 @@ class NutritionCalculationServiceTest {
                 .build();
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-        when(userBodyMetricsRepository.findByUser_Email(email)).thenReturn(Optional.of(existing));
+        when(userBodyMetricsRepository.findByUser_EmailIgnoreCase(email)).thenReturn(Optional.of(existing));
 
         assertThatThrownBy(() -> service.calculateMetrics(request, email))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -217,7 +217,7 @@ class NutritionCalculationServiceTest {
                 .build();
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-        when(userBodyMetricsRepository.findByUser_Email(email)).thenReturn(Optional.of(existing));
+        when(userBodyMetricsRepository.findByUser_EmailIgnoreCase(email)).thenReturn(Optional.of(existing));
 
         BodyMetricsCalculationResponse response = service.calculateMetrics(request, email);
 
