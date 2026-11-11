@@ -405,6 +405,49 @@
   margin-bottom: 1rem;
 }
 
+.meal-plan-overview-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+}
+
+.meal-plan-slot-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem 1.15rem;
+  transition: all 0.2s ease;
+}
+
+.meal-plan-slot-card:hover {
+  border-color: #86efac;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.meal-plan-dish-img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.meal-plan-dish-placeholder {
+  width: 72px;
+  height: 72px;
+  background: #f1f5f9;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.meal-plan-highlights-box {
+  background: #fafcfb;
+  border: 1px solid #eef2ec;
+}
+
 @media (max-width: 767.98px) {
   .nutrition-page {
     padding: 1rem 0.75rem 3rem;
