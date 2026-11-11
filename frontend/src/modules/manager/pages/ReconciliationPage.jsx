@@ -106,7 +106,7 @@ export function ReconciliationPage() {
   return <div className="manager-orders-page">
     <div className="d-flex flex-wrap justify-content-between gap-3 mb-3"><div><h2 className="h4">Đối soát thanh toán</h2>
       <p className="text-secondary">Lịch sử giao dịch tiền vào đã nhận từ webhook SePay và kết quả xử lý.</p></div>
-      <Button disabled={loading || busy} onClick={() => setRefresh((value) => value + 1)}>Làm mới</Button></div>
+      <Button variant="outline-primary" disabled={loading || busy} onClick={() => setRefresh((value) => value + 1)}>Làm mới</Button></div>
     <Alert variant="info">Với khoản chuyển đến muộn, hãy kiểm tra giao dịch và liên hệ khách trước khi tiếp tục đơn. Hệ thống sẽ giữ lại hàng theo giá ban đầu. Không yêu cầu khách chuyển tiền lần nữa.</Alert>
     {success && <Alert variant="success" dismissible onClose={() => setSuccess("")}>{success}</Alert>}
     {error && <Alert variant="danger">{error}</Alert>}

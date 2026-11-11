@@ -37,6 +37,22 @@ h6,
   --bs-btn-disabled-border-color: var(--hf-primary);
 }
 
+.btn-outline-primary {
+  --bs-btn-color: var(--hf-primary);
+  --bs-btn-border-color: var(--hf-primary);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--hf-primary);
+  --bs-btn-hover-border-color: var(--hf-primary);
+  --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--hf-primary-hover);
+  --bs-btn-active-border-color: var(--hf-primary-hover);
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: var(--hf-primary);
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: var(--hf-primary);
+}
+
 .btn,
 .form-control,
 .form-select {

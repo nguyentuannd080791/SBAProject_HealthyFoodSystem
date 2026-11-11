@@ -93,8 +93,6 @@
 .manager-orders-page > .d-flex h2 { font-size: 1.65rem; letter-spacing: -.035em; font-weight: 700; }
 .manager-orders-page .card { border: 1px solid #e0e8dd; border-radius: 16px; box-shadow: 0 4px 20px #1b42230a; }
 .manager-orders-page .card-body { padding: 1.5rem; }
-.manager-orders-page .btn { border-radius: 9px; font-size: .84rem; font-weight: 650; padding: .6rem 1rem; }
-.manager-orders-page .btn-primary { background: #176448; border-color: #176448; }
 .manager-orders-page .form-label { font-size: .79rem; font-weight: 650; color: #5a6d5b; margin-bottom: .5rem; }
 .manager-orders-page .form-control, .manager-orders-page .form-select { border-radius: 9px; border-color: #dae4d8; background-color: #fbfcf9; font-size: .85rem; }
 .manager-orders-page .form-control:focus, .manager-orders-page .form-select:focus { border-color: #86ae8a; box-shadow: 0 0 0 3px #17644812; }
