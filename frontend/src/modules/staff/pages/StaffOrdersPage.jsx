@@ -51,6 +51,7 @@ export function StaffOrdersPage() {
   const [order, setOrder] = useState(null);
   const [busy, setBusy] = useState(false);
   const [confirmAdvance, setConfirmAdvance] = useState(false);
+  const [rejectOrderId, setRejectOrderId] = useState(null);
 
   const [dispatchPartnerId, setDispatchPartnerId] = useState("");
   const [dispatchNote, setDispatchNote] = useState("");
@@ -185,21 +186,20 @@ export function StaffOrdersPage() {
     setRefresh((value) => value + 1);
   }
 
-  async function handleRejectHandover(orderId) {
-    if (busy) return;
-    if (!window.confirm(`Từ chối nhận và đưa đơn #${orderId.slice(-8)} quay lại hàng chờ giao hàng?`)) {
-      return;
-    }
+  async function handleConfirmRejectHandover() {
+    if (!rejectOrderId || busy) return;
+    const targetOrderId = rejectOrderId;
     setBusy(true);
-    const res = await staffOrderApi.rejectHandover(orderId, "");
+    const res = await staffOrderApi.rejectHandover(targetOrderId, "");
     setBusy(false);
+    setRejectOrderId(null);
     if (res.error) {
       setError(res.error);
       return;
     }
     setOrder(null);
     setError("");
-    setNotice(`Đã đưa đơn #${orderId.slice(-8)} quay lại trạng thái chờ đối tác giao hàng đến nhận.`);
+    setNotice(`Đã đưa đơn #${targetOrderId.slice(-8)} quay lại trạng thái chờ đối tác giao hàng đến nhận.`);
     await loadArrivedAlerts();
     setRefresh((value) => value + 1);
   }
@@ -266,7 +266,7 @@ export function StaffOrdersPage() {
                     size="sm"
                     variant="outline-danger"
                     disabled={busy}
-                    onClick={() => handleRejectHandover(item.orderId)}
+                    onClick={() => setRejectOrderId(item.orderId)}
                   >
                     Từ chối
                   </Button>
@@ -546,7 +546,7 @@ export function StaffOrdersPage() {
               <Button
                 variant="outline-danger"
                 disabled={busy}
-                onClick={() => handleRejectHandover(order.id)}
+                onClick={() => setRejectOrderId(order.id)}
               >
                 Từ chối / Trả hàng chờ
               </Button>
@@ -583,6 +583,20 @@ export function StaffOrdersPage() {
         isBusy={busy}
         onConfirm={handleConfirmAdvance}
         onCancel={() => setConfirmAdvance(false)}
+      />
+
+      <ConfirmDialog
+        show={Boolean(rejectOrderId)}
+        title="Từ chối bàn giao"
+        message={
+          rejectOrderId
+            ? `Từ chối nhận và đưa đơn #${rejectOrderId.slice(-8)} quay lại hàng chờ giao hàng?`
+            : ""
+        }
+        confirmLabel="Từ chối bàn giao"
+        isBusy={busy}
+        onConfirm={handleConfirmRejectHandover}
+        onCancel={() => setRejectOrderId(null)}
       />
     </div>
   );
