@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Button } from "react-bootstrap";
+import { Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../../../app/provider/useAuth";
 import { CartIcon } from "../../../shared/components/Icons";
@@ -69,9 +69,9 @@ function ProductDetailContent({ product, promotion, promotionError, promotionLoa
   }
 
   return <div className="product-detail-page">
-    <Button as={Link} to="/menu" variant="outline-success" className="product-detail-back">
-      ← Quay lại danh sách sản phẩm
-    </Button>
+    <Link to="/menu" className="order-back product-detail-back">
+      ← Quay lại thực đơn
+    </Link>
     <div className="product-detail-main">
       <div className="product-detail-media">
         {product.image ? <img src={product.image} alt={product.name} />

@@ -3,15 +3,9 @@ import {
   validateFullName,
   validatePhone,
 } from "../../../shared/utils/fieldValidators";
+import { validateEmail } from "../../auth/utils/validators";
 
-const emailPattern = /^\S+@\S+\.\S+$/;
-
-export function validateEmail(value) {
-  const email = (value || "").trim();
-  if (!email) return "Vui lòng nhập email.";
-  if (!emailPattern.test(email)) return "Email không hợp lệ.";
-  return "";
-}
+export { validateEmail };
 
 export function validateRole(value) {
   if (!value) return "Vui lòng chọn vai trò.";

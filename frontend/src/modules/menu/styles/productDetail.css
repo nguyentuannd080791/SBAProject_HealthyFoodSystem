@@ -7,7 +7,20 @@
   color: #172033;
 }
 
-.product-detail-back { margin-bottom: 18px; border-radius: 10px; }
+.product-detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 18px;
+  color: #49634e;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.15s ease;
+}
+.product-detail-back:hover {
+  color: #15803d;
+}
 
 .product-detail-main {
   display: grid;

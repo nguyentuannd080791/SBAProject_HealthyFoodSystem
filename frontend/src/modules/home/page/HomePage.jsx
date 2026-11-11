@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
 import { Alert } from "react-bootstrap";
+import { useAuth } from "../../../app/provider/useAuth";
 import { useCart } from "../../cart/hooks/useCart";
 import { useProducts } from "../../menu/hooks/useProducts";
 import { sortMenuCards } from "../../menu/utils/sortMenuCards";
 import { bestActivePromotion } from "../../promotion/utils/promotionPricing";
+import { screeningApi } from "../../screening/api/screeningApi";
 import { HeroBanner } from "../components/HeroBanner";
 import { FeaturedMealList } from "../components/FeaturedMealList";
 import { MealPlanSection } from "../components/MealPlanSection";
 import { DeliveryProcessSection } from "../components/DeliveryProcessSection";
 
 export function HomePage({ onSelectPlan }) {
+  const { user } = useAuth();
   const catalog = useProducts();
   const { items } = useCart();
   const [now, setNow] = useState(0);
   const [notification, setNotification] = useState("");
+  const [screeningMap, setScreeningMap] = useState(new Map());
   const cards = sortMenuCards(catalog.filteredProducts.map((product) => ({
     product,
     promotion: bestActivePromotion(product, catalog.promotions, now),
@@ -25,6 +29,19 @@ export function HomePage({ onSelectPlan }) {
     const timer = window.setInterval(() => setNow(Date.now()), 60_000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setScreeningMap(new Map());
+      return;
+    }
+    screeningApi.evaluateCatalog()
+      .then((results) => {
+        const map = new Map((results || []).map((r) => [r.productId, r]));
+        setScreeningMap(map);
+      })
+      .catch(() => {});
+  }, [user]);
 
   function scrollToSection(sectionId) {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
@@ -47,7 +64,7 @@ export function HomePage({ onSelectPlan }) {
       onExplorePlans={() => scrollToSection("meal-plans")} />
 
     <FeaturedMealList catalog={catalog} cards={cards} cartItemsByProduct={cartItemsByProduct}
-      onAdded={handleAdded} />
+      screeningMap={screeningMap} onAdded={handleAdded} />
 
     <MealPlanSection onSelectPlan={handlePlanSelection} />
     <DeliveryProcessSection />

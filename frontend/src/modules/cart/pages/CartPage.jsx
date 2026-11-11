@@ -45,7 +45,7 @@ export function CartPage() {
 
   return (
     <div className="orders-page cart-page">
-      <Button as={Link} to="/menu" variant="outline-success">← Quay lại danh sách sản phẩm</Button>
+      <Link to="/menu" className="order-back">← Quay lại thực đơn</Link>
       <OrderPageHeader eyebrow="BỮA ĂN CỦA BẠN" title="Giỏ hàng"
         description="Một bữa ăn ngon bắt đầu từ những lựa chọn lành mạnh.">
         <span className="order-count-pill">{totalItems} món đã chọn</span>

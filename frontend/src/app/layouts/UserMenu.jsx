@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { Dropdown, Nav } from "react-bootstrap";
+import { Dropdown } from "react-bootstrap";
 import { authApi } from "../../modules/auth/api/authApi";
 import { useCart } from "../../modules/cart/hooks/useCart";
 import {
@@ -7,9 +7,11 @@ import {
   ChevronDownIcon,
   LockIcon,
   LogOutIcon,
+  ShieldCheckIcon,
   ShoppingBagIcon,
   UserIcon,
 } from "../../shared/components/Icons";
+import { getUserInitials } from "../../shared/utils/roleUtils";
 import { useAuth } from "../provider/useAuth";
 
 export function UserMenu({ showCart = true }) {
@@ -31,13 +33,7 @@ export function UserMenu({ showCart = true }) {
   const role = (user?.role || "").toLowerCase();
   const isCustomer = !role || role === "customer";
   const displayName = user?.fullName || user?.email || "Tài khoản";
-  const initials = displayName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(-2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
+  const initials = getUserInitials(displayName);
 
   if (!user) {
     return (
@@ -100,17 +96,17 @@ export function UserMenu({ showCart = true }) {
 
           {role === "manager" && (
             <Dropdown.Item as={Link} to="/manager">
-              Quản lý cửa hàng
+              <ShoppingBagIcon size={19} /> Quản lý cửa hàng
             </Dropdown.Item>
           )}
           {role === "staff" && (
             <Dropdown.Item as={Link} to="/staff">
-              Xử lý đơn hàng
+              <CartIcon size={19} /> Xử lý đơn hàng
             </Dropdown.Item>
           )}
           {role === "administrator" && (
             <Dropdown.Item as={Link} to="/admin">
-              Quản trị hệ thống
+              <ShieldCheckIcon size={19} /> Quản trị hệ thống
             </Dropdown.Item>
           )}
 

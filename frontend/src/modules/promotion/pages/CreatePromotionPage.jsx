@@ -5,6 +5,7 @@ import { productApi } from '../../product/api/productApi';
 import { promotionApi } from '../api/promotionApi';
 import { categoryApi } from '../../category/api/categoryApi';
 import { PromotionForm } from '../components/PromotionForm';
+import { PlusIcon, SparklesIcon } from '../../../shared/components/Icons';
 
 export function CreatePromotionPage() {
   const navigate = useNavigate();
@@ -45,13 +46,25 @@ export function CreatePromotionPage() {
   if (loading) return <Spinner animation="border" role="status" />;
   if (loadError) return <Alert variant="danger">{loadError}</Alert>;
 
-  return <>
-    <Link to="/manager/promotions" className="d-inline-block mb-3">← Danh sách khuyến mãi</Link>
-    <h2 className="h4 mb-4">Tạo chương trình khuyến mãi</h2>
+  return <div>
+    <nav className="manager-breadcrumb" aria-label="Đường dẫn">
+      <Link to="/manager" aria-label="Trang quản lý"><SparklesIcon size={18} /></Link>
+      <span aria-hidden="true">›</span>
+      <Link to="/manager/promotions">Khuyến mãi</Link>
+      <span aria-hidden="true">›</span>
+      <span aria-current="page">Tạo khuyến mãi</span>
+    </nav>
+    <div className="manager-product-title">
+      <span><PlusIcon size={27} /></span>
+      <div>
+        <h2 className="h4 mb-0">Tạo chương trình khuyến mãi</h2>
+        <p className="text-secondary small mb-0">Lên lịch ưu đãi cho những món ăn được yêu thích.</p>
+      </div>
+    </div>
     <Card body>
       <PromotionForm products={products} categories={categories} promotions={promotions}
         onSave={save} onCancel={() => navigate('/manager/promotions')}
         busy={busy} submitError={submitError} />
     </Card>
-  </>;
+  </div>;
 }

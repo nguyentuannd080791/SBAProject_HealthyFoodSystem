@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { Alert, Badge, Button, Card, Form, Modal, Spinner, Table } from 'react-bootstrap';
+import { RotateCcwIcon } from '../../../shared/components/Icons';
 import { ingredientApi } from '../api/ingredientApi';
 import { inputUnit, weightUnitOptions } from '../utils/unitConversion';
 import { validateStockChange } from '../validators/ingredientValidation';
@@ -91,7 +92,7 @@ export function IngredientListPage() {
     </div>
     {error && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
     <Card body className="mb-3">
-      <div className="d-flex gap-2 flex-wrap">
+      <div className="d-flex gap-2 flex-wrap align-items-center">
         <Form.Control style={{ maxWidth: 420 }} aria-label="Tìm nguyên liệu"
           placeholder="Tìm tên hoặc đơn vị..." value={query} onChange={event => setQuery(event.target.value)} />
         <Form.Select style={{ maxWidth: 210 }} aria-label="Trạng thái nguyên liệu"
@@ -99,28 +100,42 @@ export function IngredientListPage() {
           <option value="">Mọi trạng thái</option>
           {Object.entries(stockStatus).map(([key, value]) => <option key={key} value={key}>{value[0]}</option>)}
         </Form.Select>
+        {(query || filterStatus) && (
+          <Button variant="outline-secondary" size="sm" aria-label="Xóa bộ lọc" title="Xóa bộ lọc"
+            onClick={() => { setQuery(''); setFilterStatus(''); }}>
+            <RotateCcwIcon size={16} />
+          </Button>
+        )}
       </div>
     </Card>
     <Card body>
-      {loading ? <Spinner animation="border" role="status" /> : <Table responsive hover className="align-middle mb-0">
-        <thead><tr>
-          <th>Tên nguyên liệu</th><th>Đơn vị</th><th>Tồn kho hiện tại</th>
-          <th>Mức cảnh báo</th><th>Trạng thái</th><th>Thao tác</th>
-        </tr></thead>
-        <tbody>{shown.map(item => <tr key={item.id}>
-          <td><strong>{item.name}</strong></td>
-          <td>{item.unit}</td>
-          <td>{item.stockQuantity}</td>
-          <td>{item.warningQuantity}</td>
-          <td><Badge bg={stockStatus[item.status]?.[1]}>{stockStatus[item.status]?.[0]}</Badge></td>
-          <td>
-            <div className="d-flex gap-2 flex-wrap">
-              <Button as={Link} to={`/manager/ingredients/${item.id}/edit`} size="sm" variant="outline-success">Sửa</Button>
-              <Button size="sm" variant="outline-primary" onClick={() => openStock(item)}>Nhập/Xuất · Lịch sử</Button>
-            </div>
-          </td>
-        </tr>)}</tbody>
-      </Table>}
+      {loading ? (
+        <div className="text-center py-4"><Spinner animation="border" role="status" /><span className="visually-hidden">Đang tải...</span></div>
+      ) : !shown.length ? (
+        <p className="text-center text-muted py-4 mb-0">
+          {items.length ? "Không tìm thấy nguyên liệu phù hợp." : "Chưa có nguyên liệu nào. Hãy thêm nguyên liệu đầu tiên."}
+        </p>
+      ) : (
+        <Table responsive hover className="align-middle mb-0">
+          <thead><tr>
+            <th>Tên nguyên liệu</th><th>Đơn vị</th><th>Tồn kho hiện tại</th>
+            <th>Mức cảnh báo</th><th>Trạng thái</th><th>Thao tác</th>
+          </tr></thead>
+          <tbody>{shown.map(item => <tr key={item.id}>
+            <td><strong>{item.name}</strong></td>
+            <td>{item.unit}</td>
+            <td>{item.stockQuantity}</td>
+            <td>{item.warningQuantity}</td>
+            <td><Badge bg={stockStatus[item.status]?.[1]}>{stockStatus[item.status]?.[0]}</Badge></td>
+            <td>
+              <div className="d-flex gap-2 flex-wrap">
+                <Button as={Link} to={`/manager/ingredients/${item.id}/edit`} size="sm" variant="outline-primary">Sửa</Button>
+                <Button size="sm" variant="outline-secondary" onClick={() => openStock(item)}>Nhập/Xuất · Lịch sử</Button>
+              </div>
+            </td>
+          </tr>)}</tbody>
+        </Table>
+      )}
     </Card>
     <Modal show={Boolean(selected)} onHide={() => setSelected(null)} size="lg">
       <Modal.Header closeButton><Modal.Title>Kho: {selected?.name}</Modal.Title></Modal.Header>

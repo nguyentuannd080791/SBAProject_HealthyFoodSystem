@@ -3,7 +3,7 @@ import { MenuFilterBar } from "../../menu/components/MenuFilterBar";
 import { ProductCard } from "../../menu/components/ProductCard";
 import "../../menu/styles/menu.css";
 
-export function FeaturedMealList({ catalog, cards, cartItemsByProduct, onAdded }) {
+export function FeaturedMealList({ catalog, cards, cartItemsByProduct, screeningMap, onAdded }) {
   return <section id="featured-meals" className="home-featured-menu mb-5" aria-labelledby="featured-meals-title">
     <div className="menu-catalog-heading">
       <h2 id="featured-meals-title">Thực đơn dành cho bạn</h2>
@@ -24,7 +24,9 @@ export function FeaturedMealList({ catalog, cards, cartItemsByProduct, onAdded }
       <Button variant="outline-success" onClick={catalog.resetFilters}>Xóa bộ lọc</Button>
     </div> : <div className="menu-product-grid">
       {cards.map(({ product, promotion }) => <ProductCard key={product.id} product={product}
-        promotion={promotion} cartItem={cartItemsByProduct.get(String(product.id))}
+        promotion={promotion}
+        screeningResult={screeningMap?.get(product.id)}
+        cartItem={cartItemsByProduct.get(String(product.id))}
         onAdded={onAdded} />)}
     </div>)}
   </section>;

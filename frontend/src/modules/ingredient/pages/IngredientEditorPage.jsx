@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { Alert, Button, Card, Col, Form, Row, Spinner } from 'react-bootstrap';
+import { LeafIcon, PencilIcon, PlusIcon } from '../../../shared/components/Icons';
 import { ingredientApi } from '../api/ingredientApi';
 import { productApi } from '../../product/api/productApi';
 import { validateIngredient } from '../validators/ingredientValidation';
@@ -64,10 +65,21 @@ export function IngredientEditorPage() {
   const errorFor = name => submitted || touched[name] ? fieldErrors[name] : '';
 
   if (loading) return <Spinner animation="border" role="status" />;
-  return <>
-    <Link to="/manager/ingredients" className="d-inline-block mb-3">← Danh sách nguyên liệu</Link>
-    <h2 className="h3 mb-1">{ingredientId ? 'Sửa nguyên liệu' : 'Thêm nguyên liệu'}</h2>
-    <p className="text-secondary mb-4">Tên, đơn vị và số lượng được quản lý tại một nơi.</p>
+  return <div>
+    <nav className="manager-breadcrumb" aria-label="Đường dẫn">
+      <Link to="/manager" aria-label="Trang quản lý"><LeafIcon size={18} /></Link>
+      <span aria-hidden="true">›</span>
+      <Link to="/manager/ingredients">Kho nguyên liệu</Link>
+      <span aria-hidden="true">›</span>
+      <span aria-current="page">{ingredientId ? 'Sửa nguyên liệu' : 'Thêm nguyên liệu'}</span>
+    </nav>
+    <div className="manager-product-title">
+      <span>{ingredientId ? <PencilIcon size={27} /> : <PlusIcon size={27} />}</span>
+      <div>
+        <h2 className="h4 mb-0">{ingredientId ? 'Sửa nguyên liệu' : 'Thêm nguyên liệu'}</h2>
+        <p className="text-secondary small mb-0">Tên, đơn vị và số lượng được quản lý tại một nơi.</p>
+      </div>
+    </div>
     {error && <Alert variant="danger">{error}</Alert>}
     <div className="mx-auto" style={{ maxWidth: 820 }}>
       <Card body>
@@ -124,5 +136,5 @@ export function IngredientEditorPage() {
           </Form>
       </Card>
     </div>
-  </>;
+  </div>;
 }
