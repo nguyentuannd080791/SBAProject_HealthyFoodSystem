@@ -290,17 +290,17 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     public List<UserAdminResponse> listUsers(String role, String status, String search) {
-        // Chuẩn hóa bộ lọc vai trò (role)
-        String dbRoleFilter = null;
+        // Chuẩn hóa bộ lọc vai trò (role) - dùng chuỗi rỗng thay null để tương thích PostgreSQL
+        String dbRoleFilter = "";
         if (role != null && !role.isBlank()) {
             dbRoleFilter = resolveRoleName(role);
         }
 
         // Chuẩn hóa bộ lọc trạng thái (status)
-        String statusFilter = (status != null && !status.isBlank()) ? validateAndNormalizeStatus(status) : null;
+        String statusFilter = (status != null && !status.isBlank()) ? validateAndNormalizeStatus(status) : "";
 
         // Chuẩn hóa từ khóa tìm kiếm (search)
-        String cleanSearch = (search != null && !search.isBlank()) ? search.trim() : null;
+        String cleanSearch = (search != null && !search.isBlank()) ? search.trim() : "";
 
         // Gọi truy vấn cơ sở dữ liệu
         List<User> usersFromDb = userRepository.searchUsers(dbRoleFilter, statusFilter, cleanSearch);

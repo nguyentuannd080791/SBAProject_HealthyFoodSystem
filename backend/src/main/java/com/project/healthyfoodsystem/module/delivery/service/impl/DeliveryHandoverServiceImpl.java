@@ -158,7 +158,7 @@ public class DeliveryHandoverServiceImpl implements DeliveryHandoverService {
     @Override
     public List<DeliveryPartnerOptionDto> getActiveDeliveryPartners(String staffEmail) {
         requireActiveUser(staffEmail, RoleConstants.STAFF, "Chỉ nhân viên đang hoạt động được xem đối tác giao hàng.");
-        return users.searchUsers(RoleConstants.DELIVERY_PARTNER, "active", null).stream()
+        return users.searchUsers(RoleConstants.DELIVERY_PARTNER, "active", "").stream()
                 .filter(u -> hasRole(u, RoleConstants.DELIVERY_PARTNER))
                 .map(u -> DeliveryPartnerOptionDto.builder()
                         .id(u.getId())

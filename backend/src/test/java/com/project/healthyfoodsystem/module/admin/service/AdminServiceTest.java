@@ -354,4 +354,14 @@ class AdminServiceTest {
         assertTrue(roles.stream().anyMatch(r -> r.getValue().equals("customer") && !r.isInternal()));
         assertTrue(roles.stream().allMatch(r -> r.getPermissions() != null && !r.getPermissions().isEmpty()));
     }
+
+    @Test
+    void listUsers_normalizesBlankFiltersToEmptyStringForPostgresCompatibility() {
+        when(userRepository.searchUsers("", "", "")).thenReturn(List.of());
+
+        List<UserAdminResponse> result = adminService.listUsers(null, "  ", null);
+
+        assertTrue(result.isEmpty());
+        verify(userRepository).searchUsers("", "", "");
+    }
 }
