@@ -12,9 +12,14 @@ public class AuthCookieServiceImpl implements AuthCookieService {
     public static final String REFRESH_TOKEN_COOKIE = "refresh_token";
 
     private final boolean cookieSecure;
+    private final String cookieSameSite;
 
-    public AuthCookieServiceImpl(@Value("${COOKIE_SECURE:false}") boolean cookieSecure) {
+    public AuthCookieServiceImpl(
+            @Value("${COOKIE_SECURE:false}") boolean cookieSecure,
+            @Value("${COOKIE_SAME_SITE:Lax}") String cookieSameSite
+    ) {
         this.cookieSecure = cookieSecure;
+        this.cookieSameSite = cookieSameSite;
     }
 
     @Override
@@ -43,7 +48,7 @@ public class AuthCookieServiceImpl implements AuthCookieService {
                 .secure(cookieSecure)
                 .path("/")
                 .maxAge(maxAgeSeconds)
-                .sameSite("Lax")
+                .sameSite(cookieSameSite)
                 .build();
     }
 }
