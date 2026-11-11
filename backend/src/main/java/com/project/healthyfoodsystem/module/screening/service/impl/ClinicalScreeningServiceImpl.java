@@ -64,10 +64,10 @@ public class ClinicalScreeningServiceImpl implements ClinicalScreeningService {
     @Override
     @Transactional(readOnly = true)
     public UserClinicalProfileResponse getUserClinicalProfile(String email) {
-        User user = findUserByEmail(email);
-        Optional<UserClinicalProfile> profileOpt = userClinicalProfileRepository.findByUserIdWithDetails(user.getId());
+        Optional<UserClinicalProfile> profileOpt = userClinicalProfileRepository.findByUserEmailWithDetails(email);
 
         if (profileOpt.isEmpty()) {
+            User user = findUserByEmail(email);
             return UserClinicalProfileResponse.builder()
                     .userId(user.getId())
                     .userEmail(user.getEmail())
@@ -87,27 +87,25 @@ public class ClinicalScreeningServiceImpl implements ClinicalScreeningService {
     public UserClinicalProfileResponse saveUserClinicalProfile(String email, UserClinicalProfileRequest request) {
         User user = findUserByEmail(email);
 
-        UserClinicalProfile profile = userClinicalProfileRepository.findByUserId(user.getId())
+        UserClinicalProfile profile = userClinicalProfileRepository.findByUserIdWithDetails(user.getId())
                 .orElseGet(() -> {
                     UserClinicalProfile newProfile = new UserClinicalProfile();
                     newProfile.setUser(user);
                     return newProfile;
                 });
 
-        Set<MedicalCondition> conditions = new HashSet<>();
+        profile.getConditions().clear();
         if (request.getConditionIds() != null && !request.getConditionIds().isEmpty()) {
             List<MedicalCondition> foundConditions = medicalConditionRepository.findAllById(request.getConditionIds());
-            conditions.addAll(foundConditions);
+            profile.getConditions().addAll(foundConditions);
         }
 
-        Set<Ingredient> allergies = new HashSet<>();
+        profile.getAllergicIngredients().clear();
         if (request.getAllergicIngredientIds() != null && !request.getAllergicIngredientIds().isEmpty()) {
             List<Ingredient> foundIngredients = ingredientRepository.findAllById(request.getAllergicIngredientIds());
-            allergies.addAll(foundIngredients);
+            profile.getAllergicIngredients().addAll(foundIngredients);
         }
 
-        profile.setConditions(conditions);
-        profile.setAllergicIngredients(allergies);
         profile.setNote(request.getNote());
         profile.setUpdatedAt(OffsetDateTime.now());
 
@@ -121,44 +119,79 @@ public class ClinicalScreeningServiceImpl implements ClinicalScreeningService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy món ăn với ID: " + productId));
 
-        User user = findUserByEmail(email);
-        Optional<UserClinicalProfile> profileOpt = userClinicalProfileRepository.findByUserIdWithDetails(user.getId());
-
+        Optional<UserClinicalProfile> profileOpt = userClinicalProfileRepository.findByUserEmailWithDetails(email);
         if (profileOpt.isEmpty()) {
             return buildSafeResult(product);
         }
 
         UserClinicalProfile profile = profileOpt.get();
-        return evaluateProductAgainstProfile(product, profile);
+        Set<Integer> allergicIngredientIds = profile.getAllergicIngredients().stream()
+                .map(Ingredient::getId)
+                .collect(Collectors.toSet());
+        Map<Integer, List<String>> forbiddenKeywordsMap = buildForbiddenKeywordsMap(profile.getConditions());
+        List<ProductIngredient> productIngredients = productIngredientRepository.findByProductId(product.getId());
+
+        return evaluateProductAgainstProfile(product, allergicIngredientIds, profile.getConditions(), forbiddenKeywordsMap, productIngredients);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ProductScreeningResult> evaluateCatalog(String email) {
-        User user = findUserByEmail(email);
-        Optional<UserClinicalProfile> profileOpt = userClinicalProfileRepository.findByUserIdWithDetails(user.getId());
         List<Product> products = productRepository.findAllByOrderByIdDesc();
+        Optional<UserClinicalProfile> profileOpt = userClinicalProfileRepository.findByUserEmailWithDetails(email);
 
         if (profileOpt.isEmpty()) {
             return products.stream().map(this::buildSafeResult).collect(Collectors.toList());
         }
 
         UserClinicalProfile profile = profileOpt.get();
+        Set<Integer> allergicIngredientIds = profile.getAllergicIngredients().stream()
+                .map(Ingredient::getId)
+                .collect(Collectors.toSet());
+        Map<Integer, List<String>> forbiddenKeywordsMap = buildForbiddenKeywordsMap(profile.getConditions());
+
+        List<ProductIngredient> allProductIngredients = productIngredientRepository.findAllWithIngredient();
+        Map<Integer, List<ProductIngredient>> ingredientsByProductId = allProductIngredients.stream()
+                .filter(pi -> pi.getProduct() != null && pi.getProduct().getId() != null)
+                .collect(Collectors.groupingBy(pi -> pi.getProduct().getId()));
+
         return products.stream()
-                .map(p -> evaluateProductAgainstProfile(p, profile))
+                .map(p -> evaluateProductAgainstProfile(
+                        p,
+                        allergicIngredientIds,
+                        profile.getConditions(),
+                        forbiddenKeywordsMap,
+                        ingredientsByProductId.getOrDefault(p.getId(), Collections.emptyList())
+                ))
                 .collect(Collectors.toList());
     }
 
-    private ProductScreeningResult evaluateProductAgainstProfile(Product product, UserClinicalProfile profile) {
+    private Map<Integer, List<String>> buildForbiddenKeywordsMap(Collection<MedicalCondition> conditions) {
+        Map<Integer, List<String>> map = new HashMap<>();
+        for (MedicalCondition cond : conditions) {
+            if (cond.getForbiddenKeywords() != null && !cond.getForbiddenKeywords().isBlank()) {
+                List<String> keywords = Arrays.stream(cond.getForbiddenKeywords().split(","))
+                        .map(String::trim)
+                        .map(String::toLowerCase)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList());
+                map.put(cond.getId(), keywords);
+            }
+        }
+        return map;
+    }
+
+    private ProductScreeningResult evaluateProductAgainstProfile(
+            Product product,
+            Set<Integer> allergicIngredientIds,
+            Collection<MedicalCondition> conditions,
+            Map<Integer, List<String>> forbiddenKeywordsMap,
+            List<ProductIngredient> productIngredients
+    ) {
         List<String> violations = new ArrayList<>();
         boolean hasAllergy = false;
         boolean hasForbidden = false;
         boolean exceedsNutrient = false;
-
-        List<ProductIngredient> productIngredients = productIngredientRepository.findByProductId(product.getId());
-        Set<Integer> allergicIngredientIds = profile.getAllergicIngredients().stream()
-                .map(Ingredient::getId)
-                .collect(Collectors.toSet());
 
         for (ProductIngredient pi : productIngredients) {
             Ingredient ing = pi.getIngredient();
@@ -168,24 +201,21 @@ public class ClinicalScreeningServiceImpl implements ClinicalScreeningService {
             }
         }
 
-        for (MedicalCondition cond : profile.getConditions()) {
-            if (cond.getForbiddenKeywords() != null && !cond.getForbiddenKeywords().isBlank()) {
-                String[] forbiddenArray = cond.getForbiddenKeywords().split(",");
-                for (String kw : forbiddenArray) {
-                    String cleanKw = kw.trim().toLowerCase();
-                    if (cleanKw.isEmpty()) continue;
+        for (MedicalCondition cond : conditions) {
+            List<String> keywords = forbiddenKeywordsMap.getOrDefault(cond.getId(), Collections.emptyList());
+            for (String cleanKw : keywords) {
+                if (cleanKw.isEmpty()) continue;
 
-                    if (product.getName() != null && product.getName().toLowerCase().contains(cleanKw)) {
+                if (product.getName() != null && product.getName().toLowerCase().contains(cleanKw)) {
+                    hasForbidden = true;
+                    violations.add(String.format("[%s] Món ăn có chứa/chế biến từ '%s' (cấm với bệnh nền)", cond.getVietnameseName(), cleanKw));
+                }
+
+                for (ProductIngredient pi : productIngredients) {
+                    Ingredient ing = pi.getIngredient();
+                    if (ing != null && ing.getName() != null && ing.getName().toLowerCase().contains(cleanKw)) {
                         hasForbidden = true;
-                        violations.add(String.format("[%s] Món ăn có chứa/chế biến từ '%s' (cấm với bệnh nền)", cond.getVietnameseName(), kw.trim()));
-                    }
-
-                    for (ProductIngredient pi : productIngredients) {
-                        Ingredient ing = pi.getIngredient();
-                        if (ing != null && ing.getName() != null && ing.getName().toLowerCase().contains(cleanKw)) {
-                            hasForbidden = true;
-                            violations.add(String.format("[%s] Nguyên liệu '%s' vi phạm danh mục cấm của bệnh", cond.getVietnameseName(), ing.getName()));
-                        }
+                        violations.add(String.format("[%s] Nguyên liệu '%s' vi phạm danh mục cấm của bệnh", cond.getVietnameseName(), ing.getName()));
                     }
                 }
             }

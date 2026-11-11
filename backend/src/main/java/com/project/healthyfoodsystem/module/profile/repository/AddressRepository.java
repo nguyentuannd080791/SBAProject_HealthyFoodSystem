@@ -20,7 +20,7 @@ public interface AddressRepository extends JpaRepository<DeliveryAddress, Intege
 
     long countByUserId(Integer userId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE DeliveryAddress a SET a.isDefault = false WHERE a.user.id = :userId")
     void resetDefaultByUserId(@Param("userId") Integer userId);
 

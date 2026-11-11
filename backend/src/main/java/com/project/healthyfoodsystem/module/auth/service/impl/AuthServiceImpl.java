@@ -47,6 +47,8 @@ public class AuthServiceImpl implements AuthService {
 
     private static final String PURPOSE_PASSWORD_RESET = "PASSWORD_RESET";
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final int MAX_OTP_ATTEMPTS = 5;
+    private final java.util.concurrent.ConcurrentHashMap<String, Integer> resetOtpAttempts = new java.util.concurrent.ConcurrentHashMap<>();
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -195,6 +197,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản với email: " + normalizedEmail));
 
+        resetOtpAttempts.remove(normalizedEmail);
         List<UserToken> oldTokens = userTokenRepository.findByUserAndPurposeAndUsedAtIsNull(user, PURPOSE_PASSWORD_RESET);
         for (UserToken oldToken : oldTokens) {
             oldToken.setUsedAt(Instant.now());
@@ -226,13 +229,32 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new BadRequestException("Mã xác thực không tồn tại hoặc đã được sử dụng."));
 
         if (token.isExpired()) {
+            resetOtpAttempts.remove(normalizedEmail);
             throw new BadRequestException("Mã xác thực đã hết hạn. Vui lòng yêu cầu mã mới.");
         }
 
-        if (!passwordEncoder.matches(request.getCode().trim(), token.getCodeHash())) {
-            throw new BadRequestException("Mã xác thực không chính xác.");
+        int attempts = resetOtpAttempts.getOrDefault(normalizedEmail, 0);
+        if (attempts >= MAX_OTP_ATTEMPTS) {
+            token.setUsedAt(Instant.now());
+            userTokenRepository.save(token);
+            resetOtpAttempts.remove(normalizedEmail);
+            throw new BadRequestException("Bạn đã nhập sai mã xác thực quá số lần cho phép. Mã đã bị vô hiệu hóa.");
         }
 
+        if (!passwordEncoder.matches(request.getCode().trim(), token.getCodeHash())) {
+            attempts++;
+            resetOtpAttempts.put(normalizedEmail, attempts);
+            int remaining = MAX_OTP_ATTEMPTS - attempts;
+            if (remaining <= 0) {
+                token.setUsedAt(Instant.now());
+                userTokenRepository.save(token);
+                resetOtpAttempts.remove(normalizedEmail);
+                throw new BadRequestException("Bạn đã nhập sai mã xác thực quá số lần cho phép. Mã đã bị vô hiệu hóa.");
+            }
+            throw new BadRequestException("Mã xác thực không chính xác. Bạn còn " + remaining + " lần thử.");
+        }
+
+        resetOtpAttempts.remove(normalizedEmail);
         token.setUsedAt(Instant.now());
         userTokenRepository.save(token);
 
