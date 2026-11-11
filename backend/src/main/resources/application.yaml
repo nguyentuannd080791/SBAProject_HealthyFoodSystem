@@ -27,10 +27,10 @@ spring:
   flyway:
     enabled: ${FLYWAY_ENABLED:false}
     locations: ${FLYWAY_LOCATIONS:classpath:db/migration}
-    default-schema: ${FLYWAY_DEFAULT_SCHEMA:dbo}
-    baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:false}
-    baseline-version: "1"
-    validate-on-migrate: ${FLYWAY_VALIDATE_ON_MIGRATE:true}
+    default-schema: ${FLYWAY_DEFAULT_SCHEMA:public}
+    baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:true}
+    baseline-version: "0"
+    validate-on-migrate: ${FLYWAY_VALIDATE_ON_MIGRATE:false}
     clean-disabled: true
   jpa:
     open-in-view: false
