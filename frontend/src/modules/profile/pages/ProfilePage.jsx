@@ -14,18 +14,35 @@ import { AddressSection } from "../components/AddressSection";
 import { PersonalInfoSection } from "../components/PersonalInfoSection";
 import { ClinicalScreeningSection } from "../../screening/components/ClinicalScreeningSection";
 
-const TABS = [
-  { key: "profile", label: "Thông tin cá nhân", icon: UserIcon },
-  { key: "clinical", label: "Sàng lọc sức khỏe & Dị ứng", icon: HeartPulseIcon },
-  { key: "address", label: "Địa chỉ giao hàng", icon: MapPinIcon },
-  { key: "password", label: "Đổi mật khẩu", icon: LockIcon },
+const PROFILE_GROUPS = [
+  {
+    title: "Tài khoản",
+    items: [
+      { key: "profile", label: "Thông tin cá nhân", icon: UserIcon },
+      { key: "address", label: "Địa chỉ giao hàng", icon: MapPinIcon },
+    ],
+  },
+  {
+    title: "Sức khỏe & Dinh dưỡng",
+    items: [
+      { key: "clinical", label: "Sàng lọc sức khỏe & Dị ứng", icon: HeartPulseIcon },
+    ],
+  },
+  {
+    title: "Bảo mật",
+    items: [
+      { key: "password", label: "Đổi mật khẩu", icon: LockIcon },
+    ],
+  },
 ];
+
+const ALL_TAB_KEYS = PROFILE_GROUPS.flatMap((g) => g.items.map((i) => i.key));
 
 export function ProfilePage() {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get("tab");
-  const activeTab = TABS.some((t) => t.key === currentTab) ? currentTab : "profile";
+  const activeTab = ALL_TAB_KEYS.includes(currentTab) ? currentTab : "profile";
 
   function handleSelectTab(key) {
     setSearchParams({ tab: key });
@@ -34,7 +51,7 @@ export function ProfilePage() {
   const initials = getUserInitials(user?.fullName);
 
   return (
-    <div className="mx-auto" style={{ maxWidth: 880 }}>
+    <div className="mx-auto" style={{ maxWidth: 1060 }}>
       <div className="profile-hero-card mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
         <div className="d-flex align-items-center gap-3">
           <div className="profile-avatar-medium">{initials}</div>
@@ -60,29 +77,38 @@ export function ProfilePage() {
         </div>
       </div>
 
-      <div className="profile-nav-pills-bar mb-4">
-        {TABS.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              className={`profile-pill-item ${isActive ? "active" : ""}`}
-              onClick={() => handleSelectTab(tab.key)}
-            >
-              <Icon size={18} />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      <div className="profile-layout-grid">
+        <aside className="profile-sidebar" aria-label="Danh mục cài đặt">
+          {PROFILE_GROUPS.map((group) => (
+            <div key={group.title} className="profile-sidebar-group">
+              <div className="profile-sidebar-heading">{group.title}</div>
+              <div className="profile-sidebar-nav">
+                {group.items.map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.key;
+                  return (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      className={`profile-sidebar-item ${isActive ? "active" : ""}`}
+                      onClick={() => handleSelectTab(tab.key)}
+                    >
+                      <Icon size={18} />
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </aside>
 
-      <div className="profile-content-body">
-        {activeTab === "profile" && <PersonalInfoSection />}
-        {activeTab === "clinical" && <ClinicalScreeningSection />}
-        {activeTab === "address" && <AddressSection />}
-        {activeTab === "password" && <ChangePasswordSection />}
+        <main className="profile-content-body">
+          {activeTab === "profile" && <PersonalInfoSection />}
+          {activeTab === "clinical" && <ClinicalScreeningSection />}
+          {activeTab === "address" && <AddressSection />}
+          {activeTab === "password" && <ChangePasswordSection />}
+        </main>
       </div>
     </div>
   );

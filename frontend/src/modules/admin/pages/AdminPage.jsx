@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
 import {
   Alert,
   Badge,
@@ -7,14 +8,20 @@ import {
   Col,
   Form,
   Modal,
-  Nav,
   Row,
   Spinner,
   Table,
 } from "react-bootstrap";
 import { useAuth } from "../../../app/provider/useAuth";
 import { ConfirmDialog } from "../../../shared/components/ConfirmDialog";
-import { SearchIcon, XIcon } from "../../../shared/components/Icons";
+import {
+  LockIcon,
+  SearchIcon,
+  ShieldCheckIcon,
+  UserIcon,
+  XIcon,
+} from "../../../shared/components/Icons";
+import { ChangePasswordSection } from "../../auth/components/ChangePasswordSection";
 import { adminApi } from "../api/adminApi";
 import { CreateAccountForm } from "../components/CreateAccountForm";
 import { EditAccountForm } from "../components/EditAccountForm";
@@ -27,10 +34,20 @@ import {
   getStatusStyle,
   ROLES,
 } from "../utils/roles";
+import "../../manager/components/manager.css";
 
 export function AdminPage() {
   const { user: currentUser } = useAuth();
-  const [activeTab, setActiveTab] = useState("users");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentTab = searchParams.get("tab");
+  const activeTab = ["users", "roles", "password"].includes(currentTab)
+    ? currentTab
+    : "users";
+
+  function handleSelectTab(tab) {
+    setSearchParams({ tab });
+  }
+
   const [filters, setFilters] = useState({ search: "", role: "", status: "" });
   const { users, loading, error, reload } = useUsers(filters);
 
@@ -98,7 +115,6 @@ export function AdminPage() {
 
   const roleFilterOptions = rolesData.length > 0 ? rolesData : ROLES;
 
-  // Xem chi tiết tài khoản (kèm thống kê đơn hàng / giao nhận)
   async function handleViewDetail(user) {
     setShowDetailModal(true);
     setDetailUser(null);
@@ -113,7 +129,6 @@ export function AdminPage() {
     setDetailUser(res.data);
   }
 
-  // Tạo tài khoản nội bộ
   async function handleCreate(values) {
     setIsCreating(true);
     setCreateError("");
@@ -129,7 +144,6 @@ export function AdminPage() {
     loadStats();
   }
 
-  // Cập nhật tài khoản
   async function handleUpdate(values) {
     if (!editingUser) return;
     setIsUpdating(true);
@@ -146,7 +160,6 @@ export function AdminPage() {
     loadStats();
   }
 
-  // Khóa / Mở khóa tài khoản
   async function handleConfirmToggle() {
     if (!confirmToggleUser) return;
     setIsToggling(true);
@@ -168,260 +181,336 @@ export function AdminPage() {
   }
 
   return (
-    <div className="container py-4">
-      {/* Header */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h1 className="h3 mb-1">Quản trị người dùng & Tài khoản</h1>
-          <p className="text-muted mb-0">
-            Tạo tài khoản nội bộ, quản lý vai trò và trạng thái hoạt động của người dùng
-          </p>
-        </div>
-        <Button
-          variant="primary"
-          onClick={() => {
-            setCreateError("");
-            setShowCreateModal(true);
-          }}
-        >
-          + Tạo tài khoản nội bộ
-        </Button>
-      </div>
-
-      {notice && (
-        <Alert variant="success" dismissible onClose={() => setNotice("")}>
-          {notice}
-        </Alert>
-      )}
-
-      {/* Thẻ thống kê */}
-      <Row className="g-3 mb-4">
-        <Col sm={6} lg={3}>
-          <Card body className="text-center shadow-sm h-100">
-            <div className="text-muted small">Tổng tài khoản</div>
-            <div className="fs-3 fw-bold text-primary mt-1">
-              {stats.total ?? 0}
+    <div className="manager-workspace">
+      <div className="manager-grid">
+        <aside className="manager-sidebar-container">
+          <div className="manager-sidebar-card">
+            <div className="manager-sidebar-brand-box">
+              <div className="manager-sidebar-brand-badge">
+                <span className="manager-sidebar-badge-dot"></span>
+                <span>Hệ thống Quản trị</span>
+              </div>
+              <h2 className="manager-sidebar-brand-title">Bảng Điều Khiển</h2>
+              <p className="manager-sidebar-brand-subtitle">
+                Quản trị người dùng, phân quyền vai trò và bảo mật hệ thống.
+              </p>
             </div>
-          </Card>
-        </Col>
-        <Col sm={6} lg={3}>
-          <Card body className="text-center shadow-sm h-100">
-            <div className="text-muted small">Đang hoạt động</div>
-            <div className="fs-3 fw-bold text-success mt-1">
-              {stats.byStatus?.active ?? 0}
-            </div>
-          </Card>
-        </Col>
-        <Col sm={6} lg={3}>
-          <Card body className="text-center shadow-sm h-100">
-            <div className="text-muted small">Tạm khóa</div>
-            <div className="fs-3 fw-bold text-warning mt-1">
-              {stats.byStatus?.inactive ?? 0}
-            </div>
-          </Card>
-        </Col>
-        <Col sm={6} lg={3}>
-          <Card body className="text-center shadow-sm h-100">
-            <div className="text-muted small">Tài khoản nội bộ</div>
-            <div className="fs-3 fw-bold text-info mt-1">{internalCount}</div>
-          </Card>
-        </Col>
-      </Row>
 
-      {/* Tabs chuyển đổi giữa Quản lý tài khoản và Vai trò & Quyền hạn */}
-      <Nav
-        variant="tabs"
-        className="mb-3"
-        activeKey={activeTab}
-        onSelect={(key) => setActiveTab(key || "users")}
-      >
-        <Nav.Item>
-          <Nav.Link eventKey="users">Quản lý tài khoản</Nav.Link>
-        </Nav.Item>
-        <Nav.Item>
-          <Nav.Link eventKey="roles">Vai trò & Quyền hạn</Nav.Link>
-        </Nav.Item>
-      </Nav>
+            <nav className="manager-sidebar-nav" aria-label="Điều hướng quản trị">
+              <div className="manager-sidebar-group">
+                <div className="manager-sidebar-group-title">
+                  Quản trị Người dùng
+                </div>
+                <div className="manager-sidebar-group-items">
+                  <button
+                    type="button"
+                    className={`manager-sidebar-link ${activeTab === "users" ? "is-active" : ""}`}
+                    onClick={() => handleSelectTab("users")}
+                  >
+                    <span className="manager-sidebar-link-icon">
+                      <UserIcon size={18} />
+                    </span>
+                    <span className="manager-sidebar-link-label">
+                      Quản lý người dùng
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`manager-sidebar-link ${activeTab === "roles" ? "is-active" : ""}`}
+                    onClick={() => handleSelectTab("roles")}
+                  >
+                    <span className="manager-sidebar-link-icon">
+                      <ShieldCheckIcon size={18} />
+                    </span>
+                    <span className="manager-sidebar-link-label">
+                      Vai trò & Quyền hạn
+                    </span>
+                  </button>
+                </div>
+              </div>
 
-      {activeTab === "roles" ? (
-        <RolesPermissionsSection
-          roles={rolesData}
-          loading={rolesLoading}
-          error={rolesError}
-          byRoleStats={stats.byRole}
-        />
-      ) : (
-        /* Bảng danh sách tài khoản */
-        <Card body className="shadow-sm">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h2 className="h5 mb-0">
-              Danh sách người dùng
-              <Badge bg="secondary" pill className="ms-2" style={{ fontSize: "0.8rem" }}>
-                {users.length}
-              </Badge>
-            </h2>
+              <div className="manager-sidebar-group">
+                <div className="manager-sidebar-group-title">
+                  Bảo mật
+                </div>
+                <div className="manager-sidebar-group-items">
+                  <button
+                    type="button"
+                    className={`manager-sidebar-link ${activeTab === "password" ? "is-active" : ""}`}
+                    onClick={() => handleSelectTab("password")}
+                  >
+                    <span className="manager-sidebar-link-icon">
+                      <LockIcon size={18} />
+                    </span>
+                    <span className="manager-sidebar-link-label">
+                      Đổi mật khẩu
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </nav>
           </div>
+        </aside>
 
-          {/* Bộ lọc tìm kiếm */}
-          <Row className="g-2 mb-3">
-            <Col md={5}>
-              <Form.Control
-                type="text"
-                placeholder="Tìm kiếm theo tên, email, SĐT..."
-                value={filters.search}
-                onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, search: e.target.value }))
-                }
-              />
-            </Col>
-            <Col md={3}>
-              <Form.Select
-                value={filters.role}
-                onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, role: e.target.value }))
-                }
-              >
-                <option value="">Tất cả vai trò</option>
-                {roleFilterOptions.map((r) => (
-                  <option key={r.value} value={r.value}>
-                    {r.label}
-                  </option>
-                ))}
-              </Form.Select>
-            </Col>
-            <Col md={3}>
-              <Form.Select
-                value={filters.status}
-                onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, status: e.target.value }))
-                }
-              >
-                <option value="">Tất cả trạng thái</option>
-                <option value="active">Hoạt động</option>
-                <option value="inactive">Tạm khóa</option>
-              </Form.Select>
-            </Col>
-            <Col md={1} className="d-flex">
-              <Button
-                variant="outline-secondary"
-                className="w-100 d-flex align-items-center justify-content-center"
-                title="Xóa bộ lọc"
-                aria-label="Xóa bộ lọc"
-                onClick={() => setFilters({ search: "", role: "", status: "" })}
-                disabled={!filters.search && !filters.role && !filters.status}
-              >
-                <XIcon size={16} />
-              </Button>
-            </Col>
-          </Row>
-
-          {/* Danh sách người dùng */}
-          {loading ? (
-            <div className="text-center py-5">
-              <Spinner animation="border" variant="primary" role="status" />
-              <div className="text-muted mt-2">Đang tải dữ liệu...</div>
+        <main className="manager-content-container">
+          {activeTab === "password" ? (
+            <div style={{ maxWidth: 580 }}>
+              <ChangePasswordSection />
             </div>
-          ) : error ? (
-            <Alert variant="danger">{error}</Alert>
-          ) : users.length === 0 ? (
-            <div className="text-center py-5 text-muted">
-              <div className="mb-2 text-secondary"><SearchIcon size={44} /></div>
-              <div>Không tìm thấy tài khoản nào khớp với bộ lọc.</div>
-            </div>
+          ) : activeTab === "roles" ? (
+            <RolesPermissionsSection
+              roles={rolesData}
+              loading={rolesLoading}
+              error={rolesError}
+              byRoleStats={stats.byRole}
+            />
           ) : (
-            <div className="table-responsive">
-              <Table hover className="align-middle mb-0">
-                <thead className="table-light">
-                  <tr>
-                    <th>Họ và tên / Email</th>
-                    <th>Số điện thoại</th>
-                    <th>Vai trò</th>
-                    <th>Trạng thái</th>
-                    <th className="text-end pe-3" style={{ minWidth: 210 }}>
-                      Thao tác
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((u) => {
-                    const isSelf =
-                      currentUser && String(currentUser.id) === String(u.id);
-                    return (
-                      <tr key={u.id}>
-                        <td>
-                          <div className="fw-semibold">
-                            {u.fullName}
-                            {isSelf && (
-                              <span
-                                className="badge bg-secondary-subtle text-secondary ms-2"
-                                style={{ fontSize: "0.7rem" }}
-                              >
-                                Bạn
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-muted small">{u.email}</div>
-                        </td>
-                        <td>{u.phone || <span className="text-muted">—</span>}</td>
-                        <td>
-                          <span style={getRoleStyle(u.role)}>
-                            {getRoleLabel(u.role)}
-                          </span>
-                        </td>
-                        <td>
-                          <span style={getStatusStyle(u.status)}>
-                            {u.status === "active" ? "● Hoạt động" : "○ Tạm khóa"}
-                          </span>
-                        </td>
-                        <td className="text-end pe-3">
-                          <Button
-                            variant="outline-secondary"
-                            size="sm"
-                            className="me-2"
-                            onClick={() => handleViewDetail(u)}
-                          >
-                            Chi tiết
-                          </Button>
-                          <Button
-                            variant="outline-primary"
-                            size="sm"
-                            className="me-2"
-                            onClick={() => {
-                              setEditError("");
-                              setEditingUser(u);
-                            }}
-                          >
-                            Sửa
-                          </Button>
-                          <Button
-                            variant={
-                              u.status === "active"
-                                ? "outline-danger"
-                                : "outline-success"
-                            }
-                            size="sm"
-                            disabled={isSelf}
-                            onClick={() => setConfirmToggleUser(u)}
-                            title={
-                              isSelf
-                                ? "Không thể khóa tài khoản của chính bạn"
-                                : ""
-                            }
-                          >
-                            {u.status === "active" ? "Khóa" : "Mở"}
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </Table>
+            <div>
+              <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                  <h1 className="h4 fw-bold mb-1">Quản trị người dùng & Tài khoản</h1>
+                  <p className="text-muted small mb-0">
+                    Tạo tài khoản nội bộ, quản lý vai trò và trạng thái hoạt động của người dùng
+                  </p>
+                </div>
+                <Button
+                  variant="primary"
+                  className="rounded-pill px-4 fw-semibold"
+                  style={{
+                    backgroundColor: "var(--hf-primary)",
+                    borderColor: "var(--hf-primary)",
+                  }}
+                  onClick={() => {
+                    setCreateError("");
+                    setShowCreateModal(true);
+                  }}
+                >
+                  + Tạo tài khoản nội bộ
+                </Button>
+              </div>
+
+              {notice && (
+                <Alert
+                  variant="success"
+                  dismissible
+                  onClose={() => setNotice("")}
+                  className="py-2 small mb-3"
+                >
+                  {notice}
+                </Alert>
+              )}
+
+              <Row className="g-3 mb-4">
+                <Col sm={6} lg={3}>
+                  <Card body className="text-center shadow-sm h-100 rounded-3">
+                    <div className="text-muted small">Tổng tài khoản</div>
+                    <div className="fs-3 fw-bold text-primary mt-1">
+                      {stats.total ?? 0}
+                    </div>
+                  </Card>
+                </Col>
+                <Col sm={6} lg={3}>
+                  <Card body className="text-center shadow-sm h-100 rounded-3">
+                    <div className="text-muted small">Đang hoạt động</div>
+                    <div className="fs-3 fw-bold text-success mt-1">
+                      {stats.byStatus?.active ?? 0}
+                    </div>
+                  </Card>
+                </Col>
+                <Col sm={6} lg={3}>
+                  <Card body className="text-center shadow-sm h-100 rounded-3">
+                    <div className="text-muted small">Tạm khóa</div>
+                    <div className="fs-3 fw-bold text-warning mt-1">
+                      {stats.byStatus?.inactive ?? 0}
+                    </div>
+                  </Card>
+                </Col>
+                <Col sm={6} lg={3}>
+                  <Card body className="text-center shadow-sm h-100 rounded-3">
+                    <div className="text-muted small">Tài khoản nội bộ</div>
+                    <div className="fs-3 fw-bold text-info mt-1">{internalCount}</div>
+                  </Card>
+                </Col>
+              </Row>
+
+              <Card body className="shadow-sm rounded-3">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h2 className="h5 mb-0">
+                    Danh sách người dùng
+                    <Badge
+                      bg="secondary"
+                      pill
+                      className="ms-2"
+                      style={{ fontSize: "0.8rem" }}
+                    >
+                      {users.length}
+                    </Badge>
+                  </h2>
+                </div>
+
+                <Row className="g-2 mb-3">
+                  <Col md={5}>
+                    <Form.Control
+                      type="text"
+                      placeholder="Tìm kiếm theo tên, email, SĐT..."
+                      value={filters.search}
+                      onChange={(e) =>
+                        setFilters((prev) => ({ ...prev, search: e.target.value }))
+                      }
+                    />
+                  </Col>
+                  <Col md={3}>
+                    <Form.Select
+                      value={filters.role}
+                      onChange={(e) =>
+                        setFilters((prev) => ({ ...prev, role: e.target.value }))
+                      }
+                    >
+                      <option value="">Tất cả vai trò</option>
+                      {roleFilterOptions.map((r) => (
+                        <option key={r.value} value={r.value}>
+                          {r.label}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Col>
+                  <Col md={3}>
+                    <Form.Select
+                      value={filters.status}
+                      onChange={(e) =>
+                        setFilters((prev) => ({ ...prev, status: e.target.value }))
+                      }
+                    >
+                      <option value="">Tất cả trạng thái</option>
+                      <option value="active">Hoạt động</option>
+                      <option value="inactive">Tạm khóa</option>
+                    </Form.Select>
+                  </Col>
+                  <Col md={1} className="d-flex">
+                    <Button
+                      variant="outline-secondary"
+                      className="w-100 d-flex align-items-center justify-content-center"
+                      title="Xóa bộ lọc"
+                      aria-label="Xóa bộ lọc"
+                      onClick={() => setFilters({ search: "", role: "", status: "" })}
+                      disabled={!filters.search && !filters.role && !filters.status}
+                    >
+                      <XIcon size={16} />
+                    </Button>
+                  </Col>
+                </Row>
+
+                {loading ? (
+                  <div className="text-center py-5">
+                    <Spinner animation="border" variant="primary" role="status" />
+                    <div className="text-muted mt-2">Đang tải dữ liệu...</div>
+                  </div>
+                ) : error ? (
+                  <Alert variant="danger">{error}</Alert>
+                ) : users.length === 0 ? (
+                  <div className="text-center py-5 text-muted">
+                    <div className="mb-2 text-secondary">
+                      <SearchIcon size={44} />
+                    </div>
+                    <div>Không tìm thấy tài khoản nào khớp với bộ lọc.</div>
+                  </div>
+                ) : (
+                  <div className="table-responsive">
+                    <Table hover className="align-middle mb-0">
+                      <thead className="table-light">
+                        <tr>
+                          <th>Họ và tên / Email</th>
+                          <th>Số điện thoại</th>
+                          <th>Vai trò</th>
+                          <th>Trạng thái</th>
+                          <th className="text-end pe-3" style={{ minWidth: 210 }}>
+                            Thao tác
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {users.map((u) => {
+                          const isSelf =
+                            currentUser && String(currentUser.id) === String(u.id);
+                          return (
+                            <tr key={u.id}>
+                              <td>
+                                <div className="fw-semibold">
+                                  {u.fullName}
+                                  {isSelf && (
+                                    <span
+                                      className="badge bg-secondary-subtle text-secondary ms-2"
+                                      style={{ fontSize: "0.7rem" }}
+                                    >
+                                      Bạn
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-muted small">{u.email}</div>
+                              </td>
+                              <td>{u.phone || <span className="text-muted">—</span>}</td>
+                              <td>
+                                <span style={getRoleStyle(u.role)}>
+                                  {getRoleLabel(u.role)}
+                                </span>
+                              </td>
+                              <td>
+                                <span style={getStatusStyle(u.status)}>
+                                  {u.status === "active" ? "● Hoạt động" : "○ Tạm khóa"}
+                                </span>
+                              </td>
+                              <td className="text-end pe-3">
+                                <Button
+                                  variant="outline-secondary"
+                                  size="sm"
+                                  className="me-2 rounded-pill"
+                                  onClick={() => handleViewDetail(u)}
+                                >
+                                  Chi tiết
+                                </Button>
+                                <Button
+                                  variant="outline-primary"
+                                  size="sm"
+                                  className="me-2 rounded-pill"
+                                  onClick={() => {
+                                    setEditError("");
+                                    setEditingUser(u);
+                                  }}
+                                >
+                                  Sửa
+                                </Button>
+                                <Button
+                                  variant={
+                                    u.status === "active"
+                                      ? "outline-danger"
+                                      : "outline-success"
+                                  }
+                                  size="sm"
+                                  className="rounded-pill"
+                                  disabled={isSelf}
+                                  onClick={() => setConfirmToggleUser(u)}
+                                  title={
+                                    isSelf
+                                      ? "Không thể khóa tài khoản của chính bạn"
+                                      : ""
+                                  }
+                                >
+                                  {u.status === "active" ? "Khóa" : "Mở"}
+                                </Button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </Table>
+                  </div>
+                )}
+              </Card>
             </div>
           )}
-        </Card>
-      )}
+        </main>
+      </div>
 
-      {/* Modal Xem chi tiết tài khoản */}
       <UserDetailModal
         show={showDetailModal}
         userDetail={detailUser}
@@ -435,7 +524,6 @@ export function AdminPage() {
         }}
       />
 
-      {/* Modal Tạo tài khoản nội bộ */}
       <Modal
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}
@@ -457,7 +545,6 @@ export function AdminPage() {
         </Modal.Body>
       </Modal>
 
-      {/* Modal Sửa tài khoản */}
       <Modal
         show={Boolean(editingUser)}
         onHide={() => setEditingUser(null)}
@@ -486,7 +573,6 @@ export function AdminPage() {
         </Modal.Body>
       </Modal>
 
-      {/* Hộp thoại xác nhận Khóa / Mở khóa */}
       <ConfirmDialog
         show={Boolean(confirmToggleUser)}
         title={
