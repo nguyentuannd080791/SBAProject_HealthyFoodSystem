@@ -28,6 +28,10 @@ export function ProductHealthAlert({ screeningResult }) {
     (v) => !v.startsWith("Dị ứng:"),
   );
 
+  if (allergyViolations.length === 0 && conditionViolations.length === 0) {
+    return null;
+  }
+
   return (
     <Alert
       variant={allergyViolations.length > 0 ? "danger" : "warning"}

@@ -125,6 +125,11 @@ public class ClinicalScreeningServiceImpl implements ClinicalScreeningService {
         }
 
         UserClinicalProfile profile = profileOpt.get();
+        boolean hasNoConditions = profile.getConditions() == null || profile.getConditions().isEmpty();
+        boolean hasNoAllergies = profile.getAllergicIngredients() == null || profile.getAllergicIngredients().isEmpty();
+        if (hasNoConditions && hasNoAllergies) {
+            return buildSafeResult(product);
+        }
         Set<Integer> allergicIngredientIds = profile.getAllergicIngredients().stream()
                 .map(Ingredient::getId)
                 .collect(Collectors.toSet());
@@ -145,6 +150,11 @@ public class ClinicalScreeningServiceImpl implements ClinicalScreeningService {
         }
 
         UserClinicalProfile profile = profileOpt.get();
+        boolean hasNoConditions = profile.getConditions() == null || profile.getConditions().isEmpty();
+        boolean hasNoAllergies = profile.getAllergicIngredients() == null || profile.getAllergicIngredients().isEmpty();
+        if (hasNoConditions && hasNoAllergies) {
+            return products.stream().map(this::buildSafeResult).collect(Collectors.toList());
+        }
         Set<Integer> allergicIngredientIds = profile.getAllergicIngredients().stream()
                 .map(Ingredient::getId)
                 .collect(Collectors.toSet());
