@@ -21,8 +21,8 @@ public interface ManagerOrderRepository extends JpaRepository<Payment, String> {
               and (:search = '' or lower(o.customerName) like concat('%', lower(:search), '%')
                    or lower(concat('HF-', o.id)) like concat('%', lower(:search), '%')
                    or lower(p.paymentCode) like concat('%', lower(:search), '%'))
-              and (:fromDate is null or o.createdAt >= :fromDate)
-              and (:toDate is null or o.createdAt < :toDate)
+              and (cast(:fromDate as instant) is null or o.createdAt >= :fromDate)
+              and (cast(:toDate as instant) is null or o.createdAt < :toDate)
             order by o.createdAt desc, o.id desc
             """)
     Page<ManagerOrderSummaryResponse> search(

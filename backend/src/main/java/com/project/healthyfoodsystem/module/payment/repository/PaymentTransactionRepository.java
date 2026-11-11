@@ -31,8 +31,8 @@ public interface PaymentTransactionRepository extends JpaRepository<PaymentTrans
                or lower(coalesce(t.content, '')) like concat('%', lower(:search), '%')
                or coalesce(t.accountNumber, '') like concat('%', :search, '%')
                or cast(t.id as string) = :search)
-          and (:fromDate is null or t.receivedAt >= :fromDate)
-          and (:toDate is null or t.receivedAt < :toDate)
+          and (cast(:fromDate as instant) is null or t.receivedAt >= :fromDate)
+          and (cast(:toDate as instant) is null or t.receivedAt < :toDate)
         order by t.receivedAt desc, t.id desc
         """)
     Page<PaymentTransaction> search(@Param("filter") String filter,
